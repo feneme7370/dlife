@@ -1,0 +1,29 @@
+<?php
+
+namespace App\Models\Page;
+
+use Illuminate\Database\Eloquent\Model;
+
+class BookGenre extends Model
+{
+    protected $fillable = [
+        'name',
+        'slug',
+        'name_general',
+        'slug_general',
+
+        'description', 
+
+        'cover_image',
+        'cover_image_url',
+
+        'uuid',
+        'user_id',
+    ];
+
+    // pertenece a un usuario
+    public function user()
+    {
+        return $this->belongsTo(\App\Models\User::class, 'user_id', 'id');
+    }
+}
