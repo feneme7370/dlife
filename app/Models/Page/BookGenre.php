@@ -26,4 +26,10 @@ class BookGenre extends Model
     {
         return $this->belongsTo(\App\Models\User::class, 'user_id', 'id');
     }
+
+    // tiene muchos libros para relacionarse
+    public function books(){
+        return $this->belongsToMany(\App\Models\Page\Book::class, 'book_book_genres')
+                    ->withTimestamps();
+    }
 }

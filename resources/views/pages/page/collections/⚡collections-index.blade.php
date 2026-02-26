@@ -104,7 +104,7 @@ new class extends Component
                 <div class="flex items-center gap-3">
                     <img src="{{ $item->cover_image_url }}" class="w-8 h-8 bg-cover rounded-sm" alt="">
                     <p><a class="hover:underline" href="{{ route('collections.show', ['collectionUuid' => $item->uuid]) }}">{{ $item->name }}</p></a>
-                    <p class="text-xs italic text-gray-600">{{ $item->books_amount . ' libro(s)'}} - {{ $item->movies_amount . ' pelicula(s)'}}</p>
+                    <p class="text-xs italic text-gray-700 dark:text-gray-300">{{ $item->books_amount . ' libro(s)'}} - {{ $item->movies_amount . ' pelicula(s)'}}</p>
                 </div>
 
                 <div class="flex items-center justify-center">

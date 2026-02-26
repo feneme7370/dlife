@@ -106,7 +106,7 @@ new class extends Component
                 <div class="flex items-center gap-3">
                     <img src="{{ $item->cover_image_url }}" class="w-8 h-8 bg-cover rounded-sm" alt="">
                     <p><a class="hover:underline" href="{{ route('book-genres.show', ['bookGenreUuid' => $item->uuid]) }}">{{ $item->name }}</p></a>
-                    <p class="text-xs italic text-gray-600">{{ $item->name_general }}</p>
+                    <p class="text-xs italic text-gray-700 dark:text-gray-300">{{ $item->name_general }}</p>
                 </div>
 
                 <div class="flex items-center justify-center">

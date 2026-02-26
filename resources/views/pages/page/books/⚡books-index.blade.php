@@ -1,6 +1,6 @@
 <?php
 
-use App\Models\Page\Subject;
+use App\Models\Page\Book;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -12,7 +12,7 @@ new class extends Component
     use WithPagination;
 
     // propiedades para paginacion y orden, actualizar al buscar
-    public $search = '', $sortField = 'name', $sortDirection = 'asc', $perPage = 10000;
+    public $search = '', $sortField = 'title', $sortDirection = 'asc', $perPage = 10000;
     public function updatingSearch(){$this->resetPage();}
 
     // funcion para ordenar la tabla
@@ -27,15 +27,16 @@ new class extends Component
 
     // propiedades de item y titulos
     public $file;
-    public $subjects;
-    public $title = 'Sujetos';
-    public $subtitle = 'Listado de sujetos';
+    public $books;
+    public $title = 'Libros';
+    public $subtitle = 'Listado de libros';
 
     // consulta de item
-    public function querySubjects(){
-        return Subject::where('user_id', Auth::id())
+    public function queryBooks(){
+        return Book::where('user_id', Auth::id())
+            ->with(['book_subjects', 'book_book_genres', 'book_collections', 'book_reads'])
             ->where(function ($query) {
-                $query->where('name', 'like', "%{$this->search}%")
+                $query->where('title', 'like', "%{$this->search}%")
                       ->orWhere('slug', 'like', "%{$this->search}%");
             })
             ->orderBy($this->sortField, $this->sortDirection)
@@ -44,7 +45,7 @@ new class extends Component
 
     // eliminar item
     public function deleteItem($codigo){
-        $item = Subject::where('user_id', Auth::id())->where('uuid', $codigo)->first();
+        $item = Book::where('user_id', Auth::id())->where('uuid', $codigo)->first();
         $item->delete();
     }
 
@@ -77,7 +78,7 @@ new class extends Component
     <div>
         <flux:main container class="mb-1 space-y-1">
             <flux:heading size="xl" level="1">
-                <a href="{{ route('subjects.create') }}"><flux:button size="xs" variant="ghost" icon="plus"></flux:button></a>
+                <a href="{{ route('books.create') }}"><flux:button size="xs" variant="ghost" icon="plus"></flux:button></a>
                 {{ $this->title }}
             </flux:heading>
             <flux:text class="text-base">{{ $this->subtitle }}</flux:text>
@@ -96,19 +97,46 @@ new class extends Component
         <flux:input type="text" label="Buscar" wire:model.live.debounce.250ms="search" placeholder="Buscar" autofocus/>
     </div>
 
-    {{-- listado de sujetos --}}
+    {{-- listado de libros --}}
     <div class="space-y-2">
-        @foreach ($this->querySubjects() as $item)
+        @foreach ($this->queryBooks() as $item)
             <div class="flex items-center justify-between">
 
-                <div class="flex items-center gap-3">
-                    <img src="{{ $item->cover_image_url }}" class="w-8 h-8 bg-cover rounded-sm" alt="">
-                    <p><a class="hover:underline" href="{{ route('subjects.show', ['subjectUuid' => $item->uuid]) }}">{{ $item->name }}</p></a>
-                    <p class="text-xs italic text-gray-700 dark:text-gray-300">{{ $item->country }} - {{ $item->birthdate }}</p>
+                <div class="flex flex-wrap items-center gap-3">
+                    <img src="{{ $item->cover_image_url }}" class="h-12 object-cover rounded-sm" alt="">
+                    <p><a class="hover:underline" href="{{ route('books.show', ['bookUuid' => $item->uuid]) }}">{{ $item->title }}</p></a>
+                    {{-- <flux:badge rounded icon="user" as="button" color="violet" size="sm">
+                        @foreach ($item->book_subjects as $subject)
+                            <a href="#" class="hover:underline mr-1">{{ $subject->name }}</a>
+                        @endforeach
+                    </flux:badge>
+                    <span class="text-xs text-gray-800">
+                        @foreach ($item->book_collections as $collection)
+                            <flux:badge rounded icon="numbered-list" as="button" color="purple" size="sm">
+                                <a href="#" class="hover:underline">{{ $collection->name }}</a>
+                            </flux:badge>
+                        @endforeach
+                    </span>
+                    <span class="text-xs text-gray-800">
+                        @foreach ($item->book_book_genres as $book_genre)
+                            <flux:badge rounded icon="list-bullet" as="button" color="fuchsia" size="sm">
+                                <a href="#" class="hover:underline">{{ $book_genre->name_general }} / {{ $book_genre->name }}</a>
+                            </flux:badge>
+                        @endforeach
+                    </span> --}}
+                    <p class="text-xs italic text-gray-700 dark:text-gray-300">
+                        ({{ $item->release_date }}) - 
+                        {{ $item->pages }} pags. | 
+                        {{ $item->is_favorite ? '❤️' : ''}}
+                        {{ $item->is_abandonated ? '🚫' : ''}}
+                        {{ $item->summary_clear ? '🗒️' : ''}}
+                        {{ $item->notes_clear ? '✍️' : ''}}
+                        {{ $item->book_reads->first() ? '✅' : ''}}
+                    </p>
                 </div>
 
                 <div class="flex items-center justify-center">
-                        <a href="{{ route('subjects.edit', ['subjectUuid' => $item->uuid]) }}"><flux:button size="xs" variant="ghost" icon="pencil-square"></flux:button></a>
+                        <a href="{{ route('books.edit', ['bookUuid' => $item->uuid]) }}"><flux:button size="xs" variant="ghost" icon="pencil-square"></flux:button></a>
                         <a><flux:button size="xs" variant="ghost" icon="trash" wire:confirm="Quiere eliminar?" wire:click="deleteItem('{{ $item->uuid }}')"></flux:button></a>
                 </div>
 
@@ -118,15 +146,15 @@ new class extends Component
 
     {{-- paginacion --}}
     <div class="mt-3">
-        {{ $this->querySubjects()->links() }}
+        {{ $this->queryBooks()->links() }}
     </div>
 
     {{-- exportacion e importacion de excel --}}
     <flux:separator class="mb-2 mt-10" variant="subtle" />
     <div class="flex justify-between items-center gap-1">
-        <flux:button icon="cloud-arrow-down" class="text-xs text-center" wire:click="export('subjects')">Exp.</flux:button>
+        <flux:button icon="cloud-arrow-down" class="text-xs text-center" wire:click="export('books')">Exp.</flux:button>
         <div class="flex gap-3">
-            <flux:button icon="cloud-arrow-up" class="text-xs text-center" wire:click="import('subjects')">Imp.</flux:button>
+            <flux:button icon="cloud-arrow-up" class="text-xs text-center" wire:click="import('books')">Imp.</flux:button>
             <flux:input type="file" wire:model="file" />
         </div>
     </div>

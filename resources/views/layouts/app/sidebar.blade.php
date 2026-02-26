@@ -11,18 +11,37 @@
             </flux:sidebar.header>
 
             <flux:sidebar.nav>
-                <flux:sidebar.group :heading="__('Platform')" class="grid">
+                <flux:sidebar.group :heading="__('Inicio')" class="grid">
                     <flux:sidebar.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>
                         {{ __('Dashboard') }}
                     </flux:sidebar.item>
+                </flux:sidebar.group>
+
+            <flux:spacer />
+
+                <flux:sidebar.group :heading="__('Libros')" class="grid">
+                    <flux:sidebar.item icon="book-open" :href="route('books.index')" :current="request()->routeIs('books.index')" wire:navigate>
+                        {{ __('Libros') }}
+                    </flux:sidebar.item>
+                    <flux:sidebar.item icon="bookmark" :href="route('books_library.index')" :current="request()->routeIs('books_library.index')" wire:navigate>
+                        {{ __('Libreria') }}
+                    </flux:sidebar.item>
+                    <flux:sidebar.item icon="chart-bar" :href="route('books_data.index')" :current="request()->routeIs('books_data.index')" wire:navigate>
+                        {{ __('Datos') }}
+                    </flux:sidebar.item>
+                    <flux:sidebar.item icon="list-bullet" :href="route('book-genres.index')" :current="request()->routeIs('book-genres.index')" wire:navigate>
+                        {{ __('Generos') }}
+                    </flux:sidebar.item>
+                </flux:sidebar.group>
+
+            <flux:spacer />
+
+                <flux:sidebar.group :heading="__('Datos Generales')" class="grid">
                     <flux:sidebar.item icon="user" :href="route('subjects.index')" :current="request()->routeIs('subjects.index')" wire:navigate>
                         {{ __('Sujetos') }}
                     </flux:sidebar.item>
                     <flux:sidebar.item icon="numbered-list" :href="route('collections.index')" :current="request()->routeIs('collections.index')" wire:navigate>
                         {{ __('Colecciones') }}
-                    </flux:sidebar.item>
-                    <flux:sidebar.item icon="list-bullet" :href="route('book-genres.index')" :current="request()->routeIs('book-genres.index')" wire:navigate>
-                        {{ __('Generos') }}
                     </flux:sidebar.item>
                 </flux:sidebar.group>
             </flux:sidebar.nav>
