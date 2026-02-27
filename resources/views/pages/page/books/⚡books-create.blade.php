@@ -4,7 +4,6 @@ use App\Models\Page\Book;
 use App\Models\Page\BookGenre;
 use App\Models\Page\Collection;
 use App\Models\Page\Subject;
-use Livewire\Attributes\Computed;
 use Livewire\Component;
 
 new class extends Component
@@ -135,6 +134,52 @@ new class extends Component
         // redireccionar
         $this->redirectRoute('books.index', navigate:true);
     }
+
+    // store para crear una coleccion
+    public $name_collection;
+    public $books_amount_collection;
+    public $movies_amount_collection;
+    public function storeCollection(){
+        $this->validate([
+            'name_collection' => ['required', 'string', 'max:255'],
+            'books_amount_collection' => ['nullable', 'numeric'],
+            'movies_amount_collection' => ['nullable', 'numeric'],
+        ]);
+
+        // crear en BD
+        Collection::create([
+            'name' => trim($this->name_collection),
+            'books_amount' => $this->books_amount_collection ?? 0,
+            'movies_amount' => $this->movies_amount_collection ?? 0,
+            'slug' => \Illuminate\Support\Str::slug(trim($this->name_collection) . '-' . \Illuminate\Support\Str::random(4)),
+            'uuid' => \Illuminate\Support\Str::random(24),
+            'user_id' => \Illuminate\Support\Facades\Auth::id(),
+        ]);
+
+        $this->reset('name_collection', 'books_amount_collection', 'movies_amount_collection', 'selected_book_collections');
+        $this->book_collections();
+        $this->modal('add-collection')->close();
+    }
+
+    // store para crear un sujeto
+    public $name_subject;
+    public function storeSubject(){
+        $this->validate([
+            'name_subject' => ['required', 'string', 'max:255'],
+        ]);
+
+        // crear en BD
+        Subject::create([
+            'name' => trim($this->name_subject),
+            'slug' => \Illuminate\Support\Str::slug(trim($this->name_subject) . '-' . \Illuminate\Support\Str::random(4)),
+            'uuid' => \Illuminate\Support\Str::random(24),
+            'user_id' => \Illuminate\Support\Facades\Auth::id(),
+        ]);
+
+        $this->reset('name_subject', 'selected_book_subjects');
+        $this->book_collections();
+        $this->modal('add-subject')->close();
+    }
 };
 ?>
 
@@ -215,12 +260,25 @@ new class extends Component
             @endforeach
         </flux:select>
 
-        <flux:select wire:model="selected_book_collections" label="Saga">
+        <div class="flex items-center gap-1">
+            <flux:modal.trigger name="add-collection">
+                <flux:button size="xs" variant="ghost" icon="plus"></flux:button>
+            </flux:modal.trigger>
+            <flux:label>Saga</flux:label>
+        </div>
+        <flux:select wire:model="selected_book_collections">
             <option value="">Seleccionar saga</option>
             @foreach ($this->book_collections() as $item)
                 <option value="{{ $item->id }}">{{ $item->name }}</option>
             @endforeach
         </flux:select>
+
+        <div class="flex items-center gap-1">
+            <flux:modal.trigger name="add-subject">
+                <flux:button size="xs" variant="ghost" icon="plus"></flux:button>
+                <flux:label>Autor</flux:label>
+            </flux:modal.trigger>
+        </div>
 
         <flux:checkbox.group wire:model.live="selected_book_subjects" :label="'Autor(es) '.count($selected_book_subjects)">
             <div class="h-40 overflow-scroll space-y-1">
@@ -255,4 +313,61 @@ new class extends Component
 
         <flux:button icon="plus" wire:click="storeItem">Agregar</flux:button>
     </div>
+
+
+        <flux:modal name="add-collection" class="md:w-96">
+            <div class="space-y-6">
+                <div>
+                    <flux:heading size="lg">Crear saga</flux:heading>
+                    <flux:text class="mt-2">Cree una saga que no este en el listado.</flux:text>
+                </div>
+
+                <flux:input label="Nombre" placeholder="Nombre de la saga" wire:model="name_collection" autofocus/>
+                <flux:input type="number" label="Numero de libros" placeholder="Cantidad de libros" wire:model="books_amount_collection"/>
+                <flux:input type="number" label="Numero de peliculas" placeholder="Cantidad de peliculas" wire:model="movies_amount_collection"/>
+
+                <div class="flex">
+                    <flux:spacer />
+
+                @if ($errors->any())
+                    <div class="bg-red-100 border border-red-400 text-red-700 p-1 rounded">
+                        <ul>
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
+                    <flux:button wire:click="storeCollection" variant="primary">Agregar</flux:button>
+                </div>
+            </div>
+        </flux:modal>
+
+        <flux:modal name="add-subject" class="md:w-96">
+            <div class="space-y-6">
+                <div>
+                    <flux:heading size="lg">Crear autor</flux:heading>
+                    <flux:text class="mt-2">Cree un autor que no este en el listado.</flux:text>
+                </div>
+
+                <flux:input label="Nombre" placeholder="Nombre del autor" wire:model="name_subject" autofocus/>
+
+                <div class="flex">
+                    <flux:spacer />
+
+                @if ($errors->any())
+                    <div class="bg-red-100 border border-red-400 text-red-700 p-1 rounded">
+                        <ul>
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
+                    <flux:button wire:click="storeSubject" variant="primary">Agregar</flux:button>
+                </div>
+            </div>
+        </flux:modal>
 </div>

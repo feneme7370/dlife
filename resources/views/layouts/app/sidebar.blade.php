@@ -26,11 +26,16 @@
                     <flux:sidebar.item icon="bookmark" :href="route('books_library.index')" :current="request()->routeIs('books_library.index')" wire:navigate>
                         {{ __('Libreria') }}
                     </flux:sidebar.item>
-                    <flux:sidebar.item icon="chart-bar" :href="route('books_data.index')" :current="request()->routeIs('books_data.index')" wire:navigate>
-                        {{ __('Datos') }}
-                    </flux:sidebar.item>
                     <flux:sidebar.item icon="list-bullet" :href="route('book-genres.index')" :current="request()->routeIs('book-genres.index')" wire:navigate>
                         {{ __('Generos') }}
+                    </flux:sidebar.item>
+                </flux:sidebar.group>
+
+            <flux:spacer />
+
+                <flux:sidebar.group :heading="__('Diario')" class="grid">
+                    <flux:sidebar.item icon="pencil" :href="route('diaries.index')" :current="request()->routeIs('diaries.index')" wire:navigate>
+                        {{ __('Diario') }}
                     </flux:sidebar.item>
                 </flux:sidebar.group>
 

@@ -27,6 +27,7 @@ new class extends Component
 
     // propiedades de item y titulos
     public $file;
+    public $file2;
     public $books;
     public $title = 'Libros';
     public $subtitle = 'Listado de libros';
@@ -89,8 +90,12 @@ new class extends Component
             </flux:breadcrumbs>
     
             <flux:separator variant="subtle" />
+
+            <flux:badge color="violet"><a href="{{ route('books_data.index') }}">Estadisticas</a></flux:badge>
+            <flux:badge color="purple"><a href="{{ route('books_incomplete.index') }}">Pendientes</a></flux:badge>
         </flux:main>
     </div>
+
 
     {{-- buscador --}}
     <div class="mb-3">
@@ -105,25 +110,6 @@ new class extends Component
                 <div class="flex flex-wrap items-center gap-3">
                     <img src="{{ $item->cover_image_url }}" class="h-12 object-cover rounded-sm" alt="">
                     <p><a class="hover:underline" href="{{ route('books.show', ['bookUuid' => $item->uuid]) }}">{{ $item->title }}</p></a>
-                    {{-- <flux:badge rounded icon="user" as="button" color="violet" size="sm">
-                        @foreach ($item->book_subjects as $subject)
-                            <a href="#" class="hover:underline mr-1">{{ $subject->name }}</a>
-                        @endforeach
-                    </flux:badge>
-                    <span class="text-xs text-gray-800">
-                        @foreach ($item->book_collections as $collection)
-                            <flux:badge rounded icon="numbered-list" as="button" color="purple" size="sm">
-                                <a href="#" class="hover:underline">{{ $collection->name }}</a>
-                            </flux:badge>
-                        @endforeach
-                    </span>
-                    <span class="text-xs text-gray-800">
-                        @foreach ($item->book_book_genres as $book_genre)
-                            <flux:badge rounded icon="list-bullet" as="button" color="fuchsia" size="sm">
-                                <a href="#" class="hover:underline">{{ $book_genre->name_general }} / {{ $book_genre->name }}</a>
-                            </flux:badge>
-                        @endforeach
-                    </span> --}}
                     <p class="text-xs italic text-gray-700 dark:text-gray-300">
                         ({{ $item->release_date }}) - 
                         {{ $item->pages }} pags. | 

@@ -63,7 +63,7 @@ new class extends Component
             | {{$book->pages ?? 1}} Pags.
         </p>
 
-        <p class="mt-3 text-sm sm:text-base text-gray-800 dark:text-gray-300 whitespace-pre-wrap font-light">{{ $book->synopsis }}</p>
+        <p class="mt-3 text-xs sm:text-sm text-gray-800 dark:text-gray-300 whitespace-pre-wrap font-light" style="white-space: pre-line;">{{ $book->synopsis }}</p>
 
         <flux:separator text="Asociaciones" />
 
@@ -124,14 +124,14 @@ new class extends Component
         @if ($book->summary_clear)
             <div class="text-sm text-gray-800 dark:text-gray-300">
                 <p class="text-lg sm:text-xl font-bold text-gray-900 dark:text-gray-300">Resumen 🗒️</p>
-                <p>{{ $book->summary_clear }}</p>
+                <p style="white-space: pre-line;">{{ $book->summary_clear }}</p>
             </div>
         @endif
 
         @if ($book->notes_clear)
             <div class="text-sm text-gray-800 dark:text-gray-300">
                 <p class="text-lg sm:text-xl font-bold text-gray-900 dark:text-gray-300">Reseña ✍️</p>
-                <p>{{ $book->notes_clear }}</p>
+                <p style="white-space: pre-line;">{{ $book->notes_clear }}</p>
             </div>
         @endif
 

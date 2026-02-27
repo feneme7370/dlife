@@ -44,21 +44,6 @@ new class extends Component
             ->get();
     }
 
-    // libros totales pendientes de leer
-    public function toRead(){
-        return $this->books->filter(fn($book) => !$book->book_reads->count() > 0);
-    }
-
-    // libros totales abandonados
-    public function abandonatedBooks(){
-        return $this->books->filter(fn($book) => $book->is_abandonated == true);
-    }
-
-    // libros totales pendientes de comentar
-    public function toComment(){
-        return $this->books->filter(fn($book) => !$book->notes_clear != '' || !$book->notes_clear != null);
-    }
-
     // libros dentro del rango de año y no abandonados
     public function booksYear(){
         $year_start = $this->year_start;
@@ -98,7 +83,7 @@ new class extends Component
     public function monthReads(){
         $year_end = $this->year_end;
         $months = collect(range(1, 12))->mapWithKeys(fn ($m) => [str_pad($m, 2, '0', STR_PAD_LEFT) => 0]);
-        return $this->books
+        return $this->booksYear()
             ->flatMap(function ($book) use ($year_end) {
                 return $book->book_reads
                     ->filter(fn ($read) => $read->end_read && \Carbon\Carbon::parse($read->end_read)->year == $year_end)
@@ -201,10 +186,17 @@ new class extends Component
     
             <flux:breadcrumbs>
                 <flux:breadcrumbs.item href="{{ route('dashboard') }}">Dashboard</flux:breadcrumbs.item>
+                <flux:breadcrumbs.item href="{{ route('books.index') }}">Libros</flux:breadcrumbs.item>
                 <flux:breadcrumbs.item>{{ $this->title }}</flux:breadcrumbs.item>
             </flux:breadcrumbs>
     
             <flux:separator variant="subtle" />
+
+            {{-- links para pendientes y estadisticas --}}
+            <div class="mt-1">
+                <flux:badge color="violet"><a href="{{ route('books.index') }}">Libros</a></flux:badge>
+                <flux:badge color="purple"><a href="{{ route('books_incomplete.index') }}">Pendientes</a></flux:badge>
+            </div>
         </flux:main>
     </div>
 
@@ -350,42 +342,6 @@ new class extends Component
             @if ($total)
                 <span class="text-xs italic">({{ $total }})</span>
             @endif
-        </flux:text>
-    @endforeach
-
-    {{-- pentientes totales de comentar de cualquier año --}}
-    <flux:separator text="✍️ Pendientes totales de comentar" />
-    <p>Listado con pendientes de comentar ({{ $this->toComment()->count() }})</p>
-    @foreach ($this->toComment() as $item)
-        <flux:text class="mt-2">
-            <a
-                class="hover:underline" 
-                href="{{ route('books.show', ['bookUuid' => $item['uuid']]) }}"
-            >🗒️ {{ $item['title'] }}</a>
-        </flux:text>
-    @endforeach
-
-    {{-- abandonados totales de cualquier año --}}
-    <flux:separator text="🚫 Libros abandonados" />
-    <p>Listado de abandonados ({{ $this->abandonatedBooks()->count() }})</p>
-    @foreach ($this->abandonatedBooks() as $item)
-        <flux:text class="mt-2">
-            <a
-                class="hover:underline" 
-                href="{{ route('books.show', ['bookUuid' => $item['uuid']]) }}"
-            >🗒️ {{ $item['title'] }}</a>
-        </flux:text>
-    @endforeach
-
-    {{-- pendientes totales a leer de cualquier año --}}
-    <flux:separator text="📖 Pendientes totales a leer" />
-    <p>Listado con pendientes de leer ({{ $this->toRead()->count() }})</p>
-    @foreach ($this->toRead() as $item)
-        <flux:text class="mt-2">
-            <a
-                class="hover:underline" 
-                href="{{ route('books.show', ['bookUuid' => $item['uuid']]) }}"
-            >🗒️ {{ $item['title'] }}</a>
         </flux:text>
     @endforeach
 </div>
