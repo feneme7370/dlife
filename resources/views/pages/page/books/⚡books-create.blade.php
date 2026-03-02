@@ -120,6 +120,7 @@ new class extends Component
         $book->book_collections()->sync($this->selected_book_collections);
         $book->book_book_genres()->sync($this->selected_book_book_genres);
 
+        // agregar read de libro
         if($this->start_read || $this->end_read){
             \App\Models\Page\BookRead::create([
                 'user_id' => \Illuminate\Support\Facades\Auth::id(),
@@ -128,6 +129,22 @@ new class extends Component
                 'end_read' => $this->end_read,
             ]);
         };
+
+        // agregar tags
+        $tagIds = [];
+        foreach ($this->selected_book_btags as $tagName) {
+            $tag = \App\Models\Page\Btag::firstOrCreate(
+                ['name' => $tagName],
+                [
+                    'slug' => \Illuminate\Support\Str::slug($tagName),
+                    'uuid' => \Illuminate\Support\Str::random(24),
+                    'user_id' => \Illuminate\Support\Facades\Auth::id(),
+                ]
+            );
+
+            $tagIds[] = $tag->id;
+        }
+        $book->book_btags()->sync($tagIds);
 
         session()->flash('success', 'Creado correctamente');
 
@@ -147,7 +164,7 @@ new class extends Component
         ]);
 
         // crear en BD
-        Collection::create([
+        $s = Collection::create([
             'name' => trim($this->name_collection),
             'books_amount' => $this->books_amount_collection ?? 0,
             'movies_amount' => $this->movies_amount_collection ?? 0,
@@ -158,6 +175,7 @@ new class extends Component
 
         $this->reset('name_collection', 'books_amount_collection', 'movies_amount_collection', 'selected_book_collections');
         $this->book_collections();
+        $this->selected_book_collections[] = $s->id;
         $this->modal('add-collection')->close();
     }
 
@@ -169,7 +187,7 @@ new class extends Component
         ]);
 
         // crear en BD
-        Subject::create([
+        $s = Subject::create([
             'name' => trim($this->name_subject),
             'slug' => \Illuminate\Support\Str::slug(trim($this->name_subject) . '-' . \Illuminate\Support\Str::random(4)),
             'uuid' => \Illuminate\Support\Str::random(24),
@@ -178,7 +196,34 @@ new class extends Component
 
         $this->reset('name_subject', 'selected_book_subjects');
         $this->book_collections();
+        $this->selected_book_subjects[] = $s->id;
         $this->modal('add-subject')->close();
+    }
+
+
+    // store para crear tags
+    public $name_tag;
+    public $newTag = '';   // input actual
+    public $selected_book_btags = [];     // array de tags agregados
+
+    public function addTag()
+    {
+        $formatted = \Illuminate\Support\Str::of($this->newTag)
+            ->lower()
+            ->title()
+            ->replace(' ', '');
+
+        if ($formatted && !in_array($formatted, $this->selected_book_btags)) {
+            $this->selected_book_btags[] = $formatted;
+        }
+
+        $this->newTag = '';
+    }
+
+    public function removeTag($index)
+    {
+        unset($this->selected_book_btags[$index]);
+        $this->selected_book_btags = array_values($this->selected_book_btags); // reindexa
     }
 };
 ?>
@@ -287,6 +332,18 @@ new class extends Component
                 @endforeach
             </div>
         </flux:checkbox.group>
+
+        <flux:input type="text" label="Etiquetas" wire:model="newTag" wire:keydown.space.prevent="addTag" placeholder="Agregue etiquetas" />
+        <div class="flex gap-2 mt-2">
+            @foreach($selected_book_btags as $index => $tag)
+                <flux:badge size="sm" color="purple">
+                    <button class="mr-2" wire:click="removeTag({{ $index }})">
+                        x
+                    </button>
+                    #{{ $tag }}
+                </flux:badge>
+            @endforeach
+        </div>
 
         <flux:textarea
             label="Resumen General 🗒️"

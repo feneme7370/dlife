@@ -57,6 +57,12 @@ class Book extends Model
                     ->withTimestamps();
     }
 
+    // tiene muchos collections para relacionarse
+    public function book_btags(){
+        return $this->belongsToMany(\App\Models\Page\Btag::class, 'book_btag')
+                    ->withTimestamps();
+    }
+
     // tiene muchas lecturas
     public function book_reads(){
         return $this->hasMany(BookRead::class);

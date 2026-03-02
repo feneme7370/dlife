@@ -58,6 +58,12 @@ new class extends Component
         return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\GenericExport($data, $table),"{$table}.xlsx");
     }
 
+    // exportar tabla cruda a excel
+    public function exportComplete()
+    {
+        return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\BooksExport, 'books_info.xlsx');
+    }
+
     // importar tabla cruda de excel
     public function import($table)
     {
@@ -66,6 +72,20 @@ new class extends Component
         ]);
 
         \Maatwebsite\Excel\Facades\Excel::import(new \App\Imports\GenericImport($table), $this->file);
+
+        $this->reset('file');
+
+        session()->flash('success', 'Importación exitosa');
+    }
+
+    // importar tabla cruda de excel
+    public function importComplete()
+    {
+        $this->validate([
+            'file' => 'required|mimes:xlsx,csv'
+        ]);
+
+        \Maatwebsite\Excel\Facades\Excel::import(new \App\Imports\BooksImport, $this->file);
 
         $this->reset('file');
 
@@ -95,7 +115,6 @@ new class extends Component
             <flux:badge color="purple"><a href="{{ route('books_incomplete.index') }}">Pendientes</a></flux:badge>
         </flux:main>
     </div>
-
 
     {{-- buscador --}}
     <div class="mb-3">
@@ -138,9 +157,11 @@ new class extends Component
     {{-- exportacion e importacion de excel --}}
     <flux:separator class="mb-2 mt-10" variant="subtle" />
     <div class="flex justify-between items-center gap-1">
-        <flux:button icon="cloud-arrow-down" class="text-xs text-center" wire:click="export('books')">Exp.</flux:button>
-        <div class="flex gap-3">
+            <flux:button icon="cloud-arrow-down" class="text-xs text-center" wire:click="export('books')">Exp.</flux:button>
+            <flux:button icon="cloud-arrow-down" class="text-xs text-center" wire:click="exportComplete()">Exp. Libros</flux:button>
+            <div class="flex gap-3">
             <flux:button icon="cloud-arrow-up" class="text-xs text-center" wire:click="import('books')">Imp.</flux:button>
+            <flux:button icon="cloud-arrow-up" class="text-xs text-center" wire:click="importComplete()">Imp. Libros</flux:button>
             <flux:input type="file" wire:model="file" />
         </div>
     </div>

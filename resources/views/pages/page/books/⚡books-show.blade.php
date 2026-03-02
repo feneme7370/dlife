@@ -80,6 +80,19 @@ new class extends Component
             </p>
         @endif
 
+        @if (!$book->book_btags->isEmpty())
+            <p class="mt-1 text-sm sm:text-base text-gray-800 dark:text-gray-300 font-bold">
+                Etiquetas:
+                @foreach ($book->book_btags as $item)
+                    <flux:badge size="sm" variant="pill" as="button" variant="solid" color="violet">
+                        <a
+                            href="#"
+                        >#{{ $item->name }}</a>
+                    </flux:badge>
+                @endforeach
+            </p>
+        @endif
+
         @if (!$book->book_collections->isEmpty())
             <p class="mt-2 text-sm sm:text-base text-gray-800 dark:text-gray-300 font-bold">
                 @foreach ($book->book_collections as $item)
