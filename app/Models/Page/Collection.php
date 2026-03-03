@@ -13,12 +13,22 @@ class Collection extends Model
         'description', 
         'books_amount', 
         'movies_amount', 
+        'seasons_amount', 
 
         'cover_image',
         'cover_image_url',
 
         'uuid',
         'user_id',
+    ];
+
+    protected $casts = [
+        'books_amount' => 'integer',
+        'movies_amount' => 'integer',
+        'seasons_amount' => 'integer',
+        'release_date' => 'date',
+        'rating' => 'integer',
+        'pages' => 'integer',
     ];
 
     // pertenece a un usuario

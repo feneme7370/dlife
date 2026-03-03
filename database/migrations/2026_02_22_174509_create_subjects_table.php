@@ -16,7 +16,7 @@ return new class extends Migration
 
             // nombre
             $table->string('name');
-            $table->string('slug');
+            $table->string('slug')->unique();
 
             // datos del sujeto
             $table->date('birthdate')->nullable();

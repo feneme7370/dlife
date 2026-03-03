@@ -25,6 +25,10 @@ class Subject extends Model
         'user_id',
     ];
 
+    protected $casts = [
+        'birthdate' => 'date',
+    ];
+
     // pertenece a un usuario
     public function user()
     {

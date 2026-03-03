@@ -27,7 +27,7 @@ new class extends Component
         $this->name = $this->subject->name ?? '';
         $this->slug = $this->subject->slug ?? '';
         $this->country = $this->subject->country ?? '';
-        $this->birthdate = $this->subject->birthdate ?? '';
+        $this->birthdate = \Carbon\Carbon::parse($this->subject->birthdate)->format('Y-m-d') ?? '';
         $this->description = $this->subject->description ?? '';
         $this->cover_image_url = $this->subject->cover_image_url ?? '';
         $this->uuid = $this->subject->uuid ?? '';

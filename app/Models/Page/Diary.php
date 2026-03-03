@@ -12,6 +12,7 @@ class Diary extends Model
 
         'title', 
         'content',
+        'content_clear',
 
         'uuid',
         'user_id',

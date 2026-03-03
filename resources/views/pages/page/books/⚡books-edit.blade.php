@@ -57,11 +57,11 @@ new class extends Component
         $this->synopsis = $book->synopsis; 
         $this->release_date = $book->release_date; 
         $this->number_collection = $book->number_collection; 
-        $this->pages = $book->pages; 
-        $this->summary = $book->summary; 
-        $this->summary_clear = $book->summary_clear; 
-        $this->notes = $book->notes; 
-        $this->notes_clear = $book->notes_clear; 
+        $this->pages = $book->pages ?? 1; 
+        $this->summary = $book->summary ?? ''; 
+        $this->summary_clear = $book->summary_clear ?? ''; 
+        $this->notes = $book->notes ?? ''; 
+        $this->notes_clear = $book->notes_clear ?? ''; 
         $this->is_favorite = $book->is_favorite; 
         $this->is_abandonated = $book->is_abandonated; 
         $this->rating = $book->rating; 
@@ -198,9 +198,12 @@ new class extends Component
     public function updateItem(){
         // datos automaticos
         $this->slug = \Illuminate\Support\Str::slug($this->title . '-' . \Illuminate\Support\Str::random(4));
+        $this->summary_clear = $this->cleanNotes($this->summary);
+        $this->notes_clear = $this->cleanNotes($this->notes);
 
         // validar
         $validatedData = $this->validate();
+
 
         // crear en BD
         $this->book->update($validatedData);
@@ -312,6 +315,25 @@ new class extends Component
         unset($this->selected_book_btags[$index]);
         $this->selected_book_btags = array_values($this->selected_book_btags); // reindexa
     }
+
+   public function cleanNotes(?string $html): string
+    {
+        if (!$html) return '';
+
+        $text = str_replace(
+            ['</p>', '<br>', '<br/>', '<br />'],
+            "\n",
+            $html
+        );
+
+        return trim(
+            html_entity_decode(
+                strip_tags($text),
+                ENT_QUOTES | ENT_HTML5,
+                'UTF-8'
+            )
+        );
+    }
 };
 ?>
 
@@ -392,9 +414,9 @@ new class extends Component
                 <div class="flex items-start justify-between">
                     <div class="px-3 border-l-4 border-purple-800">
                         @if ($read->end_read)
-                            <p class="mb-2 text-xs sm:text-base text-gray-800 dark:text-gray-300 ">{{ $read->start_read }} - {{ $read->end_read }} en {{ \Carbon\Carbon::parse($read->start_read)->diffInDays($read->end_read) }} dias</p>
+                            <p class="mb-2 text-xs sm:text-base text-gray-800 dark:text-gray-300 ">{{ \Carbon\Carbon::parse($read->start_read)->format('Y-m-d') }} - {{ \Carbon\Carbon::parse($read->end_read)->format('Y-m-d') }} en {{ \Carbon\Carbon::parse($read->start_read)->diffInDays($read->end_read) }} dias</p>
                         @else
-                            <p class="mb-2 text-xs sm:text-base text-gray-800 dark:text-gray-300 ">{{ $read->start_read }} - {{ $read->end_read }} Leyendo</p>
+                            <p class="mb-2 text-xs sm:text-base text-gray-800 dark:text-gray-300 ">{{ \Carbon\Carbon::parse($read->start_read)->format('Y-m-d') }} - {{ \Carbon\Carbon::parse($read->end_read)->format('Y-m-d') }} Leyendo</p>
                         @endif
 
                     </div>
@@ -499,6 +521,22 @@ new class extends Component
                 </flux:badge>
             @endforeach
         </div>
+
+        <x-forms.quill-textarea-form 
+        id_quill="editor_create_summary" 
+        name="summary"
+        rows="15" 
+        placeholder="{{ __('Resumen personal') }}" model="summary"
+        model_data="{{ $summary }}" 
+        />
+        
+        <x-forms.quill-textarea-form 
+            id_quill="editor_create_notes" 
+            name="notes"
+            rows="15" 
+            placeholder="{{ __('Reseña') }}" model="notes"
+            model_data="{{ $notes }}" 
+        />
 
         <flux:textarea
             label="Resumen General 🗒️"

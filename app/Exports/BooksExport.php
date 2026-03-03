@@ -56,8 +56,8 @@ class BooksExport implements FromCollection, WithHeadings
 
                 'reads' => $book->book_reads
                     ->map(function ($read) {
-                        return $read->start_read . ' → ' .
-                            ($read->end_read ?? 'En progreso');
+                        return \Carbon\Carbon::parse($read->start_read)->format('Y-m-d') . ' → ' .
+                            (\Carbon\Carbon::parse($read->end_read)->format('Y-m-d') ?? 'En progreso');
                     })
                     ->implode(' | ')
             ];

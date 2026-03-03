@@ -12,6 +12,7 @@ new class extends Component
     // propiedades del item
     public string $title = '';
     public string $content = '';
+    public string $content_clear = '';
     public string $day = '';
     public int $status = 0;
     public string $uuid = '';
@@ -24,6 +25,7 @@ new class extends Component
         return [
             'title' => ['required', 'string', 'max:255'],
             'content' => ['nullable', 'string'],
+            'content_clear' => ['nullable', 'string'],
             'day' => ['nullable', 'date'],
             'status' => ['required', 'integer', 'min:0', 'max:10'],
             'uuid' => ['required', 'string', 'max:255', \Illuminate\Validation\Rule::unique('diaries', 'uuid')->ignore($this->diary?->id ?? 0)],
@@ -35,6 +37,7 @@ new class extends Component
     protected $validationAttributes = [
         'title' => 'titulo',
         'content' => 'contenido',
+        'content_clear' => 'contenido limpio',
         'day' => 'dia',
         'status' => 'estado',
         'uuid' => 'uuid',
@@ -47,6 +50,7 @@ new class extends Component
 
         $this->title = $this->diary->title ?? '';
         $this->content = $this->diary->content ?? '';
+        $this->content_clear = $this->diary->content_clear ?? '';
         $this->day = $this->diary->day ?? \Carbon\Carbon::now()->format('Y-m-d');;
         $this->status = $this->diary->status ?? 0;
         $this->uuid = $this->diary->uuid ?? '';
@@ -60,6 +64,7 @@ new class extends Component
 
     // crear item en la BD
     public function updateItem(){
+        $this->content_clear = $this->cleanNotes($this->content);
         // validar
         $validatedData = $this->validate();
 
@@ -71,6 +76,25 @@ new class extends Component
 
         // redireccionar
         $this->redirectRoute('diaries.index', navigate:true);
+    }
+
+    public function cleanNotes(?string $html): string
+    {
+        if (!$html) return '';
+
+        $text = str_replace(
+            ['</p>', '<br>', '<br/>', '<br />'],
+            "\n",
+            $html
+        );
+
+        return trim(
+            html_entity_decode(
+                strip_tags($text),
+                ENT_QUOTES | ENT_HTML5,
+                'UTF-8'
+            )
+        );
     }
 };
 ?>
@@ -106,12 +130,21 @@ new class extends Component
                 @endforeach
             </flux:select>
         </div>
-        <flux:textarea
+
+        <x-forms.quill-textarea-form 
+        id_quill="editor_create_content" 
+        name="content"
+        rows="15" 
+        placeholder="{{ __('Descripcion') }}" model="content"
+        model_data="{{ $content }}" 
+        />
+
+        {{-- <flux:textarea
             label="Descripcion"
             placeholder="Escribir suceso del dia"
             wire:model="content"
             rows="10"
-        />
+        /> --}}
 
         @if ($errors->any())
             <div class="bg-red-100 border border-red-400 text-red-700 p-1 rounded">

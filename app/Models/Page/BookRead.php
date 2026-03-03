@@ -14,6 +14,11 @@ class BookRead extends Model
         'user_id', 
     ];
 
+    protected $casts = [
+        'start_read' => 'date',
+        'end_read' => 'date',
+    ];
+
     // pertenece a un usuario
     public function user()
     {

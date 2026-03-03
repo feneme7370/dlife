@@ -21,6 +21,7 @@ return new class extends Migration
             // contenido
             $table->string('title');
             $table->text('content');
+            $table->text('content_clear');
 
             // datos internos            
             $table->string('uuid')->unique();

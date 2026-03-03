@@ -16,12 +16,13 @@ return new class extends Migration
 
             // nombre
             $table->string('name');
-            $table->string('slug');
+            $table->string('slug')->unique();
             
             // descripciones del item
             $table->text('description')->nullable();
             $table->integer('books_amount')->default(0);
             $table->integer('movies_amount')->default(0);
+            $table->integer('seasons_amount')->default(0);
 
             // url de la imagen
             $table->text('cover_image')->nullable();

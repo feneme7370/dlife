@@ -16,6 +16,7 @@ new class extends Component
     public string $description = '';
     public int $books_amount = 0;
     public int $movies_amount = 0;
+    public int $seasons_amount = 0;
     public string $cover_image_url = '';
     public string $uuid = '';
     public int $user_id = 0;
@@ -29,6 +30,7 @@ new class extends Component
         $this->description = $this->collection->description ?? '';
         $this->books_amount = $this->collection->books_amount ?? 0;
         $this->movies_amount = $this->collection->movies_amount ?? 0;
+        $this->seasons_amount = $this->collection->seasons_amount ?? 0;
         $this->cover_image_url = $this->collection->cover_image_url ?? '';
         $this->uuid = $this->collection->uuid ?? '';
         $this->user_id = $this->collection->user_id ?? 0;
@@ -40,8 +42,9 @@ new class extends Component
             'name' => ['required', 'string', 'max:255'],
             'slug' => ['required', 'string', 'max:255', \Illuminate\Validation\Rule::unique('collections', 'slug')->ignore($this->collection?->id ?? 0)],
             'description' => ['nullable', 'string'],
-            'books_amount' => ['nullable', 'numeric'],
-            'movies_amount' => ['nullable', 'numeric'],
+            'books_amount' => ['required', 'numeric'],
+            'movies_amount' => ['required', 'numeric'],
+            'seasons_amount' => ['required', 'numeric'],
             'cover_image_url' => ['nullable', 'url', 'max:65535'],
             'uuid' => ['required', 'string', 'max:255', \Illuminate\Validation\Rule::unique('collections', 'uuid')->ignore($this->collection?->id ?? 0)],
             'user_id' => ['required', 'exists:users,id'],
@@ -55,6 +58,7 @@ new class extends Component
         'description' => 'descripcion',
         'books_amount' => 'total de libros',
         'movies_amount' => 'total de peliculas',
+        'seasons_amount' => 'total de temporadas',
         'cover_image_url' => 'imagen web',
         'uuid' => 'uuid',
         'user_id' => 'usuario',
@@ -106,6 +110,7 @@ new class extends Component
 
         <flux:input type="number" label="Total de libros" wire:model="books_amount" placeholder="Total de libros"/>
         <flux:input type="number" label="Total de peliculas" wire:model="movies_amount" placeholder="Total de peliculas"/>
+        <flux:input type="number" label="Total de temporadas" wire:model="seasons_amount" placeholder="Total de temporadas"/>
         
         <flux:textarea
             label="Descripcion"

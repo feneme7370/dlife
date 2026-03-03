@@ -19,8 +19,8 @@ return new class extends Migration
             $table->string('slug');
 
             // nombre
-            $table->string('name_general');
-            $table->string('slug_general');
+            $table->string('name_general')->default('categoria');
+            $table->string('slug_general')->unique();
             
             // descripciones del item
             $table->text('description')->nullable();

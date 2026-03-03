@@ -2,6 +2,7 @@
 
 namespace App\Imports;
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
@@ -15,7 +16,7 @@ class BooksImport implements ToModel, WithHeadingRow
             ['uuid' => $row['uuid']], // clave única
             [
                 'title' => $row['title'],
-                'slug' => $row['slug'] ?? Str::slug($row['title']),
+                'slug' => \Illuminate\Support\Str::slug($row['title'] . '-' . \Illuminate\Support\Str::random(4)),
                 'original_title' => $row['original_title'],
                 'synopsis' => $row['synopsis'],
                 'release_date' => $row['release_date'],
@@ -33,7 +34,8 @@ class BooksImport implements ToModel, WithHeadingRow
 
                 'cover_image' => $row['cover_image'],
                 'cover_image_url' => $row['cover_image_url'],
-                'user_id' => $row['user_id'],
+                'user_id' => $row['user_id'] ?? Auth::id(),
+                'uuid' => $row['uuid'] ?? \Illuminate\Support\Str::random(24),
             ]
         );
 
@@ -59,8 +61,8 @@ class BooksImport implements ToModel, WithHeadingRow
                 \App\Models\Page\BookRead::create([
                     'book_id' => $book->id,
                     'user_id' => \Illuminate\Support\Facades\Auth::id(),
-                    'start_read' => $start,
-                    'end_read' => $end === 'En progreso' ? null : $end,
+                    'start_read' => \Carbon\Carbon::parse($start)->format('Y-m-d'),
+                    'end_read' => $end === 'En progreso' ? null : \Carbon\Carbon::parse($end)->format('Y-m-d'),
                 ]);
             }
         }
@@ -85,7 +87,13 @@ class BooksImport implements ToModel, WithHeadingRow
 
             $model = $modelClass::firstOrCreate(
                 ['name' => $name],
-                ['slug' => Str::slug($name), 'uuid' => \Illuminate\Support\Str::random(24), 'user_id' => \Illuminate\Support\Facades\Auth::id()]
+                [
+                    'name_general' => 'Sin categria', 
+                    'slug_general' => \Illuminate\Support\Str::slug('Sin categoria' . '-' . \Illuminate\Support\Str::random(4)), 
+                    'slug' => \Illuminate\Support\Str::slug($name . '-' . \Illuminate\Support\Str::random(4)), 
+                    'uuid' => \Illuminate\Support\Str::random(24), 
+                    'user_id' => \Illuminate\Support\Facades\Auth::id(),
+                ]
             );
 
             $ids[] = $model->id;

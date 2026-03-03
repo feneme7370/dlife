@@ -123,9 +123,9 @@ new class extends Component
             <div class="mt-2 flex items-start justify-between">
                 <div class="px-3 border-l-4 border-purple-800">
                     @if ($read->end_read)
-                        <p class="text-xs sm:text-sm text-gray-800 dark:text-gray-300 ">{{ $read->start_read }} - {{ $read->end_read }} en {{ \Carbon\Carbon::parse($read->start_read)->diffInDays($read->end_read) }} dias</p>
+                        <p class="text-xs sm:text-sm text-gray-800 dark:text-gray-300 ">{{ \Carbon\Carbon::parse($read->start_read)->format('Y-m-d') }} - {{ \Carbon\Carbon::parse($read->end_read)->format('Y-m-d') }} en {{ \Carbon\Carbon::parse($read->start_read)->diffInDays($read->end_read) }} dias</p>
                     @else
-                        <p class="text-xs sm:text-sm text-gray-800 dark:text-gray-300 ">{{ $read->start_read }} - {{ $read->end_read }} Leyendo...</p>
+                        <p class="text-xs sm:text-sm text-gray-800 dark:text-gray-300 ">{{ \Carbon\Carbon::parse($read->start_read)->format('Y-m-d') }} - {{ \Carbon\Carbon::parse($read->end_read)->format('Y-m-d') }} Leyendo...</p>
                     @endif
                 </div>
             </div>
@@ -133,6 +133,22 @@ new class extends Component
         @endif
 
         <flux:separator text="Anotaciones Personales" />
+
+        @if ($book->summary)
+            <div class="text-sm text-gray-800 dark:text-gray-300">
+                <p class="text-lg sm:text-xl font-bold text-gray-900 dark:text-gray-300">Resumen 🗒️</p>
+                <p style="white-space: pre-line;">{!! $book->summary !!}</p>
+            </div>
+        @endif
+
+        @if ($book->notes)
+            <div class="text-sm text-gray-800 dark:text-gray-300">
+                <p class="text-lg sm:text-xl font-bold text-gray-900 dark:text-gray-300">Reseña ✍️</p>
+                <p style="white-space: pre-line;">{!! $book->notes !!}</p>
+            </div>
+        @endif
+
+        {{-- <flux:separator text="Anotaciones Personales" />
 
         @if ($book->summary_clear)
             <div class="text-sm text-gray-800 dark:text-gray-300">
@@ -146,7 +162,7 @@ new class extends Component
                 <p class="text-lg sm:text-xl font-bold text-gray-900 dark:text-gray-300">Reseña ✍️</p>
                 <p style="white-space: pre-line;">{{ $book->notes_clear }}</p>
             </div>
-        @endif
+        @endif --}}
 
     </div>
 </div>

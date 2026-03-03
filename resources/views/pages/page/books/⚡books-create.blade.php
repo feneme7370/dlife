@@ -110,9 +110,12 @@ new class extends Component
         $this->user_id = \Illuminate\Support\Facades\Auth::id();
         $this->slug = \Illuminate\Support\Str::slug($this->title . '-' . \Illuminate\Support\Str::random(4));
         $this->uuid = \Illuminate\Support\Str::random(24);
+        $this->summary_clear = $this->cleanNotes($this->summary);
+        $this->notes_clear = $this->cleanNotes($this->notes);
 
         // validar
         $validatedData = $this->validate();
+
 
         // crear en BD
         $book = Book::create($validatedData);
@@ -225,6 +228,25 @@ new class extends Component
         unset($this->selected_book_btags[$index]);
         $this->selected_book_btags = array_values($this->selected_book_btags); // reindexa
     }
+
+   public function cleanNotes(?string $html): string
+    {
+        if (!$html) return '';
+
+        $text = str_replace(
+            ['</p>', '<br>', '<br/>', '<br />'],
+            "\n",
+            $html
+        );
+
+        return trim(
+            html_entity_decode(
+                strip_tags($text),
+                ENT_QUOTES | ENT_HTML5,
+                'UTF-8'
+            )
+        );
+    }
 };
 ?>
 
@@ -249,6 +271,7 @@ new class extends Component
     </div>
 
     <div class="space-y-2">
+        
         <flux:input type="text" label="Nombre" wire:model="title" placeholder="Nombre del libro" autofocus/>
         <flux:input type="text" label="Nombre Original" wire:model="original_title" placeholder="Nombre del libro original" />
         <flux:textarea
@@ -345,6 +368,22 @@ new class extends Component
             @endforeach
         </div>
 
+        <x-forms.quill-textarea-form 
+        id_quill="editor_create_summary" 
+        name="summary"
+        rows="15" 
+        placeholder="{{ __('Resumen personal') }}" model="summary"
+        model_data="{{ $summary }}" 
+        />
+        
+        <x-forms.quill-textarea-form 
+            id_quill="editor_create_notes" 
+            name="notes"
+            rows="15" 
+            placeholder="{{ __('Reseña') }}" model="notes"
+            model_data="{{ $notes }}" 
+        />
+
         <flux:textarea
             label="Resumen General 🗒️"
             placeholder="Escriba lo que recuerde del libro"
@@ -427,4 +466,5 @@ new class extends Component
                 </div>
             </div>
         </flux:modal>
+
 </div>

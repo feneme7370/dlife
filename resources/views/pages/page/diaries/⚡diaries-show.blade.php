@@ -12,6 +12,7 @@ new class extends Component
     // propiedades del item
     public string $title = '';
     public string $content = '';
+    public string $content_clear = '';
     public string $day = '';
     public int $status = 0;
     public string $uuid = '';
@@ -25,6 +26,7 @@ new class extends Component
 
         $this->title = $this->diary->title ?? '';
         $this->content = $this->diary->content ?? '';
+        $this->content_clear = $this->diary->content_clear ?? '';
         $this->day = $this->diary->day ?? \Carbon\Carbon::now()->format('Y-m-d');;
         $this->status = $this->diary->status ?? 0;
         $this->uuid = $this->diary->uuid ?? '';
@@ -64,7 +66,9 @@ new class extends Component
         <div class="space-y-3">
             <p class="text-sm">{{ \Carbon\Carbon::parse($this->day)->format('d-m-Y') }} | {{ $this->diary_status($this->status) }}</p>
             <p class="text-xl font-bold">{{ $this->title }}</p>
-            <p class="text-sm italic" style="white-space: pre-line">{{ $this->content }} - </p>
+            <div>
+                <p class="text-sm italic" style="white-space: pre-line">{!! $this->content !!} - </p>
+            </div>
         </div>
     </div>
 </div>
