@@ -2,13 +2,10 @@
 
 namespace App\Imports;
 
-use App\Models\DailyLog;
 use App\Models\Page\Diary;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
-use PhpOffice\PhpSpreadsheet\Shared\Date as ExcelDate;
 
 class DailyLogImport implements ToModel, WithHeadingRow
 {
@@ -18,43 +15,57 @@ class DailyLogImport implements ToModel, WithHeadingRow
         if (empty($row['uuid'])) {
             return null;
         }
-
-        // Parsear fecha correctamente (soporta número Excel o texto)
-        $day = $this->parseDate($row['day'] ?? null);
         
-        $day = $day?->format('Y-m-d');
-        
-        return Diary::updateOrCreate(
+        $diary = Diary::updateOrCreate(
             [
                 'uuid' => $row['uuid'],
                 'user_id' => Auth::id(),
             ],
             [
-                'day' => $day,
-                'status' => $row['status'] ?? 0,
                 'title' => $row['title'] ?? null,
+                'day' => $row['day'] ?? null,
+                'status' => $row['status'] ?? null,
                 'content' => $row['content'] ?? null,
+                'content_clear' => $row['content_clear'] ?? null,
+                'user_id' => $row['user_id'] ?? Auth::id(),
+                'uuid' => $row['uuid'] ?? \Illuminate\Support\Str::random(24),
             ]
         );
+        // 2️⃣ Sync relaciones many-to-many
+        $this->syncRelation($diary, $row['categories'], \App\Models\Page\Dcategory::class, 'diary_dcategories');
+        $this->syncRelation($diary, $row['tags'], \App\Models\Page\Dtag::class, 'diary_dtags');
+
+        return $diary;
     }
 
-    private function parseDate($value)
+
+    private function syncRelation($diary, $column, $modelClass, $relationName)
     {
-        if (!$value) {
-            return null;
+        if (empty($column)) {
+            $diary->$relationName()->sync([]); // limpia si viene vacío
+            return;
         }
 
-        try {
-            if (is_numeric($value)) {
-                return Carbon::instance(
-                    ExcelDate::excelToDateTimeObject($value)
-                );
-            }
+        $items = collect(explode(',', $column))
+            ->map(fn($name) => trim($name))
+            ->filter();
 
-            return Carbon::parse($value);
+        $ids = [];
 
-        } catch (\Exception $e) {
-            return null;
+        foreach ($items as $name) {
+
+            $model = $modelClass::firstOrCreate(
+                ['name' => $name],
+                [
+                    'slug' => \Illuminate\Support\Str::slug($name . '-' . \Illuminate\Support\Str::random(4)), 
+                    'uuid' => \Illuminate\Support\Str::random(24), 
+                    'user_id' => \Illuminate\Support\Facades\Auth::id(),
+                ]
+            );
+
+            $ids[] = $model->id;
         }
+
+        $diary->$relationName()->sync($ids);
     }
 }

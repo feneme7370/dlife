@@ -368,7 +368,7 @@ new class extends Component
             @endforeach
         </div>
 
-        <x-forms.quill-textarea-form 
+        <x-libraries.quill-textarea-form 
         id_quill="editor_create_summary" 
         name="summary"
         rows="15" 
@@ -376,7 +376,7 @@ new class extends Component
         model_data="{{ $summary }}" 
         />
         
-        <x-forms.quill-textarea-form 
+        <x-libraries.quill-textarea-form 
             id_quill="editor_create_notes" 
             name="notes"
             rows="15" 

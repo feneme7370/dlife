@@ -85,15 +85,13 @@ new class extends Component
 
 
     // exportar tabla cruda a excel
-    public function export($table)
+    public function exportComplete()
     {
-        $data = \Illuminate\Support\Facades\DB::table($table)->where('user_id', Auth::id())->get();
-
-        return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\GenericExport($data, $table),"{$table}.xlsx");
+        return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\DailyLogExport,"diaries_info.xlsx");
     }
 
     // importar tabla cruda de excel
-    public function import()
+    public function importComplete()
     {
         $this->validate([
             'file' => 'required|mimes:xlsx,csv'
@@ -140,6 +138,9 @@ new class extends Component
             </flux:breadcrumbs>
     
             <flux:separator variant="subtle" />
+
+            <flux:badge color="purple"><a href="{{ route('dcategories.index') }}">Categorias</a></flux:badge>
+            <flux:badge color="violet"><a href="{{ route('dtags.index') }}">Etiquetas</a></flux:badge>
 
             {{-- links para pendientes y estadisticas --}}
             <div class="mt-1 flex items-center gap-1">
@@ -207,9 +208,9 @@ new class extends Component
     {{-- exportacion e importacion de excel --}}
     <flux:separator class="mb-2 mt-10" variant="subtle" />
     <div class="flex justify-between items-center gap-1">
-        <flux:button icon="cloud-arrow-down" class="text-xs text-center" wire:click="export('diaries')">Exp.</flux:button>
+        <flux:button icon="cloud-arrow-down" class="text-xs text-center" wire:click="exportComplete()">Exp.</flux:button>
         <div class="flex gap-3">
-            <flux:button icon="cloud-arrow-up" class="text-xs text-center" wire:click="import()">Imp.</flux:button>
+            <flux:button icon="cloud-arrow-up" class="text-xs text-center" wire:click="importComplete()">Imp.</flux:button>
             <flux:input type="file" wire:model="file" />
         </div>
     </div>

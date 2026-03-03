@@ -18,10 +18,26 @@ class Diary extends Model
         'user_id',
     ];
 
+    protected $casts = [
+        'day' => 'date',
+    ];
+
     // pertenece a un usuario
     public function user()
     {
         return $this->belongsTo(\App\Models\User::class, 'user_id', 'id');
+    }
+
+    // tiene muchos collections para relacionarse
+    public function diary_dtags(){
+        return $this->belongsToMany(\App\Models\Page\Dtag::class, 'diary_dtag')
+                    ->withTimestamps();
+    }
+
+    // tiene muchos collections para relacionarse
+    public function diary_dcategories(){
+        return $this->belongsToMany(\App\Models\Page\Dcategory::class, 'diary_dcategory')
+                    ->withTimestamps();
     }
 
     // valoraciones en estrellas para cada libro

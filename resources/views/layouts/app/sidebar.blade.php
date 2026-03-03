@@ -26,9 +26,6 @@
                     <flux:sidebar.item icon="bookmark" :href="route('books_library.index')" :current="request()->routeIs('books_library.index')" wire:navigate>
                         {{ __('Libreria') }}
                     </flux:sidebar.item>
-                    <flux:sidebar.item icon="list-bullet" :href="route('book-genres.index')" :current="request()->routeIs('book-genres.index')" wire:navigate>
-                        {{ __('Generos') }}
-                    </flux:sidebar.item>
                 </flux:sidebar.group>
 
             <flux:spacer />

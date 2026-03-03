@@ -9,28 +9,11 @@ new class extends Component
     public string $title_diary = 'Ver nota';
     public string $subtitle = 'Ver nota de lista';
 
-    // propiedades del item
-    public string $title = '';
-    public string $content = '';
-    public string $content_clear = '';
-    public string $day = '';
-    public int $status = 0;
-    public string $uuid = '';
-    public int $user_id = 0;
-
     public $diary;
 
     // traer datos iniciales
     public function mount($diaryUuid){
-        $this->diary = \App\Models\Page\Diary::where('uuid', $diaryUuid)->first();
-
-        $this->title = $this->diary->title ?? '';
-        $this->content = $this->diary->content ?? '';
-        $this->content_clear = $this->diary->content_clear ?? '';
-        $this->day = $this->diary->day ?? \Carbon\Carbon::now()->format('Y-m-d');;
-        $this->status = $this->diary->status ?? 0;
-        $this->uuid = $this->diary->uuid ?? '';
-        $this->user_id = $this->diary->user_id ?? 0;
+        $this->diary = \App\Models\Page\Diary::where('uuid', $diaryUuid)->with('diary_dcategories', 'diary_dtags')->first();
     }
 
     // traer estados
@@ -64,10 +47,28 @@ new class extends Component
     {{-- ver datos del item --}}
     <div class="flex flex-col sm:flex-row gap-2">
         <div class="space-y-3">
-            <p class="text-sm">{{ \Carbon\Carbon::parse($this->day)->format('d-m-Y') }} | {{ $this->diary_status($this->status) }}</p>
-            <p class="text-xl font-bold">{{ $this->title }}</p>
+            <p class="text-sm">{{ \Carbon\Carbon::parse($this->diary->day)->format('d-m-Y') }} | {{ $this->diary_status($this->diary->status) }}</p>
+            <p class="text-xl font-bold">{{ $this->diary->title }}</p>
             <div>
-                <p class="text-sm italic" style="white-space: pre-line">{!! $this->content !!} - </p>
+                <p class="text-sm italic" style="white-space: pre-line">{!! $this->diary->content !!} - </p>
+            </div>
+
+            <flux:label>Categorias</flux:label>
+            <div class="my-1">
+                @foreach ($this->diary->diary_dcategories as $category)
+                    <flux:badge variant="solid" color="amber">
+                        <a href="#">{{ $category->name }}</a>
+                    </flux:badge>
+                @endforeach
+            </div>
+
+            <flux:label>Etiquetas</flux:label>
+            <div class="my-1">
+                @foreach ($this->diary->diary_dtags as $tag)
+                    <flux:badge variant="solid" color="purple">
+                        <a href="#">#{{ $tag->name }}</a>
+                    </flux:badge>
+                @endforeach
             </div>
         </div>
     </div>

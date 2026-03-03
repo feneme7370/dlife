@@ -1,12 +1,12 @@
 @props(['id_quill' => '','model' => '','model_data' => '', 'placeholder' => 'Descripcion','disabled' => false])
 
-<div class="col-span-12" wire:ignore {!! $attributes->merge(['class' => '
+<div class="col-span-12" id="quill_editor_css" wire:ignore {!! $attributes->merge(['class' => '
     resize-none 
     block w-full 
     text-sm rounded-lg shadow-md
     my-1 p-2 
     
-    bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-purple-600 focus:border-purple-600 
+    bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-purple-600 focus:border-purple-600
     ']) !!}
 >
 <div id="{{ $id_quill }}" style="height: 300px;"></div>
@@ -57,4 +57,13 @@
 
     });
 </script>
+
+{{-- <style>
+    #quill_editor_css{
+        @apply bg-gray-50 border-gray-300 border dark:bg-gray-600 dark:text-gray-300 dark:accent-gray-300 dark:fill-gray-300  dark:border-gray-500 rounded-md;
+    }
+    #quill_editor_css .ql-stroke,#quill_editor_css .ql-picker-label, #quill_editor_css svg{
+        @apply dark:text-gray-300 dark:stroke-gray-300 rounded-md;
+    }
+</style> --}}
 </div>

@@ -64,3 +64,60 @@ select:focus[data-flux-control] {
 /* \[:where(&)\]:size-4 {
     @apply size-4;
 } */
+#quill_editor_css{
+    @apply bg-gray-50 border-gray-300 border dark:bg-gray-600 dark:text-gray-300 dark:accent-gray-300 dark:fill-gray-300  dark:border-gray-500 rounded-md;
+}
+#quill_editor_css .ql-stroke,#quill_editor_css .ql-picker-label, #quill_editor_css svg{
+    @apply dark:text-gray-300 dark:stroke-gray-300 rounded-md;
+}
+ /* Contenedor general */
+/* .ql-container {
+    @apply bg-white dark:bg-zinc-900
+           border border-zinc-300 dark:border-zinc-700
+           rounded-b-lg
+           text-zinc-900 dark:text-zinc-100;
+} */
+
+/* Toolbar */
+/* .ql-toolbar {
+    @apply bg-white dark:bg-zinc-900
+           border border-zinc-300 dark:border-zinc-700
+           border-b-0
+           rounded-t-lg;
+} */
+
+/* Editor */
+/* .ql-editor {
+    @apply min-h-[150px]
+           text-zinc-900 dark:text-zinc-100;
+} */
+
+/* Placeholder */
+/* .ql-editor.ql-blank::before {
+    @apply text-zinc-400 dark:text-zinc-500;
+}
+.ql-stroke {
+    stroke: #3f3f46;
+}
+
+.dark .ql-stroke {
+    stroke: #e4e4e7;
+}
+
+.ql-fill {
+    fill: #3f3f46;
+}
+
+.dark .ql-fill {
+    fill: #e4e4e7;
+}
+.ql-container:focus-within {
+    @apply ring-2 ring-primary-500 border-primary-500;
+}
+.ql-toolbar {
+    border-bottom: 1px solid rgb(228 228 231);
+}
+
+.dark .ql-toolbar {
+    border-bottom: 1px solid rgb(63 63 70);
+} */

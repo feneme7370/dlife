@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Page\Dcategory;
 use App\Models\Page\Diary;
 use Livewire\Component;
 
@@ -19,6 +20,9 @@ new class extends Component
     public int $user_id = 0;
 
     public $diary;
+
+    // propiedades para relacion muchos a muchos
+    public $selected_diary_categories = [];
 
     // reglas de validacion
     protected function rules(){
@@ -55,6 +59,8 @@ new class extends Component
         $this->status = $this->diary->status ?? 0;
         $this->uuid = $this->diary->uuid ?? '';
         $this->user_id = $this->diary->user_id ?? 0;
+
+        $this->selected_diary_categories = $this->diary->diary_dcategories->pluck('id')->toArray() ?? [];
     }
 
     // traer estados
@@ -62,6 +68,13 @@ new class extends Component
         return Diary::humor_status();
     }
 
+    // traer datos de generos para asociar
+    public function diary_categories(){
+        return Dcategory::where('user_id', \Illuminate\Support\Facades\Auth::id())
+            ->orderBy('name', 'asc')
+            ->get();
+    }
+    
     // crear item en la BD
     public function updateItem(){
         $this->content_clear = $this->cleanNotes($this->content);
@@ -70,6 +83,23 @@ new class extends Component
 
         // crear en BD
         $this->diary->update($validatedData);
+        $this->diary->diary_dcategories()->sync($this->selected_diary_categories);
+
+        // agregar tags
+        $tagIds = [];
+        foreach ($this->selected_diary_dtags as $tagName) {
+            $tag = \App\Models\Page\Dtag::firstOrCreate(
+                ['name' => $tagName],
+                [
+                    'slug' => \Illuminate\Support\Str::slug($tagName),
+                    'uuid' => \Illuminate\Support\Str::random(24),
+                    'user_id' => \Illuminate\Support\Facades\Auth::id(),
+                ]
+            );
+
+            $tagIds[] = $tag->id;
+        }
+        $this->diary->diary_dtags()->sync($tagIds);
 
         // mensaje de success
         session()->flash('success', 'Editado correctamente');
@@ -95,6 +125,31 @@ new class extends Component
                 'UTF-8'
             )
         );
+    }
+
+    // store para crear tags
+    public $name_tag;
+    public $newTag = '';   // input actual
+    public $selected_diary_dtags = [];     // array de tags agregados
+
+    public function addTag()
+    {
+        $formatted = \Illuminate\Support\Str::of($this->newTag)
+            ->lower()
+            ->title()
+            ->replace(' ', '');
+
+        if ($formatted && !in_array($formatted, $this->selected_diary_dtags)) {
+            $this->selected_diary_dtags[] = $formatted;
+        }
+
+        $this->newTag = '';
+    }
+
+    public function removeTag($index)
+    {
+        unset($this->selected_diary_dtags[$index]);
+        $this->selected_diary_dtags = array_values($this->selected_diary_dtags); // reindexa
     }
 };
 ?>
@@ -131,7 +186,7 @@ new class extends Component
             </flux:select>
         </div>
 
-        <x-forms.quill-textarea-form 
+        <x-libraries.quill-textarea-form 
         id_quill="editor_create_content" 
         name="content"
         rows="15" 
@@ -145,6 +200,29 @@ new class extends Component
             wire:model="content"
             rows="10"
         /> --}}
+
+        <div class="flex items-center gap-1">
+            <flux:label>Categorias {{ count($selected_diary_categories) }}</flux:label>
+        </div>
+        <flux:checkbox.group wire:model.live="selected_diary_categories">
+            <div class="h-40 overflow-scroll space-y-1">
+                @foreach ($this->diary_categories() as $item)
+                    <flux:checkbox label="{{ $item->name }}" value="{{ $item->id }}" />
+                @endforeach
+            </div>
+        </flux:checkbox.group>
+
+        <flux:input type="text" label="Etiquetas" wire:model="newTag" wire:keydown.space.prevent="addTag" placeholder="Agregue etiquetas" />
+        <div class="flex gap-2 mt-2">
+            @foreach($selected_diary_dtags as $index => $tag)
+                <flux:badge size="sm" color="purple">
+                    <button class="mr-2" wire:click="removeTag({{ $index }})">
+                        x
+                    </button>
+                    #{{ $tag }}
+                </flux:badge>
+            @endforeach
+        </div>
 
         @if ($errors->any())
             <div class="bg-red-100 border border-red-400 text-red-700 p-1 rounded">

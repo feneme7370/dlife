@@ -45,6 +45,19 @@ Route::middleware(['auth'])->group(function () {
     Route::livewire('diaries/create/{templateUuid?}', 'pages::page.diaries.diaries-create')->name('diaries.create');
     Route::livewire('diaries/{diaryUuid}/edit', 'pages::page.diaries.diaries-edit')->name('diaries.edit');
     Route::livewire('diaries/{diaryUuid}/show', 'pages::page.diaries.diaries-show')->name('diaries.show');
+    
+    // Seccion tags de libros
+    Route::livewire('dtags', 'pages::page.diaries.dtags.dtags-index')->name('dtags.index');
+    Route::livewire('dtags/create', 'pages::page.diaries.dtags.dtags-create')->name('dtags.create');
+    Route::livewire('dtags/{dtagUuid}/edit', 'pages::page.diaries.dtags.dtags-edit')->name('dtags.edit');
+    Route::livewire('diaridtagses/{dtagUuid}/show', 'pages::page.diaries.dtags.dtags-show')->name('dtags.show');
+    Route::livewire('diaries/{diaryUuid}/show', 'pages::page.diaries.diaries-show')->name('diaries.show');
+    
+    // Seccion categories de libros
+    Route::livewire('dcategories', 'pages::page.diaries.dcategories.dcategories-index')->name('dcategories.index');
+    Route::livewire('dcategories/create', 'pages::page.diaries.dcategories.dcategories-create')->name('dcategories.create');
+    Route::livewire('dcategories/{dcategoryUuid}/edit', 'pages::page.diaries.dcategories.dcategories-edit')->name('dcategories.edit');
+    Route::livewire('diaridcategorieses/{dcategoryUuid}/show', 'pages::page.diaries.dcategories.dcategories-show')->name('dcategories.show');
 });
 
 require __DIR__.'/settings.php';

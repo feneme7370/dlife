@@ -42,7 +42,13 @@ new class extends Component
 
     {{-- datos del libro --}}
     <div class="w-full ">
-        <img src="{{ $book->cover_image_url }}" class="w-full sm:w-auto sm:h-96 mx-auto mb-1" alt="portada">
+        <x-libraries.img-tumb-lightbox 
+            :uri="$book->cover_image_url" 
+            album="Portadas"
+            class_w_h="h-40 sm:h-96"
+            class="mx-auto"
+        />
+        {{-- <img src="{{ $book->cover_image_url }}" class="w-full sm:w-auto sm:h-96 mx-auto mb-1" alt="portada"> --}}
         <p class="text-xl sm:text-lg font-bold text-gray-900 dark:text-gray-200">{{ $book->title }}</p>
         <p class="text-xs sm:text-sm text-gray-800 dark:text-gray-300 font-light italic">
             <a href="{{ route('books.edit', ['bookUuid' => $book->uuid]) }}"><flux:button size="xs" variant="ghost" icon="pencil-square"></flux:button></a>
