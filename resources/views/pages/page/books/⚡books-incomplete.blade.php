@@ -4,23 +4,26 @@ use Livewire\Component;
 
 new class extends Component
 {
+    //////////////////////////////////////////////////////////////////// PROPIEDADES PRINCIPALES
     // propiedades de item y titulos
     public $books;
     public $title = 'Datos pendientes';
     public $subtitle = 'Datos de libros incompletos';
 
+    //////////////////////////////////////////////////////////////////// PRE CARGAR DATOS
     // cargar datos iniciales
     public function mount(){
         // Traés todos los libros del usuario (sin filtros por fecha)
         $this->books = \App\Models\Page\Book::where('user_id', \Illuminate\Support\Facades\Auth::id())
         ->orderBy('title', 'asc')
-            ->with(['book_subjects', 'book_book_genres', 'book_collections', 'book_reads'])
+            ->with(['subjects', 'genres', 'collections', 'reads', 'tags'])
             ->get();
     }
 
+    //////////////////////////////////////////////////////////////////// CONSULTAS
     // libros totales pendientes de leer
     public function toRead(){
-        return $this->books->filter(fn($book) => !$book->book_reads->count() > 0);
+        return $this->books->filter(fn($book) => !$book->reads->count() > 0);
     }
 
     // libros totales abandonados

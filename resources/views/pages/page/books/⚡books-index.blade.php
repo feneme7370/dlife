@@ -11,9 +11,30 @@ new class extends Component
     use WithFileUploads;
     use WithPagination;
 
+    //////////////////////////////////////////////////////////////////// PROPIEDADES PRINCIPALES
     // propiedades para paginacion y orden, actualizar al buscar
     public $search = '', $sortField = 'title', $sortDirection = 'asc', $perPage = 10000;
     public function updatingSearch(){$this->resetPage();}
+
+    // propiedades de item y titulos
+    public $file;
+    public $file2;
+    public $books;
+    public $title = 'Libros';
+    public $subtitle = 'Listado de libros';
+
+    //////////////////////////////////////////////////////////////////// CONSULTA DE DATOS
+    // consulta de item
+    public function queryBooks(){
+        return Book::where('user_id', Auth::id())
+            ->with(['subjects', 'genres', 'collections', 'reads', 'tags'])
+            ->where(function ($query) {
+                $query->where('title', 'like', "%{$this->search}%")
+                      ->orWhere('slug', 'like', "%{$this->search}%");
+            })
+            ->orderBy($this->sortField, $this->sortDirection)
+            ->paginate($this->perPage);
+    }
 
     // funcion para ordenar la tabla
     public function sortBy($field){
@@ -25,57 +46,18 @@ new class extends Component
         $this->sortField = $field;
     }
 
-    // propiedades de item y titulos
-    public $file;
-    public $file2;
-    public $books;
-    public $title = 'Libros';
-    public $subtitle = 'Listado de libros';
-
-    // consulta de item
-    public function queryBooks(){
-        return Book::where('user_id', Auth::id())
-            ->with(['book_subjects', 'book_book_genres', 'book_collections', 'book_reads'])
-            ->where(function ($query) {
-                $query->where('title', 'like', "%{$this->search}%")
-                      ->orWhere('slug', 'like', "%{$this->search}%");
-            })
-            ->orderBy($this->sortField, $this->sortDirection)
-            ->paginate($this->perPage);
-    }
-
+    //////////////////////////////////////////////////////////////////// ELIMINAR DATO
     // eliminar item
     public function deleteItem($codigo){
         $item = Book::where('user_id', Auth::id())->where('uuid', $codigo)->first();
         $item->delete();
     }
 
-    // exportar tabla cruda a excel
-    public function export($table)
-    {
-        $data = \Illuminate\Support\Facades\DB::table($table)->where('user_id', Auth::id())->get();
-
-        return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\GenericExport($data, $table),"{$table}.xlsx");
-    }
-
+    //////////////////////////////////////////////////////////////////// EXCEL
     // exportar tabla cruda a excel
     public function exportComplete()
     {
         return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\BooksExport, 'books_info.xlsx');
-    }
-
-    // importar tabla cruda de excel
-    public function import($table)
-    {
-        $this->validate([
-            'file' => 'required|mimes:xlsx,csv'
-        ]);
-
-        \Maatwebsite\Excel\Facades\Excel::import(new \App\Imports\GenericImport($table), $this->file);
-
-        $this->reset('file');
-
-        session()->flash('success', 'Importación exitosa');
     }
 
     // importar tabla cruda de excel
@@ -141,7 +123,7 @@ new class extends Component
                         {{ $item->is_abandonated ? '🚫' : ''}}
                         {{ $item->summary_clear ? '🗒️' : ''}}
                         {{ $item->notes_clear ? '✍️' : ''}}
-                        {{ $item->book_reads->first() ? '✅' : ''}}
+                        {{ $item->reads->first() ? '✅' : ''}}
                     </p>
                 </div>
 
@@ -162,10 +144,8 @@ new class extends Component
     {{-- exportacion e importacion de excel --}}
     <flux:separator class="mb-2 mt-10" variant="subtle" />
     <div class="flex justify-between items-center gap-1">
-            <flux:button icon="cloud-arrow-down" class="text-xs text-center" wire:click="export('books')">Exp.</flux:button>
             <flux:button icon="cloud-arrow-down" class="text-xs text-center" wire:click="exportComplete()">Exp. Libros</flux:button>
             <div class="flex gap-3">
-            <flux:button icon="cloud-arrow-up" class="text-xs text-center" wire:click="import('books')">Imp.</flux:button>
             <flux:button icon="cloud-arrow-up" class="text-xs text-center" wire:click="importComplete()">Imp. Libros</flux:button>
             <flux:input type="file" wire:model="file" />
         </div>

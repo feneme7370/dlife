@@ -23,8 +23,7 @@
                 toolbar: [
                     ["clean"], // Eliminar formato
                     // [{ header: [false, 1, 2, 3] }], // Tamaño de encabezado
-                    [{ size: ["small","normal", "large", "huge"] }], // Tamaños de textonpm install quill-image-resize-module --save
-
+                    [{ size: ["small",false , "large", "huge"] }], // Tamaños de textonpm install quill-image-resize-module --save
                     ["bold", "italic", "underline", "strike"], // Formatos de texto
                     [{ color: [] }, { background: [] }], // Color de texto y fondo
                     // [{ list: "ordered" }, { list: "bullet" }], // Listas
@@ -58,12 +57,4 @@
     });
 </script>
 
-{{-- <style>
-    #quill_editor_css{
-        @apply bg-gray-50 border-gray-300 border dark:bg-gray-600 dark:text-gray-300 dark:accent-gray-300 dark:fill-gray-300  dark:border-gray-500 rounded-md;
-    }
-    #quill_editor_css .ql-stroke,#quill_editor_css .ql-picker-label, #quill_editor_css svg{
-        @apply dark:text-gray-300 dark:stroke-gray-300 rounded-md;
-    }
-</style> --}}
 </div>

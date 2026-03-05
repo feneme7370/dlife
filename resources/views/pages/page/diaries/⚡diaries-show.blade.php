@@ -49,24 +49,28 @@ new class extends Component
         <div class="space-y-3">
             <p class="text-sm">{{ \Carbon\Carbon::parse($this->diary->day)->format('d-m-Y') }} | {{ $this->diary_status($this->diary->status) }}</p>
             <p class="text-xl font-bold">{{ $this->diary->title }}</p>
-            <div>
+            <div class="whitespace-pre-wrap break-words">
                 <p class="text-sm italic" style="white-space: pre-line">{!! $this->diary->content !!} - </p>
             </div>
 
             <flux:label>Categorias</flux:label>
             <div class="my-1">
-                @foreach ($this->diary->diary_dcategories as $category)
-                    <flux:badge variant="solid" color="amber">
-                        <a href="#">{{ $category->name }}</a>
+                @foreach ($this->diary->diary_dcategories as $item)
+                    <flux:badge rounded color="amber">
+                        <a href="{{ route('diaries.index', ['cat' => $item->uuid]) }}">
+                            <span class="text-xs">#{{ $item->name }}</span>
+                        </a>
                     </flux:badge>
                 @endforeach
             </div>
 
             <flux:label>Etiquetas</flux:label>
             <div class="my-1">
-                @foreach ($this->diary->diary_dtags as $tag)
-                    <flux:badge variant="solid" color="purple">
-                        <a href="#">#{{ $tag->name }}</a>
+                @foreach ($this->diary->diary_dtags as $item)
+                    <flux:badge rounded color="fuchsia">
+                        <a href="{{ route('diaries.index', ['tag' => $item->uuid]) }}">
+                            <span class="text-xs">#{{ $item->name }}</span>
+                        </a>
                     </flux:badge>
                 @endforeach
             </div>

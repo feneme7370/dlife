@@ -15,7 +15,7 @@ new class extends Component
     public string $title = '';
     public $content;
     public $content_clear;
-    public string $day = '';
+    public $day;
     public int $status = 0;
     public string $uuid = '';
     public int $user_id = 0;

@@ -100,8 +100,10 @@ new class extends Component
     {{-- listado de sagas --}}
     <div class="space-y-2">
         @foreach ($this->queryDcategories() as $item)
-            <flux:badge variant="solid" color="amber">
-                <a href="#">#{{ $item->name }}</a>
+            <flux:badge rounded color="amber">
+                <a href="{{ route('diaries.index', ['cat' => $item->uuid]) }}">
+                    <span class="text-xs">#{{ $item->name }}</span>
+                </a>
                 <div class="flex items-center justify-center ml-5">
                         <a href="{{ route('dcategories.edit', ['dcategoryUuid' => $item->uuid]) }}"><flux:button size="xs" variant="ghost" icon="pencil-square"></flux:button></a>
                         <a><flux:button size="xs" variant="ghost" icon="trash" wire:confirm="Quiere eliminar?" wire:click="deleteItem('{{ $item->uuid }}')"></flux:button></a>

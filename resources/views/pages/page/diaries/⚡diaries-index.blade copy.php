@@ -78,7 +78,7 @@ new class extends Component
         \Maatwebsite\Excel\Facades\Excel::import(new \App\Imports\DailyLogImport(), $this->file);
 
         $this->reset('file');
-        $this->diariesQuery();
+
         session()->flash('success', 'Importación exitosa');
     }
 
@@ -98,7 +98,9 @@ new class extends Component
         $this->modal('add-template')->close();
     }
 
+    public $date;
     public function mount(){
+        $this->date = \Carbon\Carbon::now()->format('Y-m-d');
         $this->diariesQuery();
         $this->highlightedDays = $this->getDays();
     }
@@ -111,7 +113,6 @@ new class extends Component
     }
     // propiedades del item
     public $diaryId;
-
     public $dayStart;
     public $dayEnd;
     public $highlightedDays = [];
@@ -164,7 +165,51 @@ new class extends Component
 };
 ?>
 <div>
-   
+    @script
+        <script>
+            document.addEventListener('livewire:navigated', () => {
+                const input = document.getElementById('diary_calendar');
+                if (!input) return; // si el input no existe todavía, no inicializamos
+
+                if (window.myPicker) {
+                    window.myPicker.destroy();
+                }
+
+                    window.myPicker = new Litepicker({
+                    element: document.getElementById('diary_calendar'),
+                    format: 'YYYY-MM-DD',
+                    singleMode: true,
+                    inlineMode: true,
+                    highlightedDays: @json($this->highlightedDays),
+                    setup: (picker) => {
+                        picker.on('selected', (date) => {
+                            // Cuando seleccionás un día, lo mandamos a Livewire
+                            Livewire.dispatch('reading-day-selected', { date: date.format('YYYY-MM-DD') });
+                        });
+                    }
+                });
+            });
+        </script>
+    @endscript
+    <style>
+        .litepicker .day-item.is-highlighted
+        /* .litepicker .day-item.is-selected  */
+        {
+            background-color: #70157e !important; /* azul Tailwind-600 */
+            color: #fff !important;
+            border-radius: 40% !important; /* redondeado */
+        }
+
+        .litepicker .day-item.is-inRange,
+        .litepicker .day-item.is-start-date,
+        .litepicker .day-item.is-end-date
+        {
+            background-color: #40024a !important; /* azul Tailwind-600 */
+            color: #fff !important;
+            border-radius: 30% !important; /* redondeado */
+        }
+    </style>
+    
     {{-- titulo, descripcion y breadcrumbs --}}
     <div>
         <div container class="space-y-1">
@@ -209,12 +254,11 @@ new class extends Component
         {{-- calendar --}}
         <div class="md:col-span-4">
             <flux:button wire:click='clearDate' size="sm" variant="ghost" color="purple" icon="calendar" size="sm">Limpiar</flux:button>
-
-            <x-libraries.calendar-litepicker 
-                :highlightedDayss="$highlightedDays" 
-                id_calendar="diary_calendar"
-            />
-            
+            <div wire:ignore>
+                <div wire:ignore class="text-center my-1">
+                    <input id="diary_calendar" type="text" hidden readonly />
+                </div>
+            </div>
 
             <div class="flex justify-center items-center gap-1">
                 <flux:input size="sm" type="date" label="Inicio" wire:model.live="dayStart"/>

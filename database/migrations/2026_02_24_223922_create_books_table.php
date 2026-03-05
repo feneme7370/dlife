@@ -24,7 +24,7 @@ return new class extends Migration
             $table->integer('release_date')->nullable();
 
             // datos adicionales
-            $table->integer('number_collection')->nullable();
+            $table->decimal('number_collection', 4, 2)->nullable();
             $table->integer('pages')->nullable();
 
             // resumen del libro
@@ -38,6 +38,7 @@ return new class extends Migration
             // opinion del libro
             $table->boolean('is_favorite')->default(0); // 0 false - 1 true
             $table->boolean('is_abandonated')->default(0); // 0 false - 1 true
+            $table->boolean('is_public')->default(0); // 0 false - 1 true
 
             // seleccionables desde el modelo
             $table->integer('rating')->nullable(); // sin valoracion, y de 1 a 5 estrellas

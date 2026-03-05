@@ -5,6 +5,7 @@ namespace App\Exports;
 use App\Models\Page\Diary;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
+use PhpOffice\PhpSpreadsheet\Shared\Date;
 
 class DailyLogExport implements FromCollection, WithHeadings
 {
@@ -16,8 +17,8 @@ class DailyLogExport implements FromCollection, WithHeadings
                 ])->get()->map(function ($item) {
 
                     return [
+                        'day' => Date::dateTimeToExcel($item->day),
                         'title' => $item->title,
-                        'day' => $item->day,
                         'status' => $item->status,
                         'content' => $item->content,
                         'content_clear' => $item->content_clear,
@@ -38,8 +39,8 @@ class DailyLogExport implements FromCollection, WithHeadings
 public function headings(): array
     {
         return [
-        'title',
         'day',
+        'title',
         'status',
         'content',
         'content_clear',

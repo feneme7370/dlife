@@ -4,6 +4,7 @@ use Livewire\Component;
 
 new class extends Component
 {
+    //////////////////////////////////////////////////////////////////// PROPIEDADES PRINCIPALES
     // propiedades de item y titulos
     public $books;
     public $title = 'Datos de libros';
@@ -31,6 +32,7 @@ new class extends Component
         '12' => 'Dic',
     ];
 
+        //////////////////////////////////////////////////////////////////// PRECARGAR DATOS INICIALES
     // cargar datos iniciales
     public function mount(){
         // year today
@@ -40,10 +42,11 @@ new class extends Component
         // Traés todos los libros del usuario (sin filtros por fecha)
         $this->books = \App\Models\Page\Book::where('user_id', \Illuminate\Support\Facades\Auth::id())
         ->orderBy('title', 'asc')
-            ->with(['book_subjects', 'book_book_genres', 'book_collections', 'book_reads'])
+            ->with(['subjects', 'genres', 'collections', 'reads', 'tags'])
             ->get();
     }
 
+    //////////////////////////////////////////////////////////////////// CONSULTA POR AÑO
     // libros dentro del rango de año y no abandonados
     public function booksYear(){
         $year_start = $this->year_start;
@@ -51,7 +54,7 @@ new class extends Component
         return $this->books->where('is_abandonated', false)
             ->filter(function ($book) use ($year_start, $year_end) {
 
-                return $book->book_reads->contains(function ($read) use ($year_start, $year_end) {
+                return $book->reads->contains(function ($read) use ($year_start, $year_end) {
                     $year = (int) substr($read->end_read, 0, 4); // más rápido que Carbon
 
                     return
@@ -62,6 +65,7 @@ new class extends Component
             });
     }
 
+    //////////////////////////////////////////////////////////////////// AGRUPAR CONSULTA POR DISTINTOS DATOS
     // agrupar por cantidad de paginas leidas
     public function booksPages(){
         $order = ['📄 0-250','📄 251-500','📄 501-750','📄 751-1000','📄 1000+'];
@@ -85,7 +89,7 @@ new class extends Component
         $months = collect(range(1, 12))->mapWithKeys(fn ($m) => [str_pad($m, 2, '0', STR_PAD_LEFT) => 0]);
         return $this->booksYear()
             ->flatMap(function ($book) use ($year_end) {
-                return $book->book_reads
+                return $book->reads
                     ->filter(fn ($read) => $read->end_read && \Carbon\Carbon::parse($read->end_read)->year == $year_end)
                     ->map(fn ($read) => \Carbon\Carbon::parse($read->end_read)->format('m'));
             })
@@ -94,10 +98,11 @@ new class extends Component
             ->sortKeys();    // ordena de 01 a 12;
     }
 
+    //////////////////////////////////////////////////////////////////// OBTENER ASOCIACIONES
     // listado de sagas de libros leidos en un año
     public function booksCollections(){
         return $this->booksYear()
-            ->flatMap->book_collections
+            ->flatMap->collections
             ->groupBy('id')
             ->map(function ($group) {
                 $collection = $group->first();
@@ -115,7 +120,7 @@ new class extends Component
     // listado de generos de libros leidos en un año
     public function booksGenres(){
         return $this->booksYear()
-            ->flatMap->book_book_genres
+            ->flatMap->genres
             ->groupBy('id')
             ->map(function ($group) {
                 $genre = $group->first();
@@ -133,7 +138,7 @@ new class extends Component
     // listado de autores de libros leidos en un año
     public function booksSubjects(){
         return $this->booksYear()
-            ->flatMap->book_subjects
+            ->flatMap->subjects
             ->groupBy('id')
             ->map(function ($group) {
                 $subject = $group->first();
@@ -148,6 +153,7 @@ new class extends Component
             ->values();
     }    
 
+    //////////////////////////////////////////////////////////////////// FILTRAR POR AÑO
     // chage new year filter
     public function newYear($value){
         if($value === 'todo'){
@@ -162,7 +168,7 @@ new class extends Component
     // Sacar los años únicos para el filtro
     public function getYearsReads(){
         return $this->read_years = $this->books
-            ->pluck('book_reads')          // me quedo solo con las colecciones de reads
+            ->pluck('reads')          // me quedo solo con las colecciones de reads
             ->flatten()                    // aplanar todo en una sola colección
             ->pluck('end_read')            // me quedo con las fechas end_read
             ->filter()                     // saco nulos

@@ -5,16 +5,18 @@ use Livewire\Component;
 
 new class extends Component
 {
+    //////////////////////////////////////////////////////////////////// PROPIEDADES PRINCIPALES
     //propiedades de titulos
     public string $title = 'Ver libro';
     public string $subtitle = 'Ver libro de lista';
 
     public $book;
 
+    //////////////////////////////////////////////////////////////////// PRE CARGAR DATOS
     // precargar datos al iniciar pagina
     public function mount($bookUuid){
         $this->book = \App\Models\Page\Book::where('user_id', \Illuminate\Support\Facades\Auth::id())
-            ->with(['book_subjects', 'book_book_genres', 'book_collections', 'book_reads'])
+            ->with(['subjects', 'genres', 'collections', 'reads', 'tags'])
             ->where('uuid', $bookUuid)->first();
     }
 };
@@ -58,7 +60,7 @@ new class extends Component
         <flux:separator text="Datos" />
 
         <p class="text-base text-gray-800 dark:text-gray-300 italic">
-            @foreach ($book->book_subjects as $item)
+            @foreach ($book->subjects as $item)
                 - 
                 <a 
                     class="hover:underline  " 
@@ -73,10 +75,10 @@ new class extends Component
 
         <flux:separator text="Asociaciones" />
 
-        @if (!$book->book_book_genres->isEmpty())
+        @if (!$book->genres->isEmpty())
             <p class="mt-1 text-sm sm:text-base text-gray-800 dark:text-gray-300 font-bold">
                 Genero:
-                @foreach ($book->book_book_genres as $item)
+                @foreach ($book->genres as $item)
                     <flux:badge size="sm" variant="pill" as="button" variant="solid" color="purple">
                         <a
                             href="{{ route('books_library.index', ['g' => $item->uuid]) }}"
@@ -86,10 +88,10 @@ new class extends Component
             </p>
         @endif
 
-        @if (!$book->book_btags->isEmpty())
+        @if (!$book->tags->isEmpty())
             <p class="mt-1 text-sm sm:text-base text-gray-800 dark:text-gray-300 font-bold">
                 Etiquetas:
-                @foreach ($book->book_btags as $item)
+                @foreach ($book->tags as $item)
                     <flux:badge size="sm" variant="pill" as="button" variant="solid" color="violet">
                         <a
                             href="#"
@@ -99,9 +101,9 @@ new class extends Component
             </p>
         @endif
 
-        @if (!$book->book_collections->isEmpty())
+        @if (!$book->collections->isEmpty())
             <p class="mt-2 text-sm sm:text-base text-gray-800 dark:text-gray-300 font-bold">
-                @foreach ($book->book_collections as $item)
+                @foreach ($book->collections as $item)
                     <flux:badge size="sm" variant="pill" as="button" variant="solid" color="purple">
                         <a
                             href="{{ route('books_library.index', ['c' => $item->uuid]) }}"
@@ -124,8 +126,8 @@ new class extends Component
             <p class="mt-2 text-sm text-gray-950 dark:text-gray-300 italic">{{ $book->is_abandonated ? 'Abandonado 🚫' : '' }}</p>
         @endif
         
-        @if ($book->book_reads)
-            @foreach ($book->book_reads as $read)
+        @if ($book->reads)
+            @foreach ($book->reads as $read)
             <div class="mt-2 flex items-start justify-between">
                 <div class="px-3 border-l-4 border-purple-800">
                     @if ($read->end_read)
@@ -141,14 +143,14 @@ new class extends Component
         <flux:separator text="Anotaciones Personales" />
 
         @if ($book->summary)
-            <div class="text-sm text-gray-800 dark:text-gray-300">
+            <div class="text-sm text-gray-800 dark:text-gray-300 break-words">
                 <p class="text-lg sm:text-xl font-bold text-gray-900 dark:text-gray-300">Resumen 🗒️</p>
                 <p style="white-space: pre-line;">{!! $book->summary !!}</p>
             </div>
         @endif
 
         @if ($book->notes)
-            <div class="text-sm text-gray-800 dark:text-gray-300">
+            <div class="text-sm text-gray-800 dark:text-gray-300 break-words">
                 <p class="text-lg sm:text-xl font-bold text-gray-900 dark:text-gray-300">Reseña ✍️</p>
                 <p style="white-space: pre-line;">{!! $book->notes !!}</p>
             </div>

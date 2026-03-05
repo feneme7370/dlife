@@ -40,31 +40,41 @@ class Book extends Model
     }
 
     // tiene muchos subjects para relacionarse
-    public function book_subjects(){
+    public function subjects(){
         return $this->belongsToMany(\App\Models\Page\Subject::class, 'book_subject')
                     ->withTimestamps();
     }
 
     // tiene muchos collections para relacionarse
-    public function book_collections(){
+    public function collections(){
         return $this->belongsToMany(\App\Models\Page\Collection::class, 'book_collection')
                     ->withTimestamps();
     }
 
     // tiene muchos collections para relacionarse
-    public function book_book_genres(){
+    public function genres(){
         return $this->belongsToMany(\App\Models\Page\BookGenre::class, 'book_book_genre')
                     ->withTimestamps();
     }
 
     // tiene muchos collections para relacionarse
-    public function book_btags(){
+    public function tags(){
         return $this->belongsToMany(\App\Models\Page\Btag::class, 'book_btag')
                     ->withTimestamps();
     }
 
     // tiene muchas lecturas
-    public function book_reads(){
+    public function reads(){
         return $this->hasMany(BookRead::class);
+    }
+
+    public function languages()
+    {
+        return $this->belongsToMany(Language::class);
+    }
+
+    public function readingFormats()
+    {
+        return $this->belongsToMany(ReadingFormat::class);
     }
 }

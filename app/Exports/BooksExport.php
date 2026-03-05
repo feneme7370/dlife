@@ -9,10 +9,11 @@ class BooksExport implements FromCollection, WithHeadings
     public function collection()
     {
         return Book::with([
-            'book_subjects',
-            'book_book_genres',
-            'book_btags',
-            'book_reads'
+            'subjects',
+            'collections',
+            'genres',
+            'tags',
+            'reads'
         ])->get()->map(function ($book) {
 
             return [
@@ -31,6 +32,7 @@ class BooksExport implements FromCollection, WithHeadings
 
                 'is_favorite' => $book->is_favorite,
                 'is_abandonated' => $book->is_abandonated,
+                'is_public' => $book->is_public,
                 'rating' => $book->rating,
 
                 'cover_image' => $book->cover_image,
@@ -38,23 +40,23 @@ class BooksExport implements FromCollection, WithHeadings
                 'uuid' => $book->uuid,
                 'user_id' => $book->user_id,
 
-                'subjects' => $book->book_subjects
+                'subjects' => $book->subjects
                     ->pluck('name')
                     ->implode(', '),
 
-                'collections' => $book->book_collections
+                'collections' => $book->collections
                     ->pluck('name')
                     ->implode(', '),
 
-                'genres' => $book->book_book_genres
+                'genres' => $book->genres
                     ->pluck('name')
                     ->implode(', '),
 
-                'tags' => $book->book_btags
+                'tags' => $book->tags
                     ->pluck('name')
                     ->implode(', '),
 
-                'reads' => $book->book_reads
+                'reads' => $book->reads
                     ->map(function ($read) {
                         return \Carbon\Carbon::parse($read->start_read)->format('Y-m-d') . ' → ' .
                             (\Carbon\Carbon::parse($read->end_read)->format('Y-m-d') ?? 'En progreso');
@@ -82,6 +84,7 @@ class BooksExport implements FromCollection, WithHeadings
         
         'is_favorite',
         'is_abandonated',
+        'is_public',
         'rating',
 
         'cover_image',
@@ -89,11 +92,11 @@ class BooksExport implements FromCollection, WithHeadings
         'uuid',
         'user_id',
 
-        'book_subjects',
-        'book_collections',
-        'book_genres',
-        'book_tags',
-        'book_reads'
+        'subjects',
+        'collections',
+        'genres',
+        'tags',
+        'reads'
         ];
     }
 }

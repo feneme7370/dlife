@@ -6,27 +6,28 @@ use App\Models\Page\Diary;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
+use PhpOffice\PhpSpreadsheet\Shared\Date;
 
 class DailyLogImport implements ToModel, WithHeadingRow
 {
     public function model(array $row)
     {
         // Validar que tenga uuid
-        if (empty($row['uuid'])) {
-            return null;
-        }
+        // if (empty($row['uuid'])) {
+        //     return null;
+        // }
         
         $diary = Diary::updateOrCreate(
             [
                 'uuid' => $row['uuid'],
-                'user_id' => Auth::id(),
             ],
             [
+                'day' => Date::excelToDateTimeObject($row['day']) ?? null,
                 'title' => $row['title'] ?? null,
-                'day' => $row['day'] ?? null,
-                'status' => $row['status'] ?? null,
-                'content' => $row['content'] ?? null,
-                'content_clear' => $row['content_clear'] ?? null,
+                // 'day' => $row['day'] ?? null,
+                'status' => $row['status'] ?? 0,
+                'content' => $row['content'] ?? '',
+                'content_clear' => $row['content_clear'] ?? '',
                 'user_id' => $row['user_id'] ?? Auth::id(),
                 'uuid' => $row['uuid'] ?? \Illuminate\Support\Str::random(24),
             ]

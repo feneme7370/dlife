@@ -6,8 +6,14 @@ new class extends Component
 {
     use \Livewire\WithPagination;
 
+    //////////////////////////////////////////////////////////////////// PROPIEDADES PRINCIPALES
+    // propiedades de item y titulos
+    public $books;
+    public $title = 'Libreria';
+    public $subtitle = 'Listado de libros leidos';
+
     // propiedades para paginacion y orden, actualizar al buscar
-    public $search = '', $sortField = 'title', $sortDirection = 'asc', $perPage = 10000;
+    public $search = '', $sortField = 'title', $sortDirection = 'desc', $perPage = 10000;
     public function updatingSearch(){$this->resetPage();}
     public function updatingSortField(){$this->resetPage();}
     public function updatingSortDirection(){$this->resetPage();}
@@ -15,6 +21,7 @@ new class extends Component
 
     public $status_read, $collection_selected, $subject_selected, $genre_selected, $star_selected;
 
+    //////////////////////////////////////////////////////////////////// CONSULTA DE DATOS
     // funcion para ordenar la tabla
     public function sortBy($field){
         if ($this->sortField === $field) {
@@ -37,34 +44,29 @@ new class extends Component
         ];
     }
 
-    // propiedades de item y titulos
-    public $books;
-    public $title = 'Libreria';
-    public $subtitle = 'Listado de libros leidos';
-
     public function booksQuery(){
         return \App\Models\Page\Book::where('user_id', \Illuminate\Support\Facades\Auth::id())
         
             // no abandonado
-            ->whereHas('book_reads')
-            ->withMax('book_reads', 'end_read')
-            ->whereHas('book_reads', fn($q) => $q->where('end_read', '<>' ,''))
+            ->whereHas('reads')
+            ->withMax('reads', 'end_read')
+            ->whereHas('reads', fn($q) => $q->where('end_read', '<>' ,''))
 
             ->when($this->star_selected !== null, function( $query) {
                 return $query->where('rating', $this->star_selected);
             })
             ->when($this->subject_selected, function ($query) {
-                $query->whereHas('book_subjects', function ($q) {
+                $query->whereHas('subjects', function ($q) {
                     $q->where('subjects.uuid', $this->subject_selected);
                 });
             })
             ->when($this->genre_selected, function ($query) {
-                $query->whereHas('book_book_genres', function ($q) {
+                $query->whereHas('genres', function ($q) {
                     $q->where('book_genres.uuid', $this->genre_selected);
                 });
             })
             ->when($this->collection_selected, function ($query) {
-                $query->whereHas('book_collections', function ($q) {
+                $query->whereHas('collections', function ($q) {
                     $q->where('collections.uuid', $this->collection_selected);
                 });
             })
@@ -111,7 +113,7 @@ new class extends Component
                                 {{ $item->is_abandonated ? '🚫' : ''}}
                                 {{ $item->summary_clear ? '🗒️' : ''}}
                                 {{ $item->notes_clear ? '✍️' : ''}}
-                                {{ $item->book_reads->first() ? '✅' : ''}}
+                                {{ $item->reads->first() ? '✅' : ''}}
                             </p>
                         </div>
                     </div>

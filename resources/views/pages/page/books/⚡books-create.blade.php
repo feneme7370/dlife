@@ -3,11 +3,14 @@
 use App\Models\Page\Book;
 use App\Models\Page\BookGenre;
 use App\Models\Page\Collection;
+use App\Models\Page\Language;
+use App\Models\Page\ReadingFormat;
 use App\Models\Page\Subject;
 use Livewire\Component;
 
 new class extends Component
 {
+    //////////////////////////////////////////////////////////////////// PROPIEDADES PRINCIPALES
     //propiedades de titulos
     public string $title_book = 'Agregar libros';
     public string $subtitle = 'Agregue un libros a la lista';
@@ -32,13 +35,18 @@ new class extends Component
     public int $user_id = 0;
 
     // propiedades para relacion muchos a muchos
-    public $selected_book_subjects = [];
-    public $selected_book_collections = [];
-    public $selected_book_book_genres = [];
+    public $selectedBookSubjects = [];
+    public $selectedBookCollections = [];
+    public $selectedBookGenres = [];
+    public $selectedBookTags = [];
+    public $selectedBookLanguages = [1];
+    public $selectedBookReadingFormats = [2];
 
+    // propiedades para lecturas
     public $start_read = null;
     public $end_read = null;
 
+    //////////////////////////////////////////////////////////////////// VALIDACIONES
     // reglas de validacion
     protected function rules(){
         return [
@@ -83,27 +91,43 @@ new class extends Component
         'user_id' => 'usuario',
     ];
 
+    //////////////////////////////////////////////////////////////////// DATOS PARA ASOCIAR
     // traer datos de generos para asociar
-    public function book_genres(){
+    public function genres(){
         return BookGenre::where('user_id', \Illuminate\Support\Facades\Auth::id())
             ->orderBy('name_general', 'asc')
             ->get();
     }
 
     // traer datos de colecciones para asociar
-    public function book_collections(){
+    public function collections(){
         return Collection::where('user_id', \Illuminate\Support\Facades\Auth::id())
             ->orderBy('name', 'asc')
             ->get();
     }
 
     // traer datos de generos para asociar
-    public function book_subjects(){
+    public function subjects(){
         return Subject::where('user_id', \Illuminate\Support\Facades\Auth::id())
             ->orderBy('name', 'asc')
             ->get();
     }
 
+    // traer datos de generos para asociar
+    public function languages(){
+        return Language::where('user_id', \Illuminate\Support\Facades\Auth::id())
+            ->orderBy('name', 'asc')
+            ->get();
+    }
+
+    // traer datos de generos para asociar
+    public function formats(){
+        return ReadingFormat::where('user_id', \Illuminate\Support\Facades\Auth::id())
+            ->orderBy('name', 'asc')
+            ->get();
+    }
+
+    //////////////////////////////////////////////////////////////////// STORE PARA CREAR
     // crear item en la BD
     public function storeItem(){
         // datos automaticos
@@ -116,12 +140,13 @@ new class extends Component
         // validar
         $validatedData = $this->validate();
 
-
         // crear en BD
         $book = Book::create($validatedData);
-        $book->book_subjects()->sync($this->selected_book_subjects);
-        $book->book_collections()->sync($this->selected_book_collections);
-        $book->book_book_genres()->sync($this->selected_book_book_genres);
+        $book->subjects()->sync($this->selectedBookSubjects);
+        $book->collections()->sync($this->selectedBookCollections);
+        $book->genres()->sync($this->selectedBookGenres);
+        $book->languages()->sync($this->selectedBookLanguages);
+        $book->readingFormats()->sync($this->selectedBookReadingFormats);
 
         // agregar read de libro
         if($this->start_read || $this->end_read){
@@ -135,7 +160,7 @@ new class extends Component
 
         // agregar tags
         $tagIds = [];
-        foreach ($this->selected_book_btags as $tagName) {
+        foreach ($this->selectedBookTags as $tagName) {
             $tag = \App\Models\Page\Btag::firstOrCreate(
                 ['name' => $tagName],
                 [
@@ -147,7 +172,7 @@ new class extends Component
 
             $tagIds[] = $tag->id;
         }
-        $book->book_btags()->sync($tagIds);
+        $book->tags()->sync($tagIds);
 
         session()->flash('success', 'Creado correctamente');
 
@@ -155,30 +180,33 @@ new class extends Component
         $this->redirectRoute('books.index', navigate:true);
     }
 
+    //////////////////////////////////////////////////////////////////// STORE PARA DATOS DE ASOCIACION ADICIONALES
     // store para crear una coleccion
     public $name_collection;
     public $books_amount_collection;
     public $movies_amount_collection;
+    public $seasons_amount_collection;
     public function storeCollection(){
         $this->validate([
             'name_collection' => ['required', 'string', 'max:255'],
             'books_amount_collection' => ['nullable', 'numeric'],
             'movies_amount_collection' => ['nullable', 'numeric'],
+            'seasons_amount_collection' => ['nullable', 'numeric'],
         ]);
 
-        // crear en BD
         $s = Collection::create([
             'name' => trim($this->name_collection),
             'books_amount' => $this->books_amount_collection ?? 0,
             'movies_amount' => $this->movies_amount_collection ?? 0,
+            'seasons_amount' => $this->seasons_amount_collection ?? 0,
             'slug' => \Illuminate\Support\Str::slug(trim($this->name_collection) . '-' . \Illuminate\Support\Str::random(4)),
             'uuid' => \Illuminate\Support\Str::random(24),
             'user_id' => \Illuminate\Support\Facades\Auth::id(),
         ]);
 
-        $this->reset('name_collection', 'books_amount_collection', 'movies_amount_collection', 'selected_book_collections');
-        $this->book_collections();
-        $this->selected_book_collections[] = $s->id;
+        $this->reset('name_collection', 'books_amount_collection', 'movies_amount_collection', 'seasons_amount_collection', 'selectedBookCollections');
+        $this->collections();
+        $this->selectedBookCollections[] = $s->id;
         $this->modal('add-collection')->close();
     }
 
@@ -197,17 +225,16 @@ new class extends Component
             'user_id' => \Illuminate\Support\Facades\Auth::id(),
         ]);
 
-        $this->reset('name_subject', 'selected_book_subjects');
-        $this->book_collections();
-        $this->selected_book_subjects[] = $s->id;
+        $this->reset('name_subject', 'selectedBookSubjects');
+        $this->collections();
+        $this->selectedBookSubjects[] = $s->id;
         $this->modal('add-subject')->close();
     }
 
-
+    //////////////////////////////////////////////////////////////////// STORE PARA TAGS
     // store para crear tags
     public $name_tag;
     public $newTag = '';   // input actual
-    public $selected_book_btags = [];     // array de tags agregados
 
     public function addTag()
     {
@@ -216,8 +243,8 @@ new class extends Component
             ->title()
             ->replace(' ', '');
 
-        if ($formatted && !in_array($formatted, $this->selected_book_btags)) {
-            $this->selected_book_btags[] = $formatted;
+        if ($formatted && !in_array($formatted, $this->selectedBookTags)) {
+            $this->selectedBookTags[] = $formatted;
         }
 
         $this->newTag = '';
@@ -225,8 +252,8 @@ new class extends Component
 
     public function removeTag($index)
     {
-        unset($this->selected_book_btags[$index]);
-        $this->selected_book_btags = array_values($this->selected_book_btags); // reindexa
+        unset($this->selectedBookTags[$index]);
+        $this->selectedBookTags = array_values($this->selectedBookTags); // reindexa
     }
 
    public function cleanNotes(?string $html): string
@@ -283,7 +310,6 @@ new class extends Component
         <div class="grid grid-cols-3 gap-1">
             <flux:input type="number" max="2999" min="1" label="Año de publicacion" wire:model="release_date"/>
             <flux:input type="number" max="2999" min="1" label="Paginas" wire:model="pages"/>
-            <flux:input type="number" max="2999" min="1" label="N° de coleccion" wire:model="number_collection"/>
         </div>
 
         <flux:input type="text" label="Link de portada" wire:model="cover_image_url" placeholder="Pegue el link de una imagen"/>
@@ -316,30 +342,56 @@ new class extends Component
             </flux:radio.group>
         </div>
 
+        <flux:checkbox.group wire:model="selectedBookLanguages" label="Idiomas">
+            <div class="grid grid-cols-3 gap-1">
+                @foreach($this->languages() as $item)
+                        <flux:checkbox label="{{ $item->name }}" value="{{ $item->id }}"/>
+                @endforeach
+            </div>
+        </flux:checkbox.group>
+
+        <flux:checkbox.group wire:model="selectedBookReadingFormats" label="Formatos">
+            <div class="grid grid-cols-3 gap-1">
+                @foreach($this->formats() as $item)
+                        <flux:checkbox label="{{ $item->name }}" value="{{ $item->id }}"/>
+                @endforeach
+            </div>
+        </flux:checkbox.group>
+
         <div class="grid grid-cols-2 gap-1">
             <flux:input wire:model='start_read' type="date" max="2999-12-31" label="Inicio de lectura" />
             <flux:input wire:model='end_read' type="date" max="2999-12-31" label="Fin de lectura" />
         </div>
 
-        <flux:select wire:model="selected_book_book_genres" label="Genero">
+        <flux:select wire:model="selectedBookGenres" label="Genero">
             <option value="">Seleccionar genero</option>
-            @foreach ($this->book_genres() as $item)
+            @foreach ($this->genres() as $item)
                 <option value="{{ $item->id }}">{{ $item->name_general }} - {{ $item->name }}</option>
             @endforeach
         </flux:select>
 
-        <div class="flex items-center gap-1">
-            <flux:modal.trigger name="add-collection">
-                <flux:button size="xs" variant="ghost" icon="plus"></flux:button>
-            </flux:modal.trigger>
-            <flux:label>Saga</flux:label>
+        <div class="grid grid-cols-12 gap-1">
+            <div class="col-span-10 space-y-1">
+                <div class="flex items-center gap-1">
+                    <flux:modal.trigger name="add-collection">
+                        <flux:button size="xs" variant="ghost" icon="plus"></flux:button>
+                    </flux:modal.trigger>
+                    <flux:label>Saga</flux:label>
+                </div>
+                <flux:select wire:model="selectedBookCollections">
+                    <option value="">Seleccionar saga</option>
+                    @foreach ($this->collections() as $item)
+                        <option value="{{ $item->id }}">{{ $item->name }}</option>
+                    @endforeach
+                </flux:select>
+            </div>
+            <div class="col-span-2 space-y-1">
+                <div>
+                    <flux:label>N° de coleccion</flux:label>
+                </div>
+                <flux:input type="number" max="2999" min="1" wire:model="number_collection"/>
+            </div>
         </div>
-        <flux:select wire:model="selected_book_collections">
-            <option value="">Seleccionar saga</option>
-            @foreach ($this->book_collections() as $item)
-                <option value="{{ $item->id }}">{{ $item->name }}</option>
-            @endforeach
-        </flux:select>
 
         <div class="flex items-center gap-1">
             <flux:modal.trigger name="add-subject">
@@ -348,9 +400,9 @@ new class extends Component
             </flux:modal.trigger>
         </div>
 
-        <flux:checkbox.group wire:model.live="selected_book_subjects" :label="'Autor(es) '.count($selected_book_subjects)">
+        <flux:checkbox.group wire:model.live="selectedBookSubjects" :label="'Autor(es) '.count($selectedBookSubjects)">
             <div class="h-40 overflow-scroll space-y-1">
-                @foreach ($this->book_subjects() as $item)
+                @foreach ($this->subjects() as $item)
                     <flux:checkbox label="{{ $item->name }}" value="{{ $item->id }}" />
                 @endforeach
             </div>
@@ -358,7 +410,7 @@ new class extends Component
 
         <flux:input type="text" label="Etiquetas" wire:model="newTag" wire:keydown.space.prevent="addTag" placeholder="Agregue etiquetas" />
         <div class="flex gap-2 mt-2">
-            @foreach($selected_book_btags as $index => $tag)
+            @foreach($selectedBookTags as $index => $tag)
                 <flux:badge size="sm" color="purple">
                     <button class="mr-2" wire:click="removeTag({{ $index }})">
                         x
@@ -382,19 +434,6 @@ new class extends Component
             rows="15" 
             placeholder="{{ __('Reseña') }}" model="notes"
             model_data="{{ $notes }}" 
-        />
-
-        <flux:textarea
-            label="Resumen General 🗒️"
-            placeholder="Escriba lo que recuerde del libro"
-            wire:model="summary_clear"
-            rows="6"
-        />
-        <flux:textarea
-            label="Reseña propia ✍️"
-            placeholder="Escriba su reseña"
-            wire:model="notes_clear"
-            rows="6"
         />
 
         @if ($errors->any())
@@ -421,6 +460,7 @@ new class extends Component
                 <flux:input label="Nombre" placeholder="Nombre de la saga" wire:model="name_collection" autofocus/>
                 <flux:input type="number" label="Numero de libros" placeholder="Cantidad de libros" wire:model="books_amount_collection"/>
                 <flux:input type="number" label="Numero de peliculas" placeholder="Cantidad de peliculas" wire:model="movies_amount_collection"/>
+                <flux:input type="number" label="Numero de temporadas" placeholder="Cantidad de temporadas" wire:model="seasons_amount_collection"/>
 
                 <div class="flex">
                     <flux:spacer />

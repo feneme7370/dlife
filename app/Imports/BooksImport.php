@@ -30,6 +30,7 @@ class BooksImport implements ToModel, WithHeadingRow
 
                 'is_favorite' => $row['is_favorite'] ?? false,
                 'is_abandonated' => $row['is_abandonated'] ?? false,
+                'is_public' => $row['is_public'] ?? false,
                 'rating' => $row['rating'],
 
                 'cover_image' => $row['cover_image'],
@@ -40,17 +41,17 @@ class BooksImport implements ToModel, WithHeadingRow
         );
 
         // 2️⃣ Sync relaciones many-to-many
-        $this->syncRelation($book, $row['book_subjects'], \App\Models\Page\Subject::class, 'book_subjects');
-        $this->syncRelation($book, $row['book_collections'], \App\Models\Page\Collection::class, 'book_collections');
-        $this->syncRelation($book, $row['book_genres'], \App\Models\Page\BookGenre::class, 'book_book_genres');
-        $this->syncRelation($book, $row['book_tags'], \App\Models\Page\Btag::class, 'book_btags');
+        $this->syncRelation($book, $row['subjects'], \App\Models\Page\Subject::class, 'subjects');
+        $this->syncRelation($book, $row['collections'], \App\Models\Page\Collection::class, 'collections');
+        $this->syncRelation($book, $row['genres'], \App\Models\Page\BookGenre::class, 'genres');
+        $this->syncRelation($book, $row['tags'], \App\Models\Page\Btag::class, 'tags');
 
         // 3️⃣ Restaurar lecturas (one-to-many)
-        $book->book_reads()->delete(); // 🔥 importante en restore
+        $book->reads()->delete(); // 🔥 importante en restore
 
-        if (!empty($row['book_reads'])) {
+        if (!empty($row['reads'])) {
 
-            $reads = collect(explode('|', $row['book_reads']))
+            $reads = collect(explode('|', $row['reads']))
                 ->map(fn($item) => trim($item))
                 ->filter();
 

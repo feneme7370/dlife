@@ -14,7 +14,7 @@ new class extends Component
     public string $title = '';
     public string $content = '';
     public string $content_clear = '';
-    public string $day = '';
+    public $day;
     public int $status = 0;
     public string $uuid = '';
     public int $user_id = 0;
@@ -55,12 +55,13 @@ new class extends Component
         $this->title = $this->diary->title ?? '';
         $this->content = $this->diary->content ?? '';
         $this->content_clear = $this->diary->content_clear ?? '';
-        $this->day = $this->diary->day ?? \Carbon\Carbon::now()->format('Y-m-d');;
+        $this->day = \Carbon\Carbon::parse($this->diary->day)->format('Y-m-d') ?? \Carbon\Carbon::now()->format('Y-m-d');
         $this->status = $this->diary->status ?? 0;
         $this->uuid = $this->diary->uuid ?? '';
         $this->user_id = $this->diary->user_id ?? 0;
 
         $this->selected_diary_categories = $this->diary->diary_dcategories->pluck('id')->toArray() ?? [];
+        $this->selected_diary_dtags = $this->diary->diary_dtags->pluck('name')->toArray() ?? [];
     }
 
     // traer estados

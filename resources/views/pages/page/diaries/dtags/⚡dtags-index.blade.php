@@ -100,25 +100,15 @@ new class extends Component
     {{-- listado de sagas --}}
     <div class="space-y-2">
         @foreach ($this->queryDtags() as $item)
-            <flux:badge variant="solid" color="fuchsia">
-                <a href="#">#{{ $item->name }}</a>
+            <flux:badge rounded color="fuchsia">
+                <a href="{{ route('diaries.index', ['tag' => $item->uuid]) }}">
+                    <span class="text-xs">#{{ $item->name }}</span>
+                </a>
                 <div class="flex items-center justify-center ml-5">
                         <a href="{{ route('dtags.edit', ['dtagUuid' => $item->uuid]) }}"><flux:button size="xs" variant="ghost" icon="pencil-square"></flux:button></a>
                         <a><flux:button size="xs" variant="ghost" icon="trash" wire:confirm="Quiere eliminar?" wire:click="deleteItem('{{ $item->uuid }}')"></flux:button></a>
                 </div>
             </flux:badge>
-            {{-- <div class="flex items-center justify-between">
-
-                <div class="flex items-center gap-3">
-                    <p><a class="hover:underline" href="{{ route('dtags.show', ['dtagUuid' => $item->uuid]) }}">{{ $item->name }}</p></a>
-                </div>
-
-                <div class="flex items-center justify-center">
-                        <a href="{{ route('dtags.edit', ['dtagUuid' => $item->uuid]) }}"><flux:button size="xs" variant="ghost" icon="pencil-square"></flux:button></a>
-                        <a><flux:button size="xs" variant="ghost" icon="trash" wire:confirm="Quiere eliminar?" wire:click="deleteItem('{{ $item->uuid }}')"></flux:button></a>
-                </div>
-
-            </div> --}}
         @endforeach
     </div>
 

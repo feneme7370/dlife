@@ -26,10 +26,10 @@ Route::middleware(['auth'])->group(function () {
     Route::livewire('collections/{collectionUuid}/show', 'pages::page.collections.collections-show')->name('collections.show');
     
     // Seccion generos de libros
-    Route::livewire('book-genres', 'pages::page.book-genres.book-genres-index')->name('book-genres.index');
-    Route::livewire('book-genres/create', 'pages::page.book-genres.book-genres-create')->name('book-genres.create');
-    Route::livewire('book-genres/{bookGenreUuid}/edit', 'pages::page.book-genres.book-genres-edit')->name('book-genres.edit');
-    Route::livewire('book-genres/{bookGenreUuid}/show', 'pages::page.book-genres.book-genres-show')->name('book-genres.show');
+    Route::livewire('book-genres', 'pages::page.books.book-genres.book-genres-index')->name('book-genres.index');
+    Route::livewire('book-genres/create', 'pages::page.books.book-genres.book-genres-create')->name('book-genres.create');
+    Route::livewire('book-genres/{bookGenreUuid}/edit', 'pages::page.books.book-genres.book-genres-edit')->name('book-genres.edit');
+    Route::livewire('book-genres/{bookGenreUuid}/show', 'pages::page.books.book-genres.book-genres-show')->name('book-genres.show');
     
     // Seccion libros
     Route::livewire('books', 'pages::page.books.books-index')->name('books.index');

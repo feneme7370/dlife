@@ -17,6 +17,8 @@ return new class extends Migration
             // fecha de inicio y fin de lectura
             $table->date('start_read')->nullable();
             $table->date('end_read')->nullable();
+            $table->unsignedInteger('pages_read')->nullable();
+            $table->text('notes')->nullable();
 
             // relaciones
             $table->foreignId('book_id')->constrained()->onDelete('cascade');
