@@ -16,7 +16,7 @@ return new class extends Migration
 
             // nombre
             $table->string('name');
-            $table->string('slug')->unique();
+            $table->string('slug')->nullable();
             
             // descripciones del item
             $table->text('description')->nullable();

@@ -41,7 +41,7 @@ new class extends Component
 <div>
     {{-- titulo, descripcion y breadcrumbs --}}
     <div>
-        <flux:main container class="mb-1 space-y-1">
+        <div container class="mb-1 space-y-1">
             <flux:heading size="xl" level="1">
                 <a href="{{ route('books.index') }}"><flux:button size="xs" variant="ghost" icon="arrow-uturn-left"></flux:button></a>
                 {{ $this->title }}
@@ -57,7 +57,7 @@ new class extends Component
             <flux:separator variant="subtle" />
             <flux:badge color="purple"><a href="{{ route('books.index') }}">Libros</a></flux:badge>
             <flux:badge color="violet"><a href="{{ route('books_data.index') }}">Estadisticas</a></flux:badge>
-        </flux:main>
+        </div>
     </div>
 
     {{-- pentientes totales de comentar de cualquier año --}}

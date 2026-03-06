@@ -22,8 +22,7 @@ class BookGenre extends Model
     ];
 
     // pertenece a un usuario
-    public function user()
-    {
+    public function user(){
         return $this->belongsTo(\App\Models\User::class, 'user_id', 'id');
     }
 

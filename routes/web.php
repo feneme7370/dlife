@@ -40,6 +40,7 @@ Route::middleware(['auth'])->group(function () {
     Route::livewire('books/{bookUuid}/edit', 'pages::page.books.books-edit')->name('books.edit');
     Route::livewire('books/{bookUuid}/show', 'pages::page.books.books-show')->name('books.show');
     
+    //////////////////////////////////////////////////////////////////////////////////////////////////////
     // Seccion libros
     Route::livewire('diaries', 'pages::page.diaries.diaries-index')->name('diaries.index');
     Route::livewire('diaries/create/{templateUuid?}', 'pages::page.diaries.diaries-create')->name('diaries.create');
@@ -50,14 +51,43 @@ Route::middleware(['auth'])->group(function () {
     Route::livewire('dtags', 'pages::page.diaries.dtags.dtags-index')->name('dtags.index');
     Route::livewire('dtags/create', 'pages::page.diaries.dtags.dtags-create')->name('dtags.create');
     Route::livewire('dtags/{dtagUuid}/edit', 'pages::page.diaries.dtags.dtags-edit')->name('dtags.edit');
-    Route::livewire('diaridtagses/{dtagUuid}/show', 'pages::page.diaries.dtags.dtags-show')->name('dtags.show');
-    Route::livewire('diaries/{diaryUuid}/show', 'pages::page.diaries.diaries-show')->name('diaries.show');
+    Route::livewire('dtags/{dtagUuid}/show', 'pages::page.diaries.dtags.dtags-show')->name('dtags.show');
     
     // Seccion categories de libros
     Route::livewire('dcategories', 'pages::page.diaries.dcategories.dcategories-index')->name('dcategories.index');
     Route::livewire('dcategories/create', 'pages::page.diaries.dcategories.dcategories-create')->name('dcategories.create');
     Route::livewire('dcategories/{dcategoryUuid}/edit', 'pages::page.diaries.dcategories.dcategories-edit')->name('dcategories.edit');
-    Route::livewire('diaridcategorieses/{dcategoryUuid}/show', 'pages::page.diaries.dcategories.dcategories-show')->name('dcategories.show');
+    Route::livewire('dcategories/{dcategoryUuid}/show', 'pages::page.diaries.dcategories.dcategories-show')->name('dcategories.show');
+    
+    //////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    // Seccion peliculas
+    Route::livewire('movies', 'pages::page.medias.movies.movies-index')->name('movies.index');
+    Route::livewire('movies_library', 'pages::page.medias.movies.movies-library')->name('movies_library.index');
+    // Route::livewire('movies_data', 'pages::page.medias.movies.movies-data')->name('movies_data.index');
+    // Route::livewire('movies_incomplete', 'pages::page.medias.movies.movies-incomplete')->name('movies_incomplete.index');
+    Route::livewire('movies/create', 'pages::page.medias.movies.movies-create')->name('movies.create');
+    Route::livewire('movies/{movieUuid}/edit', 'pages::page.medias.movies.movies-edit')->name('movies.edit');
+    Route::livewire('movies/{movieUuid}/show', 'pages::page.medias.movies.movies-show')->name('movies.show');
+
+    // Seccion series
+    Route::livewire('series', 'pages::page.medias.series.series-index')->name('series.index');
+    Route::livewire('series_library', 'pages::page.medias.series.series-library')->name('series_library.index');
+    // Route::livewire('series_data', 'pages::page.medias.series.series-data')->name('series_data.index');
+    // Route::livewire('series_incomplete', 'pages::page.medias.series.series-incomplete')->name('series_incomplete.index');
+    Route::livewire('series/create', 'pages::page.medias.series.series-create')->name('series.create');
+    Route::livewire('series/{serieUuid}/edit', 'pages::page.medias.series.series-edit')->name('series.edit');
+    Route::livewire('series/{serieUuid}/show', 'pages::page.medias.series.series-show')->name('series.show');
+
+    // Seccion genres de media
+    Route::livewire('mgenres', 'pages::page.medias.mgenres.mgenres-index')->name('mgenres.index');
+    Route::livewire('mgenres/create', 'pages::page.medias.mgenres.mgenres-create')->name('mgenres.create');
+    Route::livewire('mgenres/{mgenreUuid}/edit', 'pages::page.medias.mgenres.mgenres-edit')->name('mgenres.edit');
+    
+    // Seccion tags de media
+    Route::livewire('mtags', 'pages::page.medias.mtags.mtags-index')->name('mtags.index');
+    Route::livewire('mtags/create', 'pages::page.medias.mtags.mtags-create')->name('mtags.create');
+    Route::livewire('mtags/{mtagUuid}/edit', 'pages::page.medias.mtags.mtags-edit')->name('mtags.edit');
 });
 
 require __DIR__.'/settings.php';

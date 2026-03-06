@@ -20,7 +20,7 @@ new class extends Component
     public string $original_title = '';
     public string $synopsis = '';
     public int $release_date = 1;
-    public int $number_collection = 1;
+    public float $number_collection = 1;
     public int $pages = 1;
     public string $summary = '';
     public string $summary_clear = '';
@@ -58,7 +58,7 @@ new class extends Component
             'original_title' => ['nullable', 'string', 'max:255'],
             'synopsis' => ['nullable', 'string'],
             'release_date' => ['nullable', 'integer', 'min:1'],
-            'number_collection' => ['required', 'integer', 'min:1'],
+            'number_collection' => ['required', 'numeric', 'min:0'],
             'pages' => ['nullable', 'integer', 'min:1'],
             'summary' => ['nullable', 'string'],
             'summary_clear' => ['nullable', 'string'],
@@ -364,7 +364,7 @@ new class extends Component
 <div>
     {{-- titulo, descripcion y breadcrumbs --}}
     <div>
-        <flux:main class="mb-1 space-y-1">
+        <div class="mb-1 space-y-1">
             <flux:heading size="xl" level="1">
                 <a href="{{ route('books.index') }}"><flux:button size="xs" variant="ghost" icon="arrow-uturn-left"></flux:button></a>
                 {{ $this->title_book }}
@@ -378,7 +378,7 @@ new class extends Component
             </flux:breadcrumbs>
     
             <flux:separator variant="subtle" />
-        </flux:main>
+        </div>
     </div>
 
     <div class="space-y-2">
@@ -537,7 +537,7 @@ new class extends Component
                 <div>
                     <flux:label>N° de coleccion</flux:label>
                 </div>
-                <flux:input type="number" max="2999" min="1" wire:model="number_collection"/>
+                <flux:input type="number" max="2999" min="0" step="0.1" wire:model="number_collection"/>
             </div>
         </div>
 

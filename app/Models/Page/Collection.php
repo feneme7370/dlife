@@ -26,9 +26,6 @@ class Collection extends Model
         'books_amount' => 'integer',
         'movies_amount' => 'integer',
         'seasons_amount' => 'integer',
-        'release_date' => 'date',
-        'rating' => 'integer',
-        'pages' => 'integer',
     ];
 
     // pertenece a un usuario

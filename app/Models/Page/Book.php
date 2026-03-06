@@ -34,6 +34,10 @@ class Book extends Model
         'user_id',
     ];
 
+    protected $casts = [
+        'number_collection' => 'decimal:2',
+    ];
+
     // pertenece a un usuario
     public function user(){
         return $this->belongsTo(\App\Models\User::class, 'user_id', 'id');

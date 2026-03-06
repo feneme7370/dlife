@@ -25,21 +25,21 @@ new class extends Component
 <div>
     {{-- titulo, descripcion y breadcrumbs --}}
     <div>
-        <flux:main class="mb-1 space-y-1">
+        <div class="mb-1 space-y-1">
             <flux:heading size="xl" level="1">
-                <a href="{{ route('subjects.index') }}"><flux:button size="xs" variant="ghost" icon="arrow-uturn-left"></flux:button></a>
+                <a href="{{ route('books.index') }}"><flux:button size="xs" variant="ghost" icon="arrow-uturn-left"></flux:button></a>
                 {{ $this->title }}
             </flux:heading>
             <flux:text class="text-base">{{ $this->subtitle }}</flux:text>
     
             <flux:breadcrumbs>
                 <flux:breadcrumbs.item href="{{ route('dashboard') }}">Dashboard</flux:breadcrumbs.item>
-                <flux:breadcrumbs.item href="{{ route('subjects.index') }}">Sujetos</flux:breadcrumbs.item>
+                <flux:breadcrumbs.item href="{{ route('books.index') }}">Libros</flux:breadcrumbs.item>
                 <flux:breadcrumbs.item>{{ $this->title }}</flux:breadcrumbs.item>
             </flux:breadcrumbs>
     
             <flux:separator variant="subtle" />
-        </flux:main>
+        </div>
     </div>
 
     {{-- datos del libro --}}
@@ -110,7 +110,7 @@ new class extends Component
                         >{{ $item->name }}</a>
                     </flux:badge>
                 @endforeach
-                <span class="text-xs italic ml-3">{{$book->number_collection}}° Vol.</span>
+                <span class="text-xs italic ml-3">Vol. N°{{$book->number_collection}}</span>
             </p>
         @endif
 

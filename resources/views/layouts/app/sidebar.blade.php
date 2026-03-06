@@ -30,6 +30,17 @@
 
             <flux:spacer />
 
+                <flux:sidebar.group :heading="__('Media')" class="grid">
+                    <flux:sidebar.item icon="film" :href="route('movies.index')" :current="request()->routeIs('movies.index')" wire:navigate>
+                        {{ __('Peliculas') }}
+                    </flux:sidebar.item>
+                    <flux:sidebar.item icon="tv" :href="route('series.index')" :current="request()->routeIs('series.index')" wire:navigate>
+                        {{ __('Series') }}
+                    </flux:sidebar.item>
+                </flux:sidebar.group>
+
+            <flux:spacer />
+
                 <flux:sidebar.group :heading="__('Diario')" class="grid">
                     <flux:sidebar.item icon="pencil" :href="route('diaries.index')" :current="request()->routeIs('diaries.index')" wire:navigate>
                         {{ __('Diario') }}

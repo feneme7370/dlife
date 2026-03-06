@@ -75,7 +75,7 @@ new class extends Component
 <div>
     {{-- titulo, descripcion y breadcrumbs --}}
     <div>
-        <flux:main container class="mb-1 space-y-1">
+        <div container class="mb-1 space-y-1">
             <flux:heading size="xl" level="1">
                 <a href="{{ route('subjects.create') }}"><flux:button size="xs" variant="ghost" icon="plus"></flux:button></a>
                 {{ $this->title }}
@@ -88,7 +88,7 @@ new class extends Component
             </flux:breadcrumbs>
     
             <flux:separator variant="subtle" />
-        </flux:main>
+        </div>
     </div>
 
     {{-- buscador --}}

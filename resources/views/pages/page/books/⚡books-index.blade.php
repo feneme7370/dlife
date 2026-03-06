@@ -79,7 +79,7 @@ new class extends Component
 <div>
     {{-- titulo, descripcion y breadcrumbs --}}
     <div>
-        <flux:main container class="mb-1 space-y-1">
+        <div container class="mb-1 space-y-1">
             <flux:heading size="xl" level="1">
                 <a href="{{ route('books.create') }}"><flux:button size="xs" variant="ghost" icon="plus"></flux:button></a>
                 {{ $this->title }}
@@ -96,7 +96,7 @@ new class extends Component
             <flux:badge color="violet"><a href="{{ route('books_data.index') }}">Estadisticas</a></flux:badge>
             <flux:badge color="purple"><a href="{{ route('books_incomplete.index') }}">Pendientes</a></flux:badge>
             <flux:badge color="fuchsia"><a href="{{ route('book-genres.index') }}">Generos</a></flux:badge>
-        </flux:main>
+        </div>
     </div>
 
     {{-- buscador --}}
