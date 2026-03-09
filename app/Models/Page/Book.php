@@ -18,6 +18,7 @@ class Book extends Model
         'summary_clear',
         'notes',
         'notes_clear',
+        'type',
         
         'is_favorite',
         'is_abandonated',
@@ -80,5 +81,14 @@ class Book extends Model
     public function readingFormats()
     {
         return $this->belongsToMany(ReadingFormat::class);
+    }
+
+    // tipo de libro
+    public static function type(){
+        return [
+            1 => 'Libro 📖', 
+            2 => 'Manga 📚',
+            3 => 'Historieta 📄',
+        ];
     }
 }

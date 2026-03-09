@@ -24,6 +24,7 @@ class BooksExport implements FromCollection, WithHeadings
                 'release_date' => $book->release_date,
                 'number_collection' => $book->number_collection,
                 'pages' => $book->pages,
+                'type' => $book->type,
 
                 'summary' => $book->summary,
                 'summary_clear' => $book->summary_clear,
@@ -59,7 +60,7 @@ class BooksExport implements FromCollection, WithHeadings
                 'reads' => $book->reads
                     ->map(function ($read) {
                         return \Carbon\Carbon::parse($read->start_read)->format('Y-m-d') . ' → ' .
-                            (\Carbon\Carbon::parse($read->end_read)->format('Y-m-d') ?? 'En progreso');
+                            ($read->end_read ? \Carbon\Carbon::parse($read->end_read)->format('Y-m-d') : 'En progreso');
                     })
                     ->implode(' | ')
             ];
@@ -76,6 +77,7 @@ class BooksExport implements FromCollection, WithHeadings
         'release_date',
         'number_collection',
         'pages',
+        'type',
 
         'summary',
         'summary_clear',

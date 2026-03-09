@@ -101,9 +101,9 @@ new class extends Component
         // poner datos a las propiedades
         $this->title = $this->movie->title;
         $this->slug = $this->movie->slug;
-        $this->original_title = $this->movie->original_title;
-        $this->synopsis = $this->movie->synopsis;
-        $this->release_date = $this->movie->release_date;
+        $this->original_title = $this->movie->original_title ?? '';
+        $this->synopsis = $this->movie->synopsis ?? '';
+        $this->release_date = $this->movie->release_date ?? 1;
         $this->number_collection = $this->movie->number_collection ?? 1;
         $this->runtime = $this->movie->runtime ?? 1;
         $this->summary = $this->movie->summary ?? '';
@@ -113,7 +113,7 @@ new class extends Component
         $this->is_favorite = $this->movie->is_favorite ?? false;
         $this->is_abandonated = $this->movie->is_abandonated ?? false;
         $this->rating = $this->movie->rating ?? 0;
-        $this->cover_image_url = $this->movie->cover_image_url;
+        $this->cover_image_url = $this->movie->cover_image_url ?? '';
         $this->user_id = $this->movie->user_id;
         $this->uuid = $this->movie->uuid;
 
@@ -210,16 +210,6 @@ new class extends Component
         $this->movie->collections()->sync($this->selectedMovieCollections);
         $this->movie->genres()->sync($this->selectedMgenres);
 
-        // crear views
-        // if($this->start_view || $this->end_view){
-        //     \App\Models\Page\MovieView::create([
-        //         'user_id' => \Illuminate\Support\Facades\Auth::id(),
-        //         'movie_id' => $this->movie->id,
-        //         'start_view' => $this->start_view,
-        //         'end_view' => $this->end_view,
-        //     ]);
-        // };
-
         // agregar tags
         $tagIds = [];
         foreach ($this->selectedMovieTags as $tagName) {
@@ -249,6 +239,7 @@ new class extends Component
     public $movies_amount_collection;
     public $seasons_amount_collection;
     public function storeCollection(){
+        \Illuminate\Support\Str::title(trim($this->name_collection));
         $this->validate([
             'name_collection' => ['required', 'string', 'max:255'],
             'books_amount_collection' => ['nullable', 'numeric'],
@@ -257,7 +248,7 @@ new class extends Component
         ]);
 
         $s = Collection::create([
-            'name' => trim($this->name_collection),
+            'name' => $this->name_collection,
             'books_amount' => $this->books_amount_collection ?? 0,
             'movies_amount' => $this->movies_amount_collection ?? 0,
             'seasons_amount' => $this->seasons_amount_collection ?? 0,
@@ -275,13 +266,14 @@ new class extends Component
     // store para crear un sujeto
     public $name_subject;
     public function storeSubject(){
+        \Illuminate\Support\Str::title(trim($this->name_subject));
         $this->validate([
             'name_subject' => ['required', 'string', 'max:255'],
         ]);
 
         // crear en BD
         $s = Subject::create([
-            'name' => trim($this->name_subject),
+            'name' => $this->name_subject,
             'slug' => \Illuminate\Support\Str::slug(trim($this->name_subject) . '-' . \Illuminate\Support\Str::random(4)),
             'uuid' => \Illuminate\Support\Str::random(24),
             'user_id' => \Illuminate\Support\Facades\Auth::id(),
@@ -301,10 +293,7 @@ new class extends Component
 
     public function addTag()
     {
-        $formatted = \Illuminate\Support\Str::of($this->newTag)
-            ->lower()
-            ->title()
-            ->replace(' ', '');
+        $formatted = str_replace(' ', '', \Illuminate\Support\Str::title(trim($this->newTag)));
 
         if ($formatted && !in_array($formatted, $this->selectedMovieTags)) {
             $this->selectedMovieTags[] = $formatted;

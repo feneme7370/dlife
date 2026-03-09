@@ -182,11 +182,12 @@ new class extends Component
             'end_read' => ['nullable', 'date'],
         ]);
 
+        // dd($this->end_read);
         \App\Models\Page\BookRead::create([
             'user_id' => \Illuminate\Support\Facades\Auth::id(),
             'book_id' => $this->book->id,
             'start_read' => $this->start_read,
-            'end_read' => $this->end_read,
+            'end_read' => $this->end_read ?? null,
         ]);
 
         $this->reads = \App\Models\Page\BookRead::where('book_id', $this->book->id)->get();
@@ -231,16 +232,6 @@ new class extends Component
         $this->book->languages()->sync($this->selectedBookLanguages);
         $this->book->readingFormats()->sync($this->selectedFormats);
 
-        // crear reads
-        if($this->start_read || $this->end_read){
-            \App\Models\Page\BookRead::create([
-                'user_id' => \Illuminate\Support\Facades\Auth::id(),
-                'book_id' => $this->book->id,
-                'start_read' => $this->start_read,
-                'end_read' => $this->end_read,
-            ]);
-        };
-
         // agregar tags
         $tagIds = [];
         foreach ($this->selectedBookTags as $tagName) {
@@ -270,6 +261,7 @@ new class extends Component
     public $movies_amount_collection;
     public $seasons_amount_collection;
     public function storeCollection(){
+        \Illuminate\Support\Str::title(trim($this->name_collection));
         $this->validate([
             'name_collection' => ['required', 'string', 'max:255'],
             'books_amount_collection' => ['nullable', 'numeric'],
@@ -278,7 +270,7 @@ new class extends Component
         ]);
 
         $s = Collection::create([
-            'name' => trim($this->name_collection),
+            'name' => $this->name_collection,
             'books_amount' => $this->books_amount_collection ?? 0,
             'movies_amount' => $this->movies_amount_collection ?? 0,
             'seasons_amount' => $this->seasons_amount_collection ?? 0,
@@ -296,13 +288,14 @@ new class extends Component
     // store para crear un sujeto
     public $name_subject;
     public function storeSubject(){
+        \Illuminate\Support\Str::title(trim($this->name_subject));
         $this->validate([
             'name_subject' => ['required', 'string', 'max:255'],
         ]);
 
         // crear en BD
         $s = Subject::create([
-            'name' => trim($this->name_subject),
+            'name' => $this->name_subject,
             'slug' => \Illuminate\Support\Str::slug(trim($this->name_subject) . '-' . \Illuminate\Support\Str::random(4)),
             'uuid' => \Illuminate\Support\Str::random(24),
             'user_id' => \Illuminate\Support\Facades\Auth::id(),
@@ -322,10 +315,7 @@ new class extends Component
 
     public function addTag()
     {
-        $formatted = \Illuminate\Support\Str::of($this->newTag)
-            ->lower()
-            ->title()
-            ->replace(' ', '');
+        $formatted = str_replace(' ', '', \Illuminate\Support\Str::title(trim($this->newTag)));
 
         if ($formatted && !in_array($formatted, $this->selectedBookTags)) {
             $this->selectedBookTags[] = $formatted;
@@ -455,7 +445,7 @@ new class extends Component
                     @if ($read->end_read)
                         <p class="mb-2 text-xs sm:text-base text-gray-800 dark:text-gray-300 ">{{ \Carbon\Carbon::parse($read->start_read)->format('Y-m-d') }} - {{ \Carbon\Carbon::parse($read->end_read)->format('Y-m-d') }} en {{ \Carbon\Carbon::parse($read->start_read)->diffInDays($read->end_read) }} dias</p>
                     @else
-                        <p class="mb-2 text-xs sm:text-base text-gray-800 dark:text-gray-300 ">{{ \Carbon\Carbon::parse($read->start_read)->format('Y-m-d') }} - {{ \Carbon\Carbon::parse($read->end_read)->format('Y-m-d') }} Leyendo</p>
+                        <p class="mb-2 text-xs sm:text-base text-gray-800 dark:text-gray-300 ">{{ \Carbon\Carbon::parse($read->start_read)->format('Y-m-d') }} Leyendo...</p>
                     @endif
 
                 </div>

@@ -6,24 +6,29 @@ use Livewire\Component;
 new class extends Component
 {
     //propiedades de titulos
-    public string $title = 'Editar etiqueta';
-    public string $subtitle = 'Edite un etiqueta a la lista';
+    public string $titlePage = '';
+    public string $subtitlePage = '';
+    public string $buttonSubmit = '';
     
     // propiedades del item
     public $mtag;
-    public string $name = '';
-    public string $slug = '';
-    public string $uuid = '';
-    public int $user_id = 0;
+    public ?string $name = null;
+    public ?string $slug = null;
+    public ?string $uuid = null;
+    public ?int $user_id = null;
 
     // precargar datos al iniciar pagina
-    public function mount($mtagUuid){
+    public function mount($mtagUuid = null){
         $this->mtag = Mtag::where('uuid', $mtagUuid)->first();
 
-        $this->name = $this->mtag->name ?? '';
-        $this->slug = $this->mtag->slug ?? '';
-        $this->uuid = $this->mtag->uuid ?? '';
-        $this->user_id = $this->mtag->user_id ?? 0;
+        $this->titlePage = $this->mtag ? 'Modificar etiqueta' : 'Agregar etiqueta';
+        $this->subtitlePage = $this->mtag ? 'Modificar datos del etiqueta' : 'Agregar datos del etiqueta';
+        $this->buttonSubmit = $this->mtag ? 'Modificar' : 'Agregar';
+
+        $this->name = $this->mtag?->name ?? null;
+        $this->slug = $this->mtag?->slug ?? null;
+        $this->uuid = $this->mtag?->uuid ?? null;
+        $this->user_id = $this->mtag?->user_id ?? \Illuminate\Support\Facades\Auth::id();
     }
 
     // reglas de validacion
@@ -44,19 +49,36 @@ new class extends Component
         'user_id' => 'usuario',
     ];
 
-    // editar item en la BD
+    // editar o crear item en la BD
     public function updateItem(){
-        // datos automaticos
+        // normalizar
+        $this->name = str_replace(' ', '', \Illuminate\Support\Str::title(trim($this->name)));
         $this->slug = \Illuminate\Support\Str::slug($this->name . '-' . \Illuminate\Support\Str::random(4));
 
-        // validar
-        $validatedData = $this->validate();
+        if($this->mtag){
+            // validar
+            $validatedData = $this->validate();
 
-        // actualizar item en BD
-        $this->mtag->update($validatedData);
+            // actualizar item en BD
+            $this->mtag->update($validatedData);
 
-        // mensaje de success
-        session()->flash('success', 'Editado correctamente');
+            // mensaje de success
+            session()->flash('success', 'Editado correctamente');
+
+        }else{
+            // datos automaticos
+            $this->user_id = \Illuminate\Support\Facades\Auth::id();
+            $this->uuid = \Illuminate\Support\Str::random(24);
+
+            // validar
+            $validatedData = $this->validate();
+
+            // crear en BD
+            Mtag::create($validatedData);
+            
+            // mensaje de success
+            session()->flash('success', 'Creado correctamente');
+        }
 
         // redireccionar
         $this->redirectRoute('mtags.index', navigate:true);
@@ -70,14 +92,14 @@ new class extends Component
         <flux:main class="mb-1 space-y-1">
             <flux:heading size="xl" level="1">
                 <a href="{{ route('mtags.index') }}"><flux:button size="xs" variant="ghost" icon="arrow-uturn-left"></flux:button></a>
-                {{ $this->title }}
+                {{ $this->titlePage }}
             </flux:heading>
-            <flux:text class="text-base">{{ $this->subtitle }}</flux:text>
+            <flux:text class="text-base">{{ $this->subtitlePage }}</flux:text>
     
             <flux:breadcrumbs>
                 <flux:breadcrumbs.item href="{{ route('dashboard') }}">Dashboard</flux:breadcrumbs.item>
                 <flux:breadcrumbs.item href="{{ route('mtags.index') }}">Etiquetas</flux:breadcrumbs.item>
-                <flux:breadcrumbs.item>{{ $this->title }}</flux:breadcrumbs.item>
+                <flux:breadcrumbs.item>{{ $this->titlePage }}</flux:breadcrumbs.item>
             </flux:breadcrumbs>
     
             <flux:separator variant="subtle" />
@@ -87,16 +109,8 @@ new class extends Component
     <div class="space-y-2">
         <flux:input type="text" label="Nombre" wire:model="name" placeholder="Nombre del etiqueta" autofocus/>
 
-        @if ($errors->any())
-            <div class="bg-red-100 border border-red-400 text-red-700 p-1 rounded">
-                <ul>
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
+        <x-libraries.utilities.errors />
 
-        <flux:button icon="pencil-square" wire:click="updateItem">Editar</flux:button>
+        <flux:button :icon="$mtag ? 'pencil-square' : 'plus'" wire:click="updateItem">{{ $this->buttonSubmit }}</flux:button>
     </div>
 </div>

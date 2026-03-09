@@ -6,32 +6,37 @@ use Livewire\Component;
 new class extends Component
 {
     //propiedades de titulos
-    public string $title = 'Editar sujetos';
-    public string $subtitle = 'Edite un sujetos a la lista';
+    public string $titlePage = '';
+    public string $subtitlePage = '';
+    public string $buttonSubmit = '';
     
     // propiedades del item
     public $subject;
-    public string $name = '';
-    public string $slug = '';
-    public string $country = '';
-    public string $birthdate = '';
-    public string $description = '';
-    public string $cover_image_url = '';
-    public string $uuid = '';
-    public int $user_id = 0;
+    public ?string $name = null;
+    public ?string $slug = null;
+    public ?string $country = null;
+    public ?string $birthdate = null;
+    public ?string $description = null;
+    public ?string $cover_image_url = null;
+    public ?string $uuid = null;
+    public ?int $user_id = null;
 
     // precargar datos al iniciar pagina
-    public function mount($subjectUuid){
+    public function mount($subjectUuid = null){
         $this->subject = Subject::where('uuid', $subjectUuid)->first();
 
-        $this->name = $this->subject->name ?? '';
-        $this->slug = $this->subject->slug ?? '';
-        $this->country = $this->subject->country ?? '';
-        $this->birthdate = \Carbon\Carbon::parse($this->subject->birthdate)->format('Y-m-d') ?? '';
-        $this->description = $this->subject->description ?? '';
-        $this->cover_image_url = $this->subject->cover_image_url ?? '';
-        $this->uuid = $this->subject->uuid ?? '';
-        $this->user_id = $this->subject->user_id ?? 0;
+        $this->titlePage = $this->subject ? 'Modificar sujeto' : 'Agregar sujeto';
+        $this->subtitlePage = $this->subject ? 'Modificar datos del sujeto' : 'Agregar datos del sujeto';
+        $this->buttonSubmit = $this->subject ? 'Modificar' : 'Agregar';
+
+        $this->name = $this->subject?->name ?? null;
+        $this->slug = $this->subject?->slug ?? null;
+        $this->country = $this->subject?->country ?? null;
+        $this->birthdate = $this->subject?->birthdate ? \Carbon\Carbon::parse($this->subject->birthdate)->format('Y-m-d') : null;
+        $this->description = $this->subject?->description ?? null;
+        $this->cover_image_url = $this->subject?->cover_image_url ?? null;
+        $this->uuid = $this->subject?->uuid ?? null;
+        $this->user_id = $this->subject?->user_id ?? \Illuminate\Support\Facades\Auth::id();
     }
 
     // reglas de validacion
@@ -60,19 +65,36 @@ new class extends Component
         'user_id' => 'usuario',
     ];
 
-    // editar item en la BD
+    // editar o crear item en la BD
     public function updateItem(){
-        // datos automaticos
+        // normalizar
+        $this->name = \Illuminate\Support\Str::title(trim($this->name));
         $this->slug = \Illuminate\Support\Str::slug($this->name . '-' . \Illuminate\Support\Str::random(4));
 
-        // validar
-        $validatedData = $this->validate();
+        if($this->subject){
+            // validar
+            $validatedData = $this->validate();
 
-        // actualizar item en BD
-        $this->subject->update($validatedData);
+            // actualizar item en BD
+            $this->subject->update($validatedData);
 
-        // mensaje de success
-        session()->flash('success', 'Editado correctamente');
+            // mensaje de success
+            session()->flash('success', 'Editado correctamente');
+
+        }else{
+            // datos automaticos
+            $this->user_id = \Illuminate\Support\Facades\Auth::id();
+            $this->uuid = \Illuminate\Support\Str::random(24);
+
+            // validar
+            $validatedData = $this->validate();
+
+            // crear en BD
+            Subject::create($validatedData);
+            
+            // mensaje de success
+            session()->flash('success', 'Creado correctamente');
+        }
 
         // redireccionar
         $this->redirectRoute('subjects.index', navigate:true);
@@ -86,14 +108,14 @@ new class extends Component
         <div class="mb-1 space-y-1">
             <flux:heading size="xl" level="1">
                 <a href="{{ route('subjects.index') }}"><flux:button size="xs" variant="ghost" icon="arrow-uturn-left"></flux:button></a>
-                {{ $this->title }}
+                {{ $this->titlePage }}
             </flux:heading>
-            <flux:text class="text-base">{{ $this->subtitle }}</flux:text>
+            <flux:text class="text-base">{{ $this->subtitlePage }}</flux:text>
     
             <flux:breadcrumbs>
                 <flux:breadcrumbs.item href="{{ route('dashboard') }}">Dashboard</flux:breadcrumbs.item>
                 <flux:breadcrumbs.item href="{{ route('subjects.index') }}">Sujetos</flux:breadcrumbs.item>
-                <flux:breadcrumbs.item>{{ $this->title }}</flux:breadcrumbs.item>
+                <flux:breadcrumbs.item>{{ $this->titlePage }}</flux:breadcrumbs.item>
             </flux:breadcrumbs>
     
             <flux:separator variant="subtle" />
@@ -105,23 +127,16 @@ new class extends Component
         <flux:input type="date" max="2999-12-31" label="Fecha de nacimiento" wire:model="birthdate"/>
         <flux:input type="text" label="Pais de nacimiento" wire:model="country" placeholder="Pais de nacimiento"/>
         <flux:input type="text" label="Link de imagen" wire:model="cover_image_url" placeholder="Pegue el link de una imagen"/>
+        
         <flux:textarea
             label="Descripcion"
             placeholder="Coloque una descripcion del sujeto"
             wire:model="description"
-            rows="10"
+            rows="5"
         />
 
-        @if ($errors->any())
-            <div class="bg-red-100 border border-red-400 text-red-700 p-1 rounded">
-                <ul>
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
+        <x-libraries.utilities.errors />
 
-        <flux:button icon="pencil-square" wire:click="updateItem">Editar</flux:button>
+        <flux:button :icon="$subject ? 'pencil-square' : 'plus'" wire:click="updateItem">{{ $this->buttonSubmit }}</flux:button>
     </div>
 </div>

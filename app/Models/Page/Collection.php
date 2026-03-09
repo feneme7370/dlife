@@ -9,15 +9,12 @@ class Collection extends Model
     protected $fillable = [
         'name',
         'slug',
-
         'description', 
         'books_amount', 
         'movies_amount', 
         'seasons_amount', 
-
         'cover_image',
         'cover_image_url',
-
         'uuid',
         'user_id',
     ];

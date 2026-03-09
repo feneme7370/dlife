@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
 
             // fecha de inicio y fin de lectura
-            $table->date('start_view')->nullable();
+            $table->date('start_view');
             $table->date('end_view')->nullable();
             $table->text('notes')->nullable();
 

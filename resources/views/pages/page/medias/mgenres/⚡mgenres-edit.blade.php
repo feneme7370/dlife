@@ -6,32 +6,37 @@ use Livewire\Component;
 new class extends Component
 {
     //propiedades de titulos
-    public string $title = 'Editar genero';
-    public string $subtitle = 'Edite un genero a la lista';
+    public string $titlePage = '';
+    public string $subtitlePage = '';
+    public string $buttonSubmit = '';
     
     // propiedades del item
     public $mgenre;
-    public string $name = '';
-    public string $slug = '';
-    public string $name_general = '';
-    public string $slug_general = '';
-    public string $description = '';
-    public string $cover_image_url = '';
-    public string $uuid = '';
-    public int $user_id = 0;
+    public ?string $name = null;
+    public ?string $slug = null;
+    public ?string $name_general = null;
+    public ?string $slug_general = null;
+    public ?string $description = null;
+    public ?string $cover_image_url = null;
+    public ?string $uuid = null;
+    public ?int $user_id = null;
 
     // precargar datos al iniciar pagina
-    public function mount($mgenreUuid){
+    public function mount($mgenreUuid = null){
         $this->mgenre = Mgenre::where('uuid', $mgenreUuid)->first();
 
-        $this->name = $this->mgenre->name ?? '';
-        $this->slug = $this->mgenre->slug ?? '';
-        $this->name_general = $this->mgenre->name_general ?? '';
-        $this->slug_general = $this->mgenre->slug_general ?? '';
-        $this->description = $this->mgenre->description ?? '';
-        $this->cover_image_url = $this->mgenre->cover_image_url ?? '';
-        $this->uuid = $this->mgenre->uuid ?? '';
-        $this->user_id = $this->mgenre->user_id ?? 0;
+        $this->titlePage = $this->mgenre ? 'Modificar genero' : 'Agregar genero';
+        $this->subtitlePage = $this->mgenre ? 'Modificar datos del genero' : 'Agregar datos del genero';
+        $this->buttonSubmit = $this->mgenre ? 'Modificar' : 'Agregar';
+
+        $this->name = $this->mgenre?->name ?? null;
+        $this->slug = $this->mgenre?->slug ?? null;
+        $this->name_general = $this->mgenre?->name_general ?? null;
+        $this->slug_general = $this->mgenre?->slug_general ?? null;
+        $this->description = $this->mgenre?->description ?? null;
+        $this->cover_image_url = $this->mgenre?->cover_image_url ?? null;
+        $this->uuid = $this->mgenre?->uuid ?? null;
+        $this->user_id = $this->mgenre?->user_id ?? \Illuminate\Support\Facades\Auth::id();;
     }
 
     // reglas de validacion
@@ -60,19 +65,38 @@ new class extends Component
         'user_id' => 'usuario',
     ];
 
-    // editar item en la BD
+    // editar o crear item en la BD
     public function updateItem(){
-        // datos automaticos
+        // normalizar
+        $this->name = \Illuminate\Support\Str::title(trim($this->name));
         $this->slug = \Illuminate\Support\Str::slug($this->name . '-' . \Illuminate\Support\Str::random(4));
+        $this->name_general = \Illuminate\Support\Str::title(trim($this->name_general));
+        $this->slug_general = \Illuminate\Support\Str::slug($this->name_general . '-' . \Illuminate\Support\Str::random(4));
 
-        // validar
-        $validatedData = $this->validate();
+        if($this->mgenre){
+            // validar
+            $validatedData = $this->validate();
 
-        // actualizar item en BD
-        $this->mgenre->update($validatedData);
+            // actualizar item en BD
+            $this->mgenre->update($validatedData);
 
-        // mensaje de success
-        session()->flash('success', 'Editado correctamente');
+            // mensaje de success
+            session()->flash('success', 'Editado correctamente');
+
+        }else{
+            // datos automaticos
+            $this->user_id = \Illuminate\Support\Facades\Auth::id();
+            $this->uuid = \Illuminate\Support\Str::random(24);
+
+            // validar
+            $validatedData = $this->validate();
+
+            // crear en BD
+            Mgenre::create($validatedData);
+            
+            // mensaje de success
+            session()->flash('success', 'Creado correctamente');
+        }
 
         // redireccionar
         $this->redirectRoute('mgenres.index', navigate:true);
@@ -86,14 +110,14 @@ new class extends Component
         <flux:main class="mb-1 space-y-1">
             <flux:heading size="xl" level="1">
                 <a href="{{ route('mgenres.index') }}"><flux:button size="xs" variant="ghost" icon="arrow-uturn-left"></flux:button></a>
-                {{ $this->title }}
+                {{ $this->titlePage }}
             </flux:heading>
-            <flux:text class="text-base">{{ $this->subtitle }}</flux:text>
+            <flux:text class="text-base">{{ $this->subtitlePage }}</flux:text>
     
             <flux:breadcrumbs>
                 <flux:breadcrumbs.item href="{{ route('dashboard') }}">Dashboard</flux:breadcrumbs.item>
                 <flux:breadcrumbs.item href="{{ route('mgenres.index') }}">Generos</flux:breadcrumbs.item>
-                <flux:breadcrumbs.item>{{ $this->title }}</flux:breadcrumbs.item>
+                <flux:breadcrumbs.item>{{ $this->titlePage }}</flux:breadcrumbs.item>
             </flux:breadcrumbs>
     
             <flux:separator variant="subtle" />
@@ -108,19 +132,11 @@ new class extends Component
             label="Descripcion"
             placeholder="Coloque una descripcion del genero"
             wire:model="description"
-            rows="10"
+            rows="5"
         />
 
-        @if ($errors->any())
-            <div class="bg-red-100 border border-red-400 text-red-700 p-1 rounded">
-                <ul>
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
+        <x-libraries.utilities.errors />
 
-        <flux:button icon="pencil-square" wire:click="updateItem">Editar</flux:button>
+        <flux:button :icon="$mgenre ? 'pencil-square' : 'plus'" wire:click="updateItem">{{ $this->buttonSubmit }}</flux:button>
     </div>
 </div>

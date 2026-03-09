@@ -1,0 +1,108 @@
+<?php
+
+use Livewire\Component;
+
+new class extends Component
+{
+    use \Livewire\WithPagination;
+
+    //////////////////////////////////////////////////////////////////// PROPIEDADES PRINCIPALES
+    // propiedades de item y titulos
+    public $recipes;
+    public $titlePage = 'Recetario';
+    public $subtitlePage = 'Listado de recetas leidos';
+
+    // propiedades para paginacion y orden, actualizar al buscar
+    public $search = '', $sortField = 'title', $sortDirection = 'desc', $perPage = 10000;
+    public function updatingSearch(){$this->resetPage();}
+    public function updatingSortField(){$this->resetPage();}
+    public function updatingSortDirection(){$this->resetPage();}
+    public function updatingPerPage(){$this->resetPage();}
+
+    public $categories_selected, $tags_selected;
+
+    //////////////////////////////////////////////////////////////////// CONSULTA DE DATOS
+    // funcion para ordenar la tabla
+    public function sortBy($field){
+        if ($this->sortField === $field) {
+            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            $this->sortDirection = 'asc';
+        }
+        $this->sortField = $field;
+    }
+
+    // mostrar variables en queryString
+    protected function queryString(){
+        return [
+        'search' => [ 'as' => 'q' ],
+        'categories_selected' => [ 'as' => 'cat' ],
+        'tag_selected' => [ 'as' => 'tag' ],
+        ];
+    }
+
+    public function recipesQuery(){
+        return \App\Models\Page\Recipe::where('user_id', \Illuminate\Support\Facades\Auth::id())
+
+            ->when($this->categories_selected, function ($query) {
+                $query->whereHas('categories', function ($q) {
+                    $q->where('rcategories.uuid', $this->categories_selected);
+                });
+            })
+            ->when($this->tags_selected, function ($query) {
+                $query->whereHas('tags', function ($q) {
+                    $q->where('rtags.uuid', $this->tags_selected);
+                });
+            })
+
+            ->orderBy('title', $this->sortDirection);
+    }
+};
+?>
+
+<div>
+    {{-- titulo, descripcion y breadcrumbs --}}
+    <div>
+        <div container class="mb-1 space-y-1">
+            <flux:heading size="xl" level="1">
+                <a href="{{ route('subjects.index') }}"><flux:button size="xs" variant="ghost" icon="arrow-uturn-left"></flux:button></a>
+                {{ $this->titlePage }}
+            </flux:heading>
+            <flux:text class="text-base">{{ $this->subtitlePage }}</flux:text>
+    
+            <flux:breadcrumbs>
+                <flux:breadcrumbs.item href="{{ route('dashboard') }}">Dashboard</flux:breadcrumbs.item>
+                <flux:breadcrumbs.item>{{ $this->titlePage }}</flux:breadcrumbs.item>
+            </flux:breadcrumbs>
+    
+            <flux:separator variant="subtle" />
+        </div>
+    </div>
+
+    {{-- cuadricula --}}
+    <div class="relative shadow-md sm:rounded-lg">
+        <div class="flex flex-wrap justify-center gap-1 px-1 py-3">
+            
+            @foreach ($this->recipesQuery()->get() as $item)
+            <a 
+                href="{{ route('recipes.show', ['recipeUuid' => $item->uuid]) }}"
+            >
+                <div class="relative w-20 h-20 sm:w-40 sm:h-40 rounded-lg overflow-hidden shadow-lg group">
+                    <img src="{{ $item->cover_image_url }}" alt="Portada del libro" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity duration-300">
+                        <div class="text-center space-y-10">
+                            <p class="text-white text-lg font-semibold px-2 text-center">{{ $item->title }}</p>
+                            <p class="relative text-xs italic text-gray-700 dark:text-gray-300">
+                                {{ $item->summary_clear ? '🗒️' : ''}}
+                                {{ $item->notes_clear ? '✍️' : ''}}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </a>
+
+            @endforeach
+            
+        </div>
+    </div>
+</div>

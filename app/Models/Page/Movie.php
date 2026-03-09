@@ -15,6 +15,7 @@ class Movie extends Model
 
         'number_collection',
         'runtime',
+        'type',
 
         'summary',
         'summary_clear',
@@ -70,5 +71,14 @@ class Movie extends Model
     // tiene muchas lecturas
     public function views(){
         return $this->hasMany(\App\Models\Page\MovieView::class);
+    }
+
+    // tipo de pelicula
+    public static function type(){
+        return [
+            1 => 'Película 🎬',
+            2 => 'OVA 📀',
+            3 => 'Cortometraje 🎞',
+        ];
     }
 }

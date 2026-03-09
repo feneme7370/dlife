@@ -19,7 +19,7 @@ new class extends Component
     public string $original_title = '';
     public string $synopsis = '';
     public int $start_date = 1;
-    public int $end_date;
+    public ?int $end_date;
     public float $number_collection = 1;
     public int $seasons = 1;
     public int $episodes = 1;
@@ -108,10 +108,10 @@ new class extends Component
         // poner datos a las propiedades
         $this->title = $this->serie->title;
         $this->slug = $this->serie->slug;
-        $this->original_title = $this->serie->original_title;
-        $this->synopsis = $this->serie->synopsis;
-        $this->start_date = $this->serie->start_date;
-        $this->end_date = $this->serie->end_date;
+        $this->original_title = $this->serie->original_title ?? '';
+        $this->synopsis = $this->serie->synopsis ?? '';
+        $this->start_date = $this->serie->start_date ?? null;
+        $this->end_date = $this->serie->end_date ?? null;
         $this->number_collection = $this->serie->number_collection ?? 1;
         $this->seasons = $this->serie->seasons ?? 1;
         $this->episodes = $this->serie->episodes ?? 1;
@@ -122,7 +122,7 @@ new class extends Component
         $this->is_favorite = $this->serie->is_favorite ?? false;
         $this->is_abandonated = $this->serie->is_abandonated ?? false;
         $this->rating = $this->serie->rating ?? 0;
-        $this->cover_image_url = $this->serie->cover_image_url;
+        $this->cover_image_url = $this->serie->cover_image_url ?? '';
         $this->user_id = $this->serie->user_id;
         $this->uuid = $this->serie->uuid;
 
@@ -218,16 +218,6 @@ new class extends Component
         $this->serie->collections()->sync($this->selectedSerieCollections);
         $this->serie->genres()->sync($this->selectedMgenres);
 
-        // crear views
-        // if($this->start_view || $this->end_view){
-        //     \App\Models\Page\SerieView::create([
-        //         'user_id' => \Illuminate\Support\Facades\Auth::id(),
-        //         'serie_id' => $this->serie->id,
-        //         'start_view' => $this->start_view,
-        //         'end_view' => $this->end_view,
-        //     ]);
-        // };
-
         // agregar tags
         $tagIds = [];
         foreach ($this->selectedSerieTags as $tagName) {
@@ -257,6 +247,7 @@ new class extends Component
     public $movies_amount_collection;
     public $seasons_amount_collection;
     public function storeCollection(){
+        \Illuminate\Support\Str::title(trim($this->name_collection));
         $this->validate([
             'name_collection' => ['required', 'string', 'max:255'],
             'books_amount_collection' => ['nullable', 'numeric'],
@@ -265,7 +256,7 @@ new class extends Component
         ]);
 
         $s = Collection::create([
-            'name' => trim($this->name_collection),
+            'name' => $this->name_collection,
             'books_amount' => $this->books_amount_collection ?? 0,
             'movies_amount' => $this->movies_amount_collection ?? 0,
             'seasons_amount' => $this->seasons_amount_collection ?? 0,
@@ -283,13 +274,14 @@ new class extends Component
     // store para crear un sujeto
     public $name_subject;
     public function storeSubject(){
+        \Illuminate\Support\Str::title(trim($this->name_subject));
         $this->validate([
             'name_subject' => ['required', 'string', 'max:255'],
         ]);
 
         // crear en BD
         $s = Subject::create([
-            'name' => trim($this->name_subject),
+            'name' => $this->name_subject,
             'slug' => \Illuminate\Support\Str::slug(trim($this->name_subject) . '-' . \Illuminate\Support\Str::random(4)),
             'uuid' => \Illuminate\Support\Str::random(24),
             'user_id' => \Illuminate\Support\Facades\Auth::id(),
@@ -309,10 +301,7 @@ new class extends Component
 
     public function addTag()
     {
-        $formatted = \Illuminate\Support\Str::of($this->newTag)
-            ->lower()
-            ->title()
-            ->replace(' ', '');
+        $formatted = str_replace(' ', '', \Illuminate\Support\Str::title(trim($this->newTag)));
 
         if ($formatted && !in_array($formatted, $this->selectedSerieTags)) {
             $this->selectedSerieTags[] = $formatted;

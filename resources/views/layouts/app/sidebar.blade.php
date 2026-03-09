@@ -19,6 +19,17 @@
 
             <flux:spacer />
 
+                <flux:sidebar.group :heading="__('Recetas')" class="grid">
+                    <flux:sidebar.item icon="document-text" :href="route('recipes.index')" :current="request()->routeIs('recipes.index')" wire:navigate>
+                        {{ __('Recetas') }}
+                    </flux:sidebar.item>
+                    <flux:sidebar.item icon="bookmark" :href="route('recipes_library.index')" :current="request()->routeIs('recipes_library.index')" wire:navigate>
+                        {{ __('Recetario') }}
+                    </flux:sidebar.item>
+                </flux:sidebar.group>
+
+            <flux:spacer />
+
                 <flux:sidebar.group :heading="__('Libros')" class="grid">
                     <flux:sidebar.item icon="book-open" :href="route('books.index')" :current="request()->routeIs('books.index')" wire:navigate>
                         {{ __('Libros') }}
@@ -34,8 +45,14 @@
                     <flux:sidebar.item icon="film" :href="route('movies.index')" :current="request()->routeIs('movies.index')" wire:navigate>
                         {{ __('Peliculas') }}
                     </flux:sidebar.item>
+                    <flux:sidebar.item icon="bookmark" :href="route('movies_library.index')" :current="request()->routeIs('movies_library.index')" wire:navigate>
+                        {{ __('Estanteria Peliculas') }}
+                    </flux:sidebar.item>
                     <flux:sidebar.item icon="tv" :href="route('series.index')" :current="request()->routeIs('series.index')" wire:navigate>
                         {{ __('Series') }}
+                    </flux:sidebar.item>
+                    <flux:sidebar.item icon="bookmark" :href="route('series_library.index')" :current="request()->routeIs('series_library.index')" wire:navigate>
+                        {{ __('Estanteria Series') }}
                     </flux:sidebar.item>
                 </flux:sidebar.group>
 

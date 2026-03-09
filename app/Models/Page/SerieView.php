@@ -28,6 +28,6 @@ class SerieView extends Model
     // pertenece a un libro
     public function serie()
     {
-        return $this->belongsTo(\App\Models\Page\SerieView::class, 'user_id', 'id');
+        return $this->belongsTo(\App\Models\Page\Serie::class, 'user_id', 'id');
     }
 }

@@ -28,6 +28,6 @@ class MovieView extends Model
     // pertenece a un libro
     public function movie()
     {
-        return $this->belongsTo(\App\Models\Page\MovieView::class, 'user_id', 'id');
+        return $this->belongsTo(\App\Models\Page\Movie::class, 'user_id', 'id');
     }
 }

@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
 
             // fecha de inicio y fin de lectura
-            $table->date('start_read')->nullable();
+            $table->date('start_read');
             $table->date('end_read')->nullable();
             $table->unsignedInteger('pages_read')->nullable();
             $table->text('notes')->nullable();

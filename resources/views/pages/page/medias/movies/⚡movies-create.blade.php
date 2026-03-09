@@ -177,7 +177,7 @@ new class extends Component
     public $movies_amount_collection;
     public $seasons_amount_collection;
     public function storeCollection(){
-
+        \Illuminate\Support\Str::title(trim($this->name_collection));
         $this->start_view = $this->end_view;
         $this->validate([
             'name_collection' => ['required', 'string', 'max:255'],
@@ -187,7 +187,7 @@ new class extends Component
         ]);
 
         $s = Collection::create([
-            'name' => trim($this->name_collection),
+            'name' => $this->name_collection,
             'books_amount' => $this->books_amount_collection ?? 0,
             'movies_amount' => $this->movies_amount_collection ?? 0,
             'seasons_amount' => $this->seasons_amount_collection ?? 0,
@@ -205,13 +205,14 @@ new class extends Component
     // store para crear un sujeto
     public $name_subject;
     public function storeSubject(){
+        \Illuminate\Support\Str::title(trim($this->name_subject));
         $this->validate([
             'name_subject' => ['required', 'string', 'max:255'],
         ]);
 
         // crear en BD
         $s = Subject::create([
-            'name' => trim($this->name_subject),
+            'name' => $this->name_subject,
             'slug' => \Illuminate\Support\Str::slug(trim($this->name_subject) . '-' . \Illuminate\Support\Str::random(4)),
             'uuid' => \Illuminate\Support\Str::random(24),
             'user_id' => \Illuminate\Support\Facades\Auth::id(),
@@ -230,10 +231,7 @@ new class extends Component
 
     public function addTag()
     {
-        $formatted = \Illuminate\Support\Str::of($this->newTag)
-            ->lower()
-            ->title()
-            ->replace(' ', '');
+        $formatted = str_replace(' ', '', \Illuminate\Support\Str::title(trim($this->newTag)));
 
         if ($formatted && !in_array($formatted, $this->selectedMovieTags)) {
             $this->selectedMovieTags[] = $formatted;

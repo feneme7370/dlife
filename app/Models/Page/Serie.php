@@ -17,6 +17,7 @@ class Serie extends Model
         'number_collection',
         'seasons',
         'episodes',
+        'type',
 
         'summary',
         'summary_clear',
@@ -71,5 +72,15 @@ class Serie extends Model
     // tiene muchas lecturas
     public function views(){
         return $this->hasMany(\App\Models\Page\SerieView::class);
+    }
+
+    // tipo de serie
+    public static function type(){
+        return [
+            1 => 'Serie 📺',
+            2 => 'Anime 🌸',
+            3 => 'Dibujo Animado 🧙',
+            4 => 'TV Show 📡',
+        ];
     }
 }

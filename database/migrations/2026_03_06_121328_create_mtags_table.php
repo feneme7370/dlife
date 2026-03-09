@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             // contenido
             $table->string('name');
-            $table->string('slug')->nullable();
+            $table->string('slug')->unique();
 
             // datos internos            
             $table->string('uuid')->unique();

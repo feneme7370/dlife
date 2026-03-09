@@ -55,7 +55,7 @@ new class extends Component
     //////////////////////////////////////////////////////////////////// EXCEL
     // exportar tabla cruda a excel
     public function exportComplete(){
-        // return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\MoviesExport, 'movies_info.xlsx');
+        return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\MoviesExport, 'movies_info.xlsx');
     }
 
     // importar tabla cruda de excel
@@ -64,7 +64,7 @@ new class extends Component
             'file' => 'required|mimes:xlsx,csv'
         ]);
 
-        // \Maatwebsite\Excel\Facades\Excel::import(new \App\Imports\MoviesImport, $this->file);
+        \Maatwebsite\Excel\Facades\Excel::import(new \App\Imports\MoviesImport, $this->file);
 
         $this->reset('file');
 
@@ -122,7 +122,7 @@ new class extends Component
                         {{ $item->is_abandonated ? '🚫' : ''}}
                         {{ $item->summary_clear ? '🗒️' : ''}}
                         {{ $item->notes_clear ? '✍️' : ''}}
-                        {{ $item->views->first() ? '✅' : ''}}
+                        {{ $item->views->whereNotNull('end_view')->first() ? '✅' : '' }}
                     </p>
                 </div>
 

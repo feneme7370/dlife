@@ -92,6 +92,9 @@ new class extends Component
         </div>
     </div>
 
+    {{-- toast de mensaje --}}
+    <x-libraries.flux.toast-success />
+
     {{-- buscador --}}
     <div class="mb-3">
         <flux:input type="text" label="Buscar" wire:model.live.debounce.250ms="search" placeholder="Buscar" autofocus/>

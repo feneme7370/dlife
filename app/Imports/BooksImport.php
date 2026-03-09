@@ -3,7 +3,6 @@
 namespace App\Imports;
 
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 
@@ -20,8 +19,9 @@ class BooksImport implements ToModel, WithHeadingRow
                 'original_title' => $row['original_title'],
                 'synopsis' => $row['synopsis'],
                 'release_date' => $row['release_date'],
-                'number_collection' => $row['number_collection'],
-                'pages' => $row['pages'],
+                'number_collection' => $row['number_collection'] ?? 1,
+                'pages' => $row['pages'] ?? 1,
+                'type' => $row['type'] ?? 1,
 
                 'summary' => $row['summary'],
                 'summary_clear' => $row['summary_clear'],
@@ -31,7 +31,7 @@ class BooksImport implements ToModel, WithHeadingRow
                 'is_favorite' => $row['is_favorite'] ?? false,
                 'is_abandonated' => $row['is_abandonated'] ?? false,
                 'is_public' => $row['is_public'] ?? false,
-                'rating' => $row['rating'],
+                'rating' => $row['rating'] ?? 0,
 
                 'cover_image' => $row['cover_image'],
                 'cover_image_url' => $row['cover_image_url'],

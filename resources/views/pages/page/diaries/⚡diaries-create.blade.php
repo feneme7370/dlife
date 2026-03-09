@@ -129,10 +129,7 @@ new class extends Component
 
     public function addTag()
     {
-        $formatted = \Illuminate\Support\Str::of($this->newTag)
-            ->lower()
-            ->title()
-            ->replace(' ', '');
+        $formatted = str_replace(' ', '', \Illuminate\Support\Str::title(trim($this->newTag)));
 
         if ($formatted && !in_array($formatted, $this->selected_diary_dtags)) {
             $this->selected_diary_dtags[] = $formatted;

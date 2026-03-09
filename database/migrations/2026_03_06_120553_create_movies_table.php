@@ -16,18 +16,18 @@ return new class extends Migration
 
             // titulos
             $table->string('title');
-            $table->string('slug')->nullable();
+            $table->string('slug')->unique();
             $table->string('original_title')->nullable();
 
             // datos de serie y pelicula
             $table->text('synopsis')->nullable();
-            $table->integer('release_date')->nullable();
+            $table->integer('release_date');
 
             // datos adicionales
-            $table->decimal('number_collection', 4, 2)->nullable();
+            $table->decimal('number_collection', 4, 2);
 
             // movies
-            $table->integer('runtime')->nullable();
+            $table->integer('runtime');
 
             // resumen del libro
             $table->longText('summary')->nullable();
@@ -43,7 +43,8 @@ return new class extends Migration
             $table->boolean('is_public')->default(0); // 0 false - 1 true
 
             // seleccionables desde el modelo
-            $table->integer('rating')->nullable(); // sin valoracion, y de 1 a 5 estrellas
+            $table->integer('type'); // peli, ova, corto
+            $table->integer('rating'); // sin valoracion, y de 1 a 5 estrellas
 
             // imagenes del libro
             $table->string('cover_image')->nullable();

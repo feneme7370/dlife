@@ -16,11 +16,11 @@ return new class extends Migration
 
             // nombre
             $table->string('name');
-            $table->string('slug')->nullable();
+            $table->string('slug')->unique();
 
             // nombre
             $table->string('name_general')->default('categoria');
-            $table->string('slug_general');
+            $table->string('slug_general')->nullable();
             
             // descripciones del item
             $table->text('description')->nullable();

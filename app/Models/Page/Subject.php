@@ -9,18 +9,11 @@ class Subject extends Model
     protected $fillable = [
         'name',
         'slug',
-
-        'name_sub',
-        'slug_sub',
-
         'birthdate', 
         'country',
-
         'description', 
-
         'cover_image',
         'cover_image_url',
-
         'uuid',
         'user_id',
     ];

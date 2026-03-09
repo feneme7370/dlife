@@ -6,28 +6,27 @@ Route::get('/', function () {
     return view('welcome');
 })->name('home');
 
-Route::view('dashboard', 'dashboard')
-    ->middleware(['auth', 'verified'])
-    ->name('dashboard');
-
 Route::middleware(['auth'])->group(function () {
     Route::redirect('settings', 'settings/profile');
+
+    // dashboard
+    Route::livewire('dashboard', 'pages::page.dashboard')->name('dashboard');
     
     // Seccion sujetos
     Route::livewire('subjects', 'pages::page.subjects.subjects-index')->name('subjects.index');
-    Route::livewire('subjects/create', 'pages::page.subjects.subjects-create')->name('subjects.create');
+    Route::livewire('subjects/create', 'pages::page.subjects.subjects-edit')->name('subjects.create');
     Route::livewire('subjects/{subjectUuid}/edit', 'pages::page.subjects.subjects-edit')->name('subjects.edit');
     Route::livewire('subjects/{subjectUuid}/show', 'pages::page.subjects.subjects-show')->name('subjects.show');
     
     // Seccion colecciones
     Route::livewire('collections', 'pages::page.collections.collections-index')->name('collections.index');
-    Route::livewire('collections/create', 'pages::page.collections.collections-create')->name('collections.create');
+    Route::livewire('collections/create', 'pages::page.collections.collections-edit')->name('collections.create');
     Route::livewire('collections/{collectionUuid}/edit', 'pages::page.collections.collections-edit')->name('collections.edit');
     Route::livewire('collections/{collectionUuid}/show', 'pages::page.collections.collections-show')->name('collections.show');
     
     // Seccion generos de libros
     Route::livewire('book-genres', 'pages::page.books.book-genres.book-genres-index')->name('book-genres.index');
-    Route::livewire('book-genres/create', 'pages::page.books.book-genres.book-genres-create')->name('book-genres.create');
+    Route::livewire('book-genres/create', 'pages::page.books.book-genres.book-genres-edit')->name('book-genres.create');
     Route::livewire('book-genres/{bookGenreUuid}/edit', 'pages::page.books.book-genres.book-genres-edit')->name('book-genres.edit');
     Route::livewire('book-genres/{bookGenreUuid}/show', 'pages::page.books.book-genres.book-genres-show')->name('book-genres.show');
     
@@ -41,21 +40,21 @@ Route::middleware(['auth'])->group(function () {
     Route::livewire('books/{bookUuid}/show', 'pages::page.books.books-show')->name('books.show');
     
     //////////////////////////////////////////////////////////////////////////////////////////////////////
-    // Seccion libros
+    // Seccion diario
     Route::livewire('diaries', 'pages::page.diaries.diaries-index')->name('diaries.index');
     Route::livewire('diaries/create/{templateUuid?}', 'pages::page.diaries.diaries-create')->name('diaries.create');
     Route::livewire('diaries/{diaryUuid}/edit', 'pages::page.diaries.diaries-edit')->name('diaries.edit');
     Route::livewire('diaries/{diaryUuid}/show', 'pages::page.diaries.diaries-show')->name('diaries.show');
     
-    // Seccion tags de libros
+    // Seccion tags de diarios
     Route::livewire('dtags', 'pages::page.diaries.dtags.dtags-index')->name('dtags.index');
-    Route::livewire('dtags/create', 'pages::page.diaries.dtags.dtags-create')->name('dtags.create');
+    Route::livewire('dtags/create', 'pages::page.diaries.dtags.dtags-edit')->name('dtags.create');
     Route::livewire('dtags/{dtagUuid}/edit', 'pages::page.diaries.dtags.dtags-edit')->name('dtags.edit');
     Route::livewire('dtags/{dtagUuid}/show', 'pages::page.diaries.dtags.dtags-show')->name('dtags.show');
     
-    // Seccion categories de libros
+    // Seccion categories de diarios
     Route::livewire('dcategories', 'pages::page.diaries.dcategories.dcategories-index')->name('dcategories.index');
-    Route::livewire('dcategories/create', 'pages::page.diaries.dcategories.dcategories-create')->name('dcategories.create');
+    Route::livewire('dcategories/create', 'pages::page.diaries.dcategories.dcategories-edit')->name('dcategories.create');
     Route::livewire('dcategories/{dcategoryUuid}/edit', 'pages::page.diaries.dcategories.dcategories-edit')->name('dcategories.edit');
     Route::livewire('dcategories/{dcategoryUuid}/show', 'pages::page.diaries.dcategories.dcategories-show')->name('dcategories.show');
     
@@ -81,13 +80,32 @@ Route::middleware(['auth'])->group(function () {
 
     // Seccion genres de media
     Route::livewire('mgenres', 'pages::page.medias.mgenres.mgenres-index')->name('mgenres.index');
-    Route::livewire('mgenres/create', 'pages::page.medias.mgenres.mgenres-create')->name('mgenres.create');
+    Route::livewire('mgenres/create', 'pages::page.medias.mgenres.mgenres-edit')->name('mgenres.create');
     Route::livewire('mgenres/{mgenreUuid}/edit', 'pages::page.medias.mgenres.mgenres-edit')->name('mgenres.edit');
     
     // Seccion tags de media
     Route::livewire('mtags', 'pages::page.medias.mtags.mtags-index')->name('mtags.index');
-    Route::livewire('mtags/create', 'pages::page.medias.mtags.mtags-create')->name('mtags.create');
+    Route::livewire('mtags/create', 'pages::page.medias.mtags.mtags-edit')->name('mtags.create');
     Route::livewire('mtags/{mtagUuid}/edit', 'pages::page.medias.mtags.mtags-edit')->name('mtags.edit');
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    // Seccion recipes
+    Route::livewire('recipes', 'pages::page.recipes.recipes-index')->name('recipes.index');
+    Route::livewire('recipes_library', 'pages::page.recipes.recipes-library')->name('recipes_library.index');
+    Route::livewire('recipes/create', 'pages::page.recipes.recipes-edit')->name('recipes.create');
+    Route::livewire('recipes/{recipeUuid}/edit', 'pages::page.recipes.recipes-edit')->name('recipes.edit');
+    Route::livewire('recipes/{recipeUuid}/show', 'pages::page.recipes.recipes-show')->name('recipes.show');
+
+    // Seccion tags de recipes
+    Route::livewire('rtags', 'pages::page.recipes.rtags.rtags-index')->name('rtags.index');
+    Route::livewire('rtags/create', 'pages::page.recipes.rtags.rtags-edit')->name('rtags.create');
+    Route::livewire('rtags/{rtagUuid}/edit', 'pages::page.recipes.rtags.rtags-edit')->name('rtags.edit');
+
+    // Seccion tags de recipes
+    Route::livewire('rcategories', 'pages::page.recipes.rcategories.rcategories-index')->name('rcategories.index');
+    Route::livewire('rcategories/create', 'pages::page.recipes.rcategories.rcategories-edit')->name('rcategories.create');
+    Route::livewire('rcategories/{rcategoryUuid}/edit', 'pages::page.recipes.rcategories.rcategories-edit')->name('rcategories.edit');
 });
 
 require __DIR__.'/settings.php';
