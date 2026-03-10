@@ -23,6 +23,7 @@ new class extends Component
     public float $number_collection = 1;
     public int $seasons = 1;
     public int $episodes = 1;
+    public int $type = 1;
     public string $summary = '';
     public string $summary_clear = '';
     public string $notes = '';
@@ -57,6 +58,7 @@ new class extends Component
             'number_collection' => ['required', 'numeric', 'min:0'],
             'seasons' => ['nullable', 'integer', 'min:1'],
             'episodes' => ['nullable', 'integer', 'min:1'],
+            'type' => ['nullable', 'integer', 'min:1'],
             'summary' => ['nullable', 'string'],
             'summary_clear' => ['nullable', 'string'],
             'notes' => ['nullable', 'string'],
@@ -81,6 +83,7 @@ new class extends Component
         'number_collection' => 'número de coleccion',
         'seasons' => 'temporadas',
         'episodes' => 'episodios',
+        'type' => 'tipo',
         'summary' => 'resumen personal',
         'summary' => 'resumen personal limpio',
         'notes' => 'notas',
@@ -260,6 +263,11 @@ new class extends Component
             )
         );
     }
+
+    // traer tipos
+    public function types(){
+        return Serie::type();
+    }
 };
 ?>
 
@@ -296,6 +304,12 @@ new class extends Component
         <div class="grid grid-cols-3 gap-1">
             <flux:input type="number" max="2999" min="1" label="Año inicio" wire:model="start_date"/>
             <flux:input type="number" max="2999" min="1" label="Año fin" wire:model="end_date"/>
+            <flux:select wire:model="type" label="Tipo">
+                <option value="">Seleccionar tipo</option>
+                @foreach ($this->types() as $key => $item)
+                    <option value="{{ $key }}">{{ $item }}</option>
+                @endforeach
+            </flux:select>
         </div>
         <div class="grid grid-cols-3 gap-1">
             <flux:input type="number" max="9999" min="1" label="Temporada(s)" wire:model="seasons"/>

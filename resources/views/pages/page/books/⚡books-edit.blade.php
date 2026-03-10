@@ -22,6 +22,7 @@ new class extends Component
     public int $release_date = 1;
     public float $number_collection = 1;
     public int $pages = 1;
+    public int $type = 1;
     public string $summary = '';
     public string $summary_clear = '';
     public string $notes = '';
@@ -60,6 +61,7 @@ new class extends Component
             'release_date' => ['nullable', 'integer', 'min:1'],
             'number_collection' => ['required', 'numeric', 'min:0'],
             'pages' => ['nullable', 'integer', 'min:1'],
+            'type' => ['nullable', 'integer', 'min:1'],
             'summary' => ['nullable', 'string'],
             'summary_clear' => ['nullable', 'string'],
             'notes' => ['nullable', 'string'],
@@ -82,6 +84,7 @@ new class extends Component
         'release_date' => 'publicacion',
         'number_collection' => 'número de coleccion',
         'pages' => 'páginas',
+        'type' => 'tipo',
         'summary' => 'resumen personal',
         'summary' => 'resumen personal limpio',
         'notes' => 'notas',
@@ -110,6 +113,7 @@ new class extends Component
         $this->release_date = $this->book->release_date; 
         $this->number_collection = $this->book->number_collection ?? 1; 
         $this->pages = $this->book->pages ?? 1; 
+        $this->type = $this->book->type ?? 1; 
         $this->summary = $this->book->summary ?? ''; 
         $this->summary_clear = $this->book->summary_clear ?? ''; 
         $this->notes = $this->book->notes ?? ''; 
@@ -348,6 +352,10 @@ new class extends Component
             )
         );
     }
+    // traer tipos
+    public function types(){
+        return Book::type();
+    }
 };
 ?>
 
@@ -383,6 +391,12 @@ new class extends Component
         <div class="grid grid-cols-3 gap-1">
             <flux:input type="number" max="2999" min="1" label="Año de publicacion" wire:model="release_date"/>
             <flux:input type="number" max="2999" min="1" label="Paginas" wire:model="pages"/>
+            <flux:select wire:model="type" label="Tipo">
+                <option value="">Seleccionar tipo</option>
+                @foreach ($this->types() as $key => $item)
+                    <option value="{{ $key }}">{{ $item }}</option>
+                @endforeach
+            </flux:select>
         </div>
 
         <flux:input type="text" label="Link de portada" wire:model="cover_image_url" placeholder="Pegue el link de una imagen"/>
