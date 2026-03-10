@@ -19,23 +19,12 @@
 
             <flux:spacer />
 
-                <flux:sidebar.group :heading="__('Recetas')" class="grid">
-                    <flux:sidebar.item icon="document-text" :href="route('recipes.index')" :current="request()->routeIs('recipes.index')" wire:navigate>
-                        {{ __('Recetas') }}
+                <flux:sidebar.group :heading="__('Notas')" class="grid">
+                    <flux:sidebar.item icon="pencil" :href="route('diaries.index')" :current="request()->routeIs('diaries.index')" wire:navigate>
+                        {{ __('Diario') }}
                     </flux:sidebar.item>
-                    <flux:sidebar.item icon="bookmark" :href="route('recipes_library.index')" :current="request()->routeIs('recipes_library.index')" wire:navigate>
-                        {{ __('Recetario') }}
-                    </flux:sidebar.item>
-                </flux:sidebar.group>
-
-            <flux:spacer />
-
-                <flux:sidebar.group :heading="__('Libros')" class="grid">
-                    <flux:sidebar.item icon="book-open" :href="route('books.index')" :current="request()->routeIs('books.index')" wire:navigate>
-                        {{ __('Libros') }}
-                    </flux:sidebar.item>
-                    <flux:sidebar.item icon="bookmark" :href="route('books_library.index')" :current="request()->routeIs('books_library.index')" wire:navigate>
-                        {{ __('Libreria') }}
+                    <flux:sidebar.item icon="chat-bubble-bottom-center-text" :href="route('quotes.index')" :current="request()->routeIs('quotes.index')" wire:navigate>
+                        {{ __('Frases') }}
                     </flux:sidebar.item>
                 </flux:sidebar.group>
 
@@ -45,22 +34,19 @@
                     <flux:sidebar.item icon="film" :href="route('movies.index')" :current="request()->routeIs('movies.index')" wire:navigate>
                         {{ __('Peliculas') }}
                     </flux:sidebar.item>
-                    <flux:sidebar.item icon="bookmark" :href="route('movies_library.index')" :current="request()->routeIs('movies_library.index')" wire:navigate>
-                        {{ __('Estanteria Peliculas') }}
-                    </flux:sidebar.item>
                     <flux:sidebar.item icon="tv" :href="route('series.index')" :current="request()->routeIs('series.index')" wire:navigate>
                         {{ __('Series') }}
                     </flux:sidebar.item>
-                    <flux:sidebar.item icon="bookmark" :href="route('series_library.index')" :current="request()->routeIs('series_library.index')" wire:navigate>
-                        {{ __('Estanteria Series') }}
+                    <flux:sidebar.item icon="book-open" :href="route('books.index')" :current="request()->routeIs('books.index')" wire:navigate>
+                        {{ __('Libros') }}
                     </flux:sidebar.item>
                 </flux:sidebar.group>
 
             <flux:spacer />
 
-                <flux:sidebar.group :heading="__('Diario')" class="grid">
-                    <flux:sidebar.item icon="pencil" :href="route('diaries.index')" :current="request()->routeIs('diaries.index')" wire:navigate>
-                        {{ __('Diario') }}
+                <flux:sidebar.group :heading="__('Recetas')" class="grid">
+                    <flux:sidebar.item icon="document-text" :href="route('recipes.index')" :current="request()->routeIs('recipes.index')" wire:navigate>
+                        {{ __('Recetas') }}
                     </flux:sidebar.item>
                 </flux:sidebar.group>
 
@@ -77,16 +63,6 @@
             </flux:sidebar.nav>
 
             <flux:spacer />
-
-            <flux:sidebar.nav>
-                <flux:sidebar.item icon="folder-git-2" href="https://github.com/laravel/livewire-starter-kit" target="_blank">
-                    {{ __('Repository') }}
-                </flux:sidebar.item>
-
-                <flux:sidebar.item icon="book-open-text" href="https://laravel.com/docs/starter-kits#livewire" target="_blank">
-                    {{ __('Documentation') }}
-                </flux:sidebar.item>
-            </flux:sidebar.nav>
 
             <x-desktop-user-menu class="hidden lg:block" :name="auth()->user()->name" />
         </flux:sidebar>

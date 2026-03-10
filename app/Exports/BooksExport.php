@@ -41,6 +41,14 @@ class BooksExport implements FromCollection, WithHeadings
                 'uuid' => $book->uuid,
                 'user_id' => $book->user_id,
 
+                'languages' => $book->languages
+                    ->pluck('name')
+                    ->implode(', '),
+
+                'readingFormats' => $book->readingFormats
+                    ->pluck('name')
+                    ->implode(', '),
+
                 'subjects' => $book->subjects
                     ->pluck('name')
                     ->implode(', '),
@@ -94,6 +102,8 @@ class BooksExport implements FromCollection, WithHeadings
         'uuid',
         'user_id',
 
+        'languages',
+        'reading_formats',
         'subjects',
         'collections',
         'genres',

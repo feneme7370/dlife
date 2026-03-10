@@ -131,6 +131,26 @@ new class extends Component
         $this->diariesQuery();
     }
 
+    public $selected = [];
+    public $selectAll = false;
+    public function updatedSelectAll($value){
+        if ($value) {
+            $this->selected = $this->diaries->pluck('uuid')->toArray();
+        } else {
+            $this->selected = [];
+        }
+    }
+    public function deleteSelected(){
+        \App\Models\Page\Diary::where('user_id', Auth::id())
+            ->whereIn('uuid', $this->selected)
+            ->delete();
+
+        $this->selected = [];
+        $this->selectAll = false;
+
+        $this->diariesQuery();
+    }
+
     protected function diariesQuery()
     {
         $this->diaries = Diary::where('user_id', Auth::id())
@@ -204,21 +224,41 @@ new class extends Component
         </div>
     </div>
 
-
     <div class="grid gap-1 sm:gap-5 md:grid-cols-12">
         {{-- calendar --}}
         <div class="md:col-span-4">
-            <flux:button wire:click='clearDate' size="sm" variant="ghost" color="purple" icon="calendar" size="sm">Limpiar</flux:button>
 
             <x-libraries.calendar-litepicker 
                 :highlightedDayss="$highlightedDays" 
                 id_calendar="diary_calendar"
             />
             
-
             <div class="flex justify-center items-center gap-1">
                 <flux:input size="sm" type="date" label="Inicio" wire:model.live="dayStart"/>
                 <flux:input size="sm" type="date" label="Fin" wire:model.live="dayEnd"/>
+            </div>
+
+            <div class="flex justify-center items-center gap-3 mt-3">
+                <flux:button wire:click='clearDate' size="sm" variant="ghost" color="purple" icon="calendar" size="sm">Limpiar</flux:button>
+
+                <div class="flex flex-col items-center gap-1">
+                    <div class="flex items-center gap-1">
+                        <input type="checkbox" wire:model.live="selectAll">
+                        <span class="text-sm">Seleccionar todos</span>
+                    </div>
+                    <div>
+                        @if(count($selected) > 0)
+                            <flux:button 
+                                size="xs" 
+                                variant="danger"
+                                wire:confirm="¿Eliminar seleccionados?"
+                                wire:click="deleteSelected"
+                            >
+                                Eliminar ({{ count($selected) }})
+                            </flux:button>
+                        @endif
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -233,22 +273,25 @@ new class extends Component
                 <div class="space-y-1">
                     @foreach ($this->diaries as $item)
                         <div class="flex items-center justify-between py-1">
-                            <div>
-                                <p class="text-xs italic font-light"><a class="hover:underline" href="{{ route('diaries.show', ['diaryUuid' => $item->uuid]) }}">{{ \Carbon\Carbon::parse($item->day)->format('d-m-Y') }} - <span class="text-sm">{{ $item->title }}</span></p></a>
-                                <p>
-                                    @foreach ($item->diary_dcategories as $cat)
-                                        <a href="{{ route('diaries.index', ['cat' => $cat->uuid]) }}">
-                                            <flux:badge size="sm" color="lime">{{ $cat->name }}</flux:badge>
-                                        </a>
-                                    @endforeach
-                                </p>
-                                <p>
-                                    @foreach ($item->diary_dtags as $tag)
-                                        <a href="{{ route('diaries.index', ['tag' => $tag->uuid]) }}">
-                                            <span class="text-xs">#{{ $tag->name }}</span>
-                                        </a>
-                                    @endforeach
-                                </p>
+                            <div class="flex gap-3">
+                                <input type="checkbox" wire:model.live="selected" value="{{ $item->uuid }}">
+                                <div>
+                                    <p class="text-xs italic font-light"><a class="hover:underline" href="{{ route('diaries.show', ['diaryUuid' => $item->uuid]) }}">{{ \Carbon\Carbon::parse($item->day)->format('d-m-Y') }} - <span class="text-sm">{{ $item->title }}</span></p></a>
+                                    <p>
+                                        @foreach ($item->diary_dcategories as $cat)
+                                            <a href="{{ route('diaries.index', ['cat' => $cat->uuid]) }}">
+                                                <flux:badge size="sm" color="lime">{{ $cat->name }}</flux:badge>
+                                            </a>
+                                        @endforeach
+                                    </p>
+                                    <p>
+                                        @foreach ($item->diary_dtags as $tag)
+                                            <a href="{{ route('diaries.index', ['tag' => $tag->uuid]) }}">
+                                                <span class="text-xs">#{{ $tag->name }}</span>
+                                            </a>
+                                        @endforeach
+                                    </p>
+                                </div>
                             </div>
                             
                             <div class="flex items-center justify-center">

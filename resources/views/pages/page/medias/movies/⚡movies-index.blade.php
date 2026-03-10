@@ -90,6 +90,7 @@ new class extends Component
     
             <flux:separator variant="subtle" />
 
+            <flux:badge color="pink"><a href="{{ route('movies_library.index') }}">Estanteria</a></flux:badge>
             {{-- <flux:badge color="violet"><a href="{{ route('movies_data.index') }}">Estadisticas</a></flux:badge>
             <flux:badge color="purple"><a href="{{ route('movies_incomplete.index') }}">Pendientes</a></flux:badge> --}}
             <flux:badge color="fuchsia"><a href="{{ route('mgenres.index') }}">Generos</a></flux:badge>
@@ -108,10 +109,10 @@ new class extends Component
             <div class="flex items-center justify-between">
 
                 <div class="flex flex-wrap items-center gap-3">
-                    <x-libraries.img-tumb-lightbox 
+                     <x-libraries.img-tumb-lightbox 
                         :uri="$item->cover_image_url" 
                         album="Portadas"
-                        class_w_h="h-12"
+                        class_w_h="h-12 w-9"
                     />
 
                     <p><a class="hover:underline" href="{{ route('movies.show', ['movieUuid' => $item->uuid]) }}">{{ $item->title }}</p></a>
@@ -123,6 +124,7 @@ new class extends Component
                         {{ $item->summary_clear ? '🗒️' : ''}}
                         {{ $item->notes_clear ? '✍️' : ''}}
                         {{ $item->views->whereNotNull('end_view')->first() ? '✅' : '' }}
+                        {{ $item->tags->count() ? '#️⃣'.$item->tags->count() : ''}}
                     </p>
                 </div>
 

@@ -93,6 +93,7 @@ new class extends Component
     
             <flux:separator variant="subtle" />
 
+            <flux:badge color="pink"><a href="{{ route('books_library.index') }}">Libreria</a></flux:badge>
             <flux:badge color="violet"><a href="{{ route('books_data.index') }}">Estadisticas</a></flux:badge>
             <flux:badge color="purple"><a href="{{ route('books_incomplete.index') }}">Pendientes</a></flux:badge>
             <flux:badge color="fuchsia"><a href="{{ route('book-genres.index') }}">Generos</a></flux:badge>
@@ -113,7 +114,7 @@ new class extends Component
                     <x-libraries.img-tumb-lightbox 
                         :uri="$item->cover_image_url" 
                         album="Portadas"
-                        class_w_h="h-12"
+                        class_w_h="h-12 w-9"
                     />
                     <p><a class="hover:underline" href="{{ route('books.show', ['bookUuid' => $item->uuid]) }}">{{ $item->title }}</p></a>
                     <p class="text-xs italic text-gray-700 dark:text-gray-300">
@@ -124,6 +125,7 @@ new class extends Component
                         {{ $item->summary_clear ? '🗒️' : ''}}
                         {{ $item->notes_clear ? '✍️' : ''}}
                         {{ $item->reads->first() ? '✅' : ''}}
+                        {{ $item->tags->count() ? '#️⃣'.$item->tags->count() : ''}}
                     </p>
                 </div>
 

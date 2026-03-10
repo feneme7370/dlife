@@ -41,6 +41,8 @@ class BooksImport implements ToModel, WithHeadingRow
         );
 
         // 2️⃣ Sync relaciones many-to-many
+        $this->syncRelation($book, $row['languages'], \App\Models\Page\Language::class, 'languages');
+        $this->syncRelation($book, $row['reading_formats'], \App\Models\Page\ReadingFormat::class, 'readingFormats');
         $this->syncRelation($book, $row['subjects'], \App\Models\Page\Subject::class, 'subjects');
         $this->syncRelation($book, $row['collections'], \App\Models\Page\Collection::class, 'collections');
         $this->syncRelation($book, $row['genres'], \App\Models\Page\BookGenre::class, 'genres');

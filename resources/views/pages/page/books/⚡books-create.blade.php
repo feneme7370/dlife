@@ -409,7 +409,7 @@ new class extends Component
             </div>
         </flux:checkbox.group>
 
-        <flux:input type="text" label="Etiquetas" wire:model="newTag" wire:keydown.space.prevent="addTag" placeholder="Agregue etiquetas" />
+        <flux:input type="text" label="Etiquetas" wire:model="newTag" wire:keydown.period.prevent="addTag" placeholder="Agregue etiquetas" />
         <div class="flex gap-2 mt-2">
             @foreach($selectedBookTags as $index => $tag)
                 <flux:badge size="sm" color="purple">

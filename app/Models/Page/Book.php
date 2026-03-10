@@ -70,17 +70,17 @@ class Book extends Model
 
     // tiene muchas lecturas
     public function reads(){
-        return $this->hasMany(BookRead::class);
+        return $this->hasMany(\App\Models\Page\BookRead::class);
     }
 
     public function languages()
     {
-        return $this->belongsToMany(Language::class);
+        return $this->belongsToMany(\App\Models\Page\Language::class, 'book_language');
     }
 
     public function readingFormats()
     {
-        return $this->belongsToMany(ReadingFormat::class);
+        return $this->belongsToMany(\App\Models\Page\ReadingFormat::class, 'book_reading_format');
     }
 
     // tipo de libro

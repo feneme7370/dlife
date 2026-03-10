@@ -23,35 +23,40 @@ new class extends Component
     public $diariesTotal;
     public $recipesTotal;
 
+    public $quoteContent;
+    public $quoteAuthor;
+
     public function mount(){
-        $this->moviesYear = MovieView::where('user_id', Auth::id())
-            ->whereNotNull('end_view')
-            ->whereYear('end_view', now()->year)
-            ->count();
-        $this->moviesTotal = MovieView::where('user_id', Auth::id())
-            ->whereNotNull('end_view')
-            ->count();
-        $this->seriesYear = SerieView::where('user_id', Auth::id())
-            ->whereNotNull('end_view')
-            ->whereYear('end_view', now()->year)
-            ->count();
-        $this->seriesTotal = SerieView::where('user_id', Auth::id())
-            ->whereNotNull('end_view')
-            ->count();
-        $this->booksYear = BookRead::where('user_id', Auth::id())
-            ->whereNotNull('end_read')
-            ->whereYear('end_read', now()->year)
-            ->count();
-        $this->booksTotal = BookRead::where('user_id', Auth::id())
-            ->whereNotNull('end_read')
-            ->count();
-        $this->diariesYear = Diary::where('user_id', Auth::id())
-            ->whereYear('day', now()->year)
-            ->count();
-        $this->diariesTotal = Diary::where('user_id', Auth::id())
-            ->count();
-        $this->recipesTotal = Recipe::where('user_id', Auth::id())
-            ->count();
+        $movies = MovieView::where('user_id', Auth::id());
+        $this->moviesTotal = $movies->whereNotNull('end_view')->count();
+        $this->moviesYear = $movies->whereNotNull('end_view')->whereYear('end_view', now()->year)->count();
+
+        $series = SerieView::where('user_id', Auth::id());
+        $this->seriesTotal = $series->whereNotNull('end_view')->count();
+        $this->seriesYear = $series->whereNotNull('end_view')->whereYear('end_view', now()->year)->count();
+
+        $books = BookRead::where('user_id', Auth::id());
+        $this->booksTotal = $books->whereNotNull('end_read')->count();
+        $this->booksYear = $books->whereNotNull('end_read')->whereYear('end_read', now()->year)->count();
+
+        $diaries = Diary::where('user_id', Auth::id());
+        $this->diariesTotal = $diaries->count();
+        $this->diariesYear = $diaries->whereYear('day', now()->year)->count();
+
+        $this->recipesTotal = Recipe::where('user_id', Auth::id())->count();
+
+        $this->randomQuote();
+    }
+
+    public function randomQuote(){
+        $quote = \App\Models\Page\Quote::where('user_id', Auth::id())
+            ->inRandomOrder()
+            ->first();
+
+        if ($quote) {
+            $this->quoteContent = $quote->content;
+            $this->quoteAuthor = $quote->author;
+        }
     }
 };
 ?>
@@ -76,6 +81,17 @@ new class extends Component
     <x-libraries.flux.toast-success />
 
     <div class="grid grid-cols-2 gap-5">
+        <a href="" aria-label="Latest on our blog" class="col-span-2">
+            <flux:card size="sm" class="hover:bg-zinc-50 dark:hover:bg-zinc-700">
+                <flux:heading class="flex items-center gap-2">Frases <flux:icon name="arrow-path" class="ml-auto text-zinc-400" variant="micro" wire:click="randomQuote"/></flux:heading>
+                <flux:text class="mt-2">{{ $quoteContent }}</flux:text>
+                @if($quoteAuthor)
+                    <p class="text-xs text-gray-600 dark:text-gray-300 mt-2">
+                        — {{ $quoteAuthor }}
+                    </p>
+                @endif
+            </flux:card>
+        </a>
         <a href="{{ route('movies_library.index') }}" aria-label="Latest on our blog">
             <flux:card size="sm" class="hover:bg-zinc-50 dark:hover:bg-zinc-700">
                 <flux:heading class="flex items-center gap-2">Peliculas <flux:icon name="arrow-up-right" class="ml-auto text-zinc-400" variant="micro" /></flux:heading>

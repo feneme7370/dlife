@@ -106,6 +106,12 @@ Route::middleware(['auth'])->group(function () {
     Route::livewire('rcategories', 'pages::page.recipes.rcategories.rcategories-index')->name('rcategories.index');
     Route::livewire('rcategories/create', 'pages::page.recipes.rcategories.rcategories-edit')->name('rcategories.create');
     Route::livewire('rcategories/{rcategoryUuid}/edit', 'pages::page.recipes.rcategories.rcategories-edit')->name('rcategories.edit');
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Seccion tags de recipes
+    Route::livewire('quotes', 'pages::page.quotes.quotes-index')->name('quotes.index');
+    Route::livewire('quotes/create', 'pages::page.quotes.quotes-edit')->name('quotes.create');
+    Route::livewire('quotes/{quoteUuid}/edit', 'pages::page.quotes.quotes-edit')->name('quotes.edit');
 });
 
 require __DIR__.'/settings.php';

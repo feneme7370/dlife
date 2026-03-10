@@ -1,6 +1,6 @@
 <?php
 
-use App\Models\Page\Recipe;
+use App\Models\Page\Quote;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -12,7 +12,7 @@ new class extends Component
     use WithPagination;
 
     // propiedades para paginacion y orden, actualizar al buscar
-    public $search = '', $sortField = 'title', $sortDirection = 'asc', $perPage = 10000;
+    public $search = '', $sortField = 'created_at', $sortDirection = 'asc', $perPage = 10000;
     public function updatingSearch(){$this->resetPage();}
 
     // funcion para ordenar la tabla
@@ -27,16 +27,17 @@ new class extends Component
 
     // propiedades de item y titulos
     public $file;
-    public $recipes;
-    public $titlePage = 'Recetas';
-    public $subtitlePage = 'Listado de recetas';
+    public $quotes;
+    public $titlePage = 'Frases';
+    public $subtitlePage = 'Listado de frases';
 
     // consulta de item
-    public function queryRecipes(){
-        return Recipe::where('user_id', Auth::id())
+    public function queryQuotes(){
+        return Quote::where('user_id', Auth::id())
             ->where(function ($query) {
-                $query->where('title', 'like', "%{$this->search}%")
-                      ->orWhere('slug', 'like', "%{$this->search}%");
+                $query->where('content', 'like', "%{$this->search}%")
+                      ->orWhere('author', 'like', "%{$this->search}%")
+                      ->orWhere('source', 'like', "%{$this->search}%");
             })
             ->orderBy($this->sortField, $this->sortDirection)
             ->paginate($this->perPage);
@@ -44,14 +45,14 @@ new class extends Component
 
     // eliminar item
     public function deleteItem($codigo){
-        $item = Recipe::where('user_id', Auth::id())->where('uuid', $codigo)->first();
+        $item = Quote::where('user_id', Auth::id())->where('uuid', $codigo)->first();
         $item->delete();
     }
 
     // exportar tabla cruda a excel
     public function exportComplete()
     {
-        return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\RecipesExport,"recipes_info.xlsx");
+        return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\QuotesExport,"quotes_info.xlsx");
     }
 
     // importar tabla cruda de excel
@@ -61,7 +62,7 @@ new class extends Component
             'file' => 'required|mimes:xlsx,csv'
         ]);
 
-        \Maatwebsite\Excel\Facades\Excel::import(new \App\Imports\RecipesImport, $this->file);
+        \Maatwebsite\Excel\Facades\Excel::import(new \App\Imports\QuotesImport, $this->file);
 
         $this->reset('file');
 
@@ -75,7 +76,7 @@ new class extends Component
     <div>
         <div container class="mb-1 space-y-1">
             <flux:heading size="xl" level="1">
-                <a href="{{ route('recipes.create') }}"><flux:button size="xs" variant="ghost" icon="plus"></flux:button></a>
+                <a href="{{ route('quotes.create') }}"><flux:button size="xs" variant="ghost" icon="plus"></flux:button></a>
                 {{ $this->titlePage }}
             </flux:heading>
             <flux:text class="text-base">{{ $this->subtitlePage }}</flux:text>
@@ -86,10 +87,6 @@ new class extends Component
             </flux:breadcrumbs>
     
             <flux:separator variant="subtle" />
-
-            <flux:badge color="pink"><a href="{{ route('recipes_library.index') }}">Recetario</a></flux:badge>
-            <flux:badge color="fuchsia"><a href="{{ route('rcategories.index') }}">Categorias</a></flux:badge>
-            <flux:badge color="fuchsia"><a href="{{ route('rtags.index') }}">Etiquetas</a></flux:badge>
         </div>
     </div>
 
@@ -101,18 +98,23 @@ new class extends Component
         <flux:input type="text" label="Buscar" wire:model.live.debounce.250ms="search" placeholder="Buscar" autofocus/>
     </div>
 
-    {{-- listado de sagas --}}
+    {{-- listado de frases --}}
     <div class="space-y-2">
-        @foreach ($this->queryRecipes() as $item)
+        @foreach ($this->queryQuotes() as $item)
             <div class="flex items-center justify-between">
 
-                <div class="flex items-center gap-3">
-                    <img src="{{ $item->cover_image_url }}" class="w-8 h-8 bg-cover rounded-sm" alt="">
-                    <p><a class="hover:underline" href="{{ route('recipes.show', ['recipeUuid' => $item->uuid]) }}">{{ $item->title }}</p></a>
+                <div class="flex flex-col justify-items-center items-start gap-1">
+                    <p class="text-gray-800 dark:text-gray-100">{{ $item->content }}</p>
+                    <p class="ml-5 text-sm italic text-gray-600 dark:text-gray-300">
+                        {{ $item->author ? ' -- '. $item->author : '' }}
+                        {{ $item->source ? ' | '. $item->source : '' }}
+                    </p>
                 </div>
 
                 <div class="flex items-center justify-center">
-                        <a href="{{ route('recipes.edit', ['recipeUuid' => $item->uuid]) }}"><flux:button size="xs" variant="ghost" icon="pencil-square"></flux:button></a>
+                        <a 
+                            href="{{ route('quotes.edit', ['quoteUuid' => $item->uuid]) }}"
+                        ><flux:button size="xs" variant="ghost" icon="pencil-square"></flux:button></a>
                         <a><flux:button size="xs" variant="ghost" icon="trash" wire:confirm="Quiere eliminar?" wire:click="deleteItem('{{ $item->uuid }}')"></flux:button></a>
                 </div>
 
@@ -122,7 +124,7 @@ new class extends Component
 
     {{-- paginacion --}}
     <div class="mt-3">
-        {{ $this->queryRecipes()->links() }}
+        {{ $this->queryQuotes()->links() }}
     </div>
 
     {{-- exportacion e importacion de excel --}}
