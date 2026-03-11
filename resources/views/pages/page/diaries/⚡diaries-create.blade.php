@@ -7,9 +7,13 @@ use Livewire\Component;
 
 new class extends Component
 {
+    use \App\Traits\HandlesTags;
+    use \App\Traits\CleansHtml;
+
+    //////////////////////////////////////////////////////////////////// PROPIEDADES PRINCIPALES
     //propiedades de titulos
-    public string $title_diary = 'Agregar nota del dia';
-    public string $subtitle = 'Agregue una nota del dia a la lista';
+    public string $titlePage = 'Agregar nota del dia';
+    public string $subtitlePage = 'Agregue una nota del dia a la lista';
 
     // propiedades del item
     public string $title = '';
@@ -21,8 +25,10 @@ new class extends Component
     public int $user_id = 0;
 
     // propiedades para relacion muchos a muchos
-    public $selected_diary_categories = [];
+    public $selectedDiaryCategories = [];
+    public $selectedDiaryDtags = [];
 
+    //////////////////////////////////////////////////////////////////// VALIDACIONES
     // reglas de validacion
     protected function rules(){
         return [
@@ -47,6 +53,7 @@ new class extends Component
         'user_id' => 'usuario',
     ];
 
+    //////////////////////////////////////////////////////////////////// PRE CARGAR DATOS
     // traer datos iniciales
     public function mount($templateUuid = ''){
          $this->day = \Carbon\Carbon::now()->format('Y-m-d');
@@ -54,6 +61,7 @@ new class extends Component
          $this->content = $content_template->content ?? '';
     }
 
+    //////////////////////////////////////////////////////////////////// DATOS PARA ASOCIAR
     // traer estados
     public function diary_status(){
         return Diary::humor_status();
@@ -66,6 +74,7 @@ new class extends Component
             ->get();
     }
 
+    //////////////////////////////////////////////////////////////////// STORE PARA CREAR
     // crear item en la BD
     public function storeItem(){
         // datos automaticos
@@ -78,11 +87,11 @@ new class extends Component
 
         // crear en BD
         $diary = Diary::create($validatedData);
-        $diary->diary_dcategories()->sync($this->selected_diary_categories);
+        $diary->diary_dcategories()->sync($this->selectedDiaryCategories);
 
         // agregar tags
         $tagIds = [];
-        foreach ($this->selected_diary_dtags as $tagName) {
+        foreach ($this->selectedDiaryDtags as $tagName) {
             $tag = \App\Models\Page\Dtag::firstOrCreate(
                 ['name' => $tagName],
                 [
@@ -102,47 +111,6 @@ new class extends Component
         // redireccionar
         $this->redirectRoute('diaries.index', navigate:true);
     }
-
-   public function cleanNotes(?string $html): string
-    {
-        if (!$html) return '';
-
-        $text = str_replace(
-            ['</p>', '<br>', '<br/>', '<br />'],
-            "\n",
-            $html
-        );
-
-        return trim(
-            html_entity_decode(
-                strip_tags($text),
-                ENT_QUOTES | ENT_HTML5,
-                'UTF-8'
-            )
-        );
-    }
-
-    // store para crear tags
-    public $name_tag;
-    public $newTag = '';   // input actual
-    public $selected_diary_dtags = [];     // array de tags agregados
-
-    public function addTag()
-    {
-        $formatted = str_replace(' ', '', \Illuminate\Support\Str::title(trim($this->newTag)));
-
-        if ($formatted && !in_array($formatted, $this->selected_diary_dtags)) {
-            $this->selected_diary_dtags[] = $formatted;
-        }
-
-        $this->newTag = '';
-    }
-
-    public function removeTag($index)
-    {
-        unset($this->selected_diary_dtags[$index]);
-        $this->selected_diary_dtags = array_values($this->selected_diary_dtags); // reindexa
-    }
 };
 ?>
 
@@ -152,14 +120,14 @@ new class extends Component
         <div class="mb-1 space-y-1">
             <flux:heading size="xl" level="1">
                 <a href="{{ route('diaries.index') }}"><flux:button size="xs" variant="ghost" icon="arrow-uturn-left"></flux:button></a>
-                {{ $this->title_diary }}
+                {{ $this->titlePage }}
             </flux:heading>
-            <flux:text class="text-base">{{ $this->subtitle }}</flux:text>
+            <flux:text class="text-base">{{ $this->subtitlePage }}</flux:text>
     
             <flux:breadcrumbs>
                 <flux:breadcrumbs.item href="{{ route('dashboard') }}">Dashboard</flux:breadcrumbs.item>
                 <flux:breadcrumbs.item href="{{ route('diaries.index') }}">Diario</flux:breadcrumbs.item>
-                <flux:breadcrumbs.item>{{ $this->title_diary }}</flux:breadcrumbs.item>
+                <flux:breadcrumbs.item>{{ $this->titlePage }}</flux:breadcrumbs.item>
             </flux:breadcrumbs>
     
             <flux:separator variant="subtle" />
@@ -167,6 +135,7 @@ new class extends Component
         </div>
     </div>
 
+    {{-- formulario completo --}}
     <div class="space-y-2">
         <flux:input type="text" label="Titulo" wire:model="title" placeholder="Titulo de la nota" autofocus/>
         <div class="grid grid-cols-2 gap-1">
@@ -187,17 +156,10 @@ new class extends Component
         model_data="{{ $content }}" 
         />
 
-        {{-- <flux:textarea
-            label="Descripcion"
-            placeholder="Escribir suceso del dia"
-            wire:model="content"
-            rows="10"
-        /> --}}
-
         <div class="flex items-center gap-1">
-            <flux:label>Categorias {{ count($selected_diary_categories) }}</flux:label>
+            <flux:label>Categorias {{ count($selectedDiaryCategories) }}</flux:label>
         </div>
-        <flux:checkbox.group wire:model.live="selected_diary_categories">
+        <flux:checkbox.group wire:model.live="selectedDiaryCategories">
             <div class="h-40 overflow-scroll space-y-1">
                 @foreach ($this->diary_categories() as $item)
                     <flux:checkbox label="{{ $item->name }}" value="{{ $item->id }}" />
@@ -205,11 +167,16 @@ new class extends Component
             </div>
         </flux:checkbox.group>
 
-        <flux:input type="text" label="Etiquetas" wire:model="newTag" wire:keydown.period.prevent="addTag" placeholder="Agregue etiquetas" />
+        <flux:label>Etiquetas</flux:label>
+        <flux:input.group>
+            <flux:input type="text" wire:model="newTag" wire:keydown.period.prevent="addTag('selectedDiaryDtags')" placeholder="Agregue etiquetas" />
+            <flux:button wire:click="addTag('selectedDiaryDtags')" icon="plus">Agregar</flux:button>
+        </flux:input.group>
+        
         <div class="flex gap-2 mt-2">
-            @foreach($selected_diary_dtags as $index => $tag)
+            @foreach($selectedDiaryDtags as $index => $tag)
                 <flux:badge size="sm" color="purple">
-                    <button class="mr-2" wire:click="removeTag({{ $index }})">
+                    <button class="mr-2" wire:click="removeTag('selectedDiaryDtags', {{ $index }})">
                         x
                     </button>
                     #{{ $tag }}
@@ -217,15 +184,7 @@ new class extends Component
             @endforeach
         </div>
 
-        @if ($errors->any())
-            <div class="bg-red-100 border border-red-400 text-red-700 p-1 rounded">
-                <ul>
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
+        <x-libraries.utilities.errors />
 
         <flux:button icon="plus" wire:click="storeItem">Agregar</flux:button>
     </div>

@@ -5,17 +5,20 @@ use Livewire\Component;
 
 new class extends Component
 {
+    //////////////////////////////////////////////////////////////////// PROPIEDADES PRINCIPALES
     //propiedades de titulos
-    public string $title_diary = 'Ver nota';
-    public string $subtitle = 'Ver nota de lista';
+    public string $titlePage = 'Ver nota';
+    public string $subtitlePage = 'Ver nota de lista';
 
     public $diary;
 
+    //////////////////////////////////////////////////////////////////// PRE CARGAR DATOS
     // traer datos iniciales
     public function mount($diaryUuid){
         $this->diary = \App\Models\Page\Diary::where('uuid', $diaryUuid)->with('diary_dcategories', 'diary_dtags')->first();
     }
 
+    //////////////////////////////////////////////////////////////////// CONSULTAR DATOS
     // traer estados
     public function diary_status($item){
         $s = \App\Models\Page\Diary::humor_status();
@@ -30,14 +33,14 @@ new class extends Component
         <div class="mb-1 space-y-1">
             <flux:heading size="xl" level="1">
                 <a href="{{ route('diaries.index') }}"><flux:button size="xs" variant="ghost" icon="arrow-uturn-left"></flux:button></a>
-                {{ $this->title_diary }}
+                {{ $this->titlePage }}
             </flux:heading>
-            <flux:text class="text-base">{{ $this->subtitle }}</flux:text>
+            <flux:text class="text-base">{{ $this->subtitlePage }}</flux:text>
     
             <flux:breadcrumbs>
                 <flux:breadcrumbs.item href="{{ route('dashboard') }}">Dashboard</flux:breadcrumbs.item>
                 <flux:breadcrumbs.item href="{{ route('diaries.index') }}">Diario</flux:breadcrumbs.item>
-                <flux:breadcrumbs.item>{{ $this->title_diary }}</flux:breadcrumbs.item>
+                <flux:breadcrumbs.item>{{ $this->titlePage }}</flux:breadcrumbs.item>
             </flux:breadcrumbs>
     
             <flux:separator variant="subtle" />
@@ -56,7 +59,7 @@ new class extends Component
             <flux:label>Categorias</flux:label>
             <div class="my-1">
                 @foreach ($this->diary->diary_dcategories as $item)
-                    <flux:badge rounded color="amber">
+                    <flux:badge class="m-0.5" rounded color="amber">
                         <a href="{{ route('diaries.index', ['cat' => $item->uuid]) }}">
                             <span class="text-xs">#{{ $item->name }}</span>
                         </a>
@@ -67,7 +70,7 @@ new class extends Component
             <flux:label>Etiquetas</flux:label>
             <div class="my-1">
                 @foreach ($this->diary->diary_dtags as $item)
-                    <flux:badge rounded color="fuchsia">
+                    <flux:badge class="m-0.5" rounded color="fuchsia">
                         <a href="{{ route('diaries.index', ['tag' => $item->uuid]) }}">
                             <span class="text-xs">#{{ $item->name }}</span>
                         </a>

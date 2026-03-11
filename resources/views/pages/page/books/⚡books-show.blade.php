@@ -7,8 +7,8 @@ new class extends Component
 {
     //////////////////////////////////////////////////////////////////// PROPIEDADES PRINCIPALES
     //propiedades de titulos
-    public string $title = 'Ver libro';
-    public string $subtitle = 'Ver libro de lista';
+    public string $titlePage = 'Ver libro';
+    public string $subtitlePage = 'Ver libro de lista';
 
     public $book;
 
@@ -28,14 +28,14 @@ new class extends Component
         <div class="mb-1 space-y-1">
             <flux:heading size="xl" level="1">
                 <a href="{{ route('books.index') }}"><flux:button size="xs" variant="ghost" icon="arrow-uturn-left"></flux:button></a>
-                {{ $this->title }}
+                {{ $this->titlePage }}
             </flux:heading>
-            <flux:text class="text-base">{{ $this->subtitle }}</flux:text>
+            <flux:text class="text-base">{{ $this->subtitlePage }}</flux:text>
     
             <flux:breadcrumbs>
                 <flux:breadcrumbs.item href="{{ route('dashboard') }}">Dashboard</flux:breadcrumbs.item>
                 <flux:breadcrumbs.item href="{{ route('books.index') }}">Libros</flux:breadcrumbs.item>
-                <flux:breadcrumbs.item>{{ $this->title }}</flux:breadcrumbs.item>
+                <flux:breadcrumbs.item>{{ $this->titlePage }}</flux:breadcrumbs.item>
             </flux:breadcrumbs>
     
             <flux:separator variant="subtle" />
@@ -52,7 +52,7 @@ new class extends Component
         />
         {{-- <img src="{{ $book->cover_image_url }}" class="w-full sm:w-auto sm:h-96 mx-auto mb-1" alt="portada"> --}}
         <p class="text-xl sm:text-lg font-bold text-gray-900 dark:text-gray-200">{{ $book->title }}</p>
-        <p class="text-xs sm:text-sm text-gray-800 dark:text-gray-300 font-light italic">
+        <p class="text-sm sm:text-sm text-gray-800 dark:text-gray-300 font-light italic">
             <a href="{{ route('books.edit', ['bookUuid' => $book->uuid]) }}"><flux:button size="xs" variant="ghost" icon="pencil-square"></flux:button></a>
             {{ $book->original_title }}
         </p>
@@ -92,7 +92,7 @@ new class extends Component
             <p class="mt-1 text-sm sm:text-base text-gray-800 dark:text-gray-300 font-bold">
                 Etiquetas:
                 @foreach ($book->tags as $item)
-                    <flux:badge size="sm" variant="pill" as="button" variant="solid" color="violet">
+                    <flux:badge class="m-0.5" size="sm" variant="pill" as="button" variant="solid" color="violet">
                         <a
                             href="#"
                         >#{{ $item->name }}</a>
@@ -142,35 +142,19 @@ new class extends Component
 
         <flux:separator text="Anotaciones Personales" />
 
-        @if ($book->summary)
-            <div class="text-sm text-gray-800 dark:text-gray-300 break-words">
-                <p class="text-lg sm:text-xl font-bold text-gray-900 dark:text-gray-300">Resumen 🗒️</p>
-                <p style="white-space: pre-line;">{!! $book->summary !!}</p>
-            </div>
-        @endif
-
         @if ($book->notes)
             <div class="text-sm text-gray-800 dark:text-gray-300 break-words">
                 <p class="text-lg sm:text-xl font-bold text-gray-900 dark:text-gray-300">Reseña ✍️</p>
                 <p style="white-space: pre-line;">{!! $book->notes !!}</p>
             </div>
         @endif
-
-        {{-- <flux:separator text="Anotaciones Personales" />
-
-        @if ($book->summary_clear)
-            <div class="text-sm text-gray-800 dark:text-gray-300">
+        
+        @if ($book->summary)
+            <div class="text-sm text-gray-800 dark:text-gray-300 break-words">
                 <p class="text-lg sm:text-xl font-bold text-gray-900 dark:text-gray-300">Resumen 🗒️</p>
-                <p style="white-space: pre-line;">{{ $book->summary_clear }}</p>
+                <p style="white-space: pre-line;">{!! $book->summary !!}</p>
             </div>
         @endif
-
-        @if ($book->notes_clear)
-            <div class="text-sm text-gray-800 dark:text-gray-300">
-                <p class="text-lg sm:text-xl font-bold text-gray-900 dark:text-gray-300">Reseña ✍️</p>
-                <p style="white-space: pre-line;">{{ $book->notes_clear }}</p>
-            </div>
-        @endif --}}
 
     </div>
 </div>

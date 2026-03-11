@@ -5,6 +5,7 @@ use Livewire\Component;
 
 new class extends Component
 {
+    //////////////////////////////////////////////////////////////////// PROPIEDADES
     //propiedades de titulos
     public string $titlePage = '';
     public string $subtitlePage = '';
@@ -12,6 +13,8 @@ new class extends Component
     
     // propiedades del item
     public $bookGenre;
+
+    // propiedades del formulario
     public ?string $name = null;
     public ?string $slug = null;
     public ?string $name_general = null;
@@ -21,6 +24,7 @@ new class extends Component
     public ?string $uuid = null;
     public ?int $user_id = null;
 
+    //////////////////////////////////////////////////////////////////// PRE CARGAR DATOS
     // precargar datos al iniciar pagina
     public function mount($bookGenreUuid = null){
         $this->bookGenre = BookGenre::where('uuid', $bookGenreUuid)->first();
@@ -39,6 +43,7 @@ new class extends Component
         $this->user_id = $this->bookGenre?->user_id ?? \Illuminate\Support\Facades\Auth::id();
     }
 
+    //////////////////////////////////////////////////////////////////// VALIDACIONES
     // reglas de validacion
     protected function rules(){
         return [
@@ -65,6 +70,7 @@ new class extends Component
         'user_id' => 'usuario',
     ];
 
+    //////////////////////////////////////////////////////////////////// STORE PARA CREAR O EDITAR
     public function updateItem(){
         // normalizar
         $this->name = \Illuminate\Support\Str::title(trim($this->name));
@@ -123,6 +129,7 @@ new class extends Component
         </div>
     </div>
 
+    {{-- formulario completo --}}
     <div class="space-y-2">
         <flux:input type="text" label="Nombre" wire:model="name" placeholder="Nombre del genero" autofocus/>
         <flux:input type="text" label="Nombre general" wire:model="name_general" placeholder="Nombre general"/>

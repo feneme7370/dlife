@@ -6,12 +6,7 @@ new class extends Component
 {
     use \Livewire\WithPagination;
 
-    //////////////////////////////////////////////////////////////////// PROPIEDADES PRINCIPALES
-    // propiedades de item y titulos
-    public $recipes;
-    public $titlePage = 'Recetario';
-    public $subtitlePage = 'Listado de recetas leidos';
-
+    //////////////////////////////////////////////////////////////////// PROPIEDADES PARA PAGINACION
     // propiedades para paginacion y orden, actualizar al buscar
     public $search = '', $sortField = 'title', $sortDirection = 'desc', $perPage = 10000;
     public function updatingSearch(){$this->resetPage();}
@@ -19,9 +14,6 @@ new class extends Component
     public function updatingSortDirection(){$this->resetPage();}
     public function updatingPerPage(){$this->resetPage();}
 
-    public $categories_selected, $tags_selected;
-
-    //////////////////////////////////////////////////////////////////// CONSULTA DE DATOS
     // funcion para ordenar la tabla
     public function sortBy($field){
         if ($this->sortField === $field) {
@@ -41,6 +33,19 @@ new class extends Component
         ];
     }
 
+    //////////////////////////////////////////////////////////////////// PROPIEDADES PRINCIPALES
+    // propiedades de item y titulos
+    public $recipes;
+    public $titlePage = 'Recetario';
+    public $subtitlePage = 'Listado de recetas leidos';
+    public $categories_selected, $tags_selected;
+
+    //////////////////////////////////////////////////////////////////// PRE CARGAR DATOS
+    public function mount(){
+        $this->recipes = $this->movieQuery()->get();
+    }
+
+    //////////////////////////////////////////////////////////////////// CONSULTA DE DATOS
     public function recipesQuery(){
         return \App\Models\Page\Recipe::where('user_id', \Illuminate\Support\Facades\Auth::id())
 
@@ -55,7 +60,7 @@ new class extends Component
                 });
             })
 
-            ->orderBy('title', $this->sortDirection);
+            ->orderBy($this->sortField, $this->sortDirection);
     }
 };
 ?>
@@ -83,7 +88,7 @@ new class extends Component
     <div class="relative shadow-md sm:rounded-lg">
         <div class="flex flex-wrap justify-center gap-1 px-1 py-3">
             
-            @foreach ($this->recipesQuery()->get() as $item)
+            @foreach ($this->recipes as $item)
             <a 
                 href="{{ route('recipes.show', ['recipeUuid' => $item->uuid]) }}"
             >

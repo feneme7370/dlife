@@ -6,22 +6,13 @@ new class extends Component
 {
     use \Livewire\WithPagination;
 
-    //////////////////////////////////////////////////////////////////// PROPIEDADES PRINCIPALES
-    // propiedades de item y titulos
-    public $movie;
-    public $titlePage = 'Estanteria';
-    public $subtitlePage = 'Estanteria de peliculas vistas';
-
+    //////////////////////////////////////////////////////////////////// PROPIEDADES DE PAGINACION
     // propiedades para paginacion y orden, actualizar al buscar
     public $search = '', $sortField = 'title', $sortDirection = 'desc', $perPage = 10000;
     public function updatingSearch(){$this->resetPage();}
     public function updatingSortField(){$this->resetPage();}
     public function updatingSortDirection(){$this->resetPage();}
     public function updatingPerPage(){$this->resetPage();}
-
-    public $collection_selected, $subject_selected, $genre_selected, $star_selected;
-
-    //////////////////////////////////////////////////////////////////// FUNCIONES PARA FILTRAR
     // funcion para ordenar la tabla
     public function sortBy($field){
         if ($this->sortField === $field) {
@@ -31,7 +22,7 @@ new class extends Component
         }
         $this->sortField = $field;
     }
-
+    //////////////////////////////////////////////////////////////////// FUNCIONES PARA FILTRAR
     // mostrar variables en queryString
     protected function queryString(){
         return [
@@ -43,7 +34,19 @@ new class extends Component
         ];
     }
 
-    //////////////////////////////////////////////////////////////////// CONSULTA DE DATOS
+    //////////////////////////////////////////////////////////////////// PROPIEDADES
+    // propiedades de item y titulos
+    public $movies = [];
+    public $titlePage = 'Estanteria';
+    public $subtitlePage = 'Estanteria de peliculas vistas';
+    public $collection_selected, $subject_selected, $genre_selected, $star_selected;
+
+    //////////////////////////////////////////////////////////////////// PRE CARGAR DATOS
+    public function mount(){
+        $this->movies = $this->movieQuery()->get();
+    }
+
+    //////////////////////////////////////////////////////////////////// CONSULTA DE LISTADO Y ELIMINAR ITEM
     public function movieQuery(){
         return \App\Models\Page\Movie::where('user_id', \Illuminate\Support\Facades\Auth::id())
         
@@ -73,11 +76,6 @@ new class extends Component
 
             ->orderBy('views_max_end_view', $this->sortDirection);
     }
-
-    //////////////////////////////////////////////////////////////////// CONSULTA DE DATOS
-    public function mount(){
-        $this->movie = $this->movieQuery()->get();
-    }
 };
 ?>
 
@@ -104,7 +102,7 @@ new class extends Component
     <div class="relative shadow-md sm:rounded-lg">
         <div class="flex flex-wrap justify-center gap-1 px-1 py-3">
             
-            @foreach ($this->movie as $item)
+            @foreach ($this->movies as $item)
             <a 
                 href="{{ route('movies.show', ['movieUuid' => $item->uuid]) }}"
             >

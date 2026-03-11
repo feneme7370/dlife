@@ -9,7 +9,6 @@ new class extends Component
     //propiedades de titulos
     public string $titlePage = 'Ver receta';
     public string $subtitlePage = 'Ver receta de lista';
-
     public $recipe;
 
     //////////////////////////////////////////////////////////////////// PRE CARGAR DATOS

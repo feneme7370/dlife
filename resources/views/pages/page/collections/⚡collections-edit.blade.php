@@ -5,6 +5,7 @@ use Livewire\Component;
 
 new class extends Component
 {
+    //////////////////////////////////////////////////////////////////// PROPIEDADES
     //propiedades de titulos
     public string $titlePage = '';
     public string $subtitlePage = '';
@@ -12,6 +13,8 @@ new class extends Component
     
     // propiedades del item
     public $collection;
+
+    // propiedades del formulario
     public ?string $name = null;
     public ?string $slug = null;
     public ?string $description = null;
@@ -22,6 +25,7 @@ new class extends Component
     public ?string $uuid = null;
     public ?int $user_id = null;
 
+    //////////////////////////////////////////////////////////////////// PRE CARGAR DATOS
     // precargar datos al iniciar pagina
     public function mount($collectionUuid = null){
         $this->collection = Collection::where('uuid', $collectionUuid)->first();
@@ -41,6 +45,7 @@ new class extends Component
         $this->user_id = $this->collection?->user_id ?? \Illuminate\Support\Facades\Auth::id();
     }
 
+    //////////////////////////////////////////////////////////////////// VALIDACIONES
     // reglas de validacion
     protected function rules(){
         return [
@@ -69,6 +74,7 @@ new class extends Component
         'user_id' => 'usuario',
     ];
 
+    //////////////////////////////////////////////////////////////////// STORE PARA CREAR O EDITAR
     // editar o crear item en la BD
     public function updateItem(){
         // normalizar
@@ -126,6 +132,7 @@ new class extends Component
         </div>
     </div>
 
+    {{-- formulario completo --}}
     <div class="space-y-2">
         <flux:input type="text" label="Nombre" wire:model="name" placeholder="Nombre del sujeto" autofocus/>
         <flux:input type="text" label="Link de imagen" wire:model="cover_image_url" placeholder="Pegue el link de una imagen"/>

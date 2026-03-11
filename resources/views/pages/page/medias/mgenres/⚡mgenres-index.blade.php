@@ -11,10 +11,10 @@ new class extends Component
     use WithFileUploads;
     use WithPagination;
 
+    //////////////////////////////////////////////////////////////////// PROPIEDADES DE PAGINACION
     // propiedades para paginacion y orden, actualizar al buscar
     public $search = '', $sortField = 'name', $sortDirection = 'asc', $perPage = 10000;
     public function updatingSearch(){$this->resetPage();}
-
     // funcion para ordenar la tabla
     public function sortBy($field){
         if ($this->sortField === $field) {
@@ -25,12 +25,13 @@ new class extends Component
         $this->sortField = $field;
     }
 
+    //////////////////////////////////////////////////////////////////// PROPIEDADES
     // propiedades de item y titulos
     public $file;
-    public $mgenres;
-    public $title_media = 'Generos';
-    public $subtitle_media = 'Listado con generos';
+    public $titlePage = 'Generos';
+    public $subtitlePage = 'Listado con generos';
 
+    //////////////////////////////////////////////////////////////////// CONSULTA DE LISTADO Y ELIMINAR ITEM
     // consulta de item
     public function queryMgenres(){
         return Mgenre::where('user_id', Auth::id())
@@ -48,25 +49,18 @@ new class extends Component
         $item->delete();
     }
 
+    //////////////////////////////////////////////////////////////////// EXPORTAR E IMPORTAR EXCEL
     // exportar tabla cruda a excel
-    public function export($table)
-    {
+    public function export($table){
         $data = \Illuminate\Support\Facades\DB::table($table)->where('user_id', Auth::id())->get();
-
         return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\GenericExport($data, $table),"{$table}.xlsx");
     }
 
     // importar tabla cruda de excel
-    public function import($table)
-    {
-        $this->validate([
-            'file' => 'required|mimes:xlsx,csv'
-        ]);
-
+    public function import($table){
+        $this->validate(['file' => 'required|mimes:xlsx,csv']);
         \Maatwebsite\Excel\Facades\Excel::import(new \App\Imports\GenericImport($table), $this->file);
-
         $this->reset('file');
-
         session()->flash('success', 'Importación exitosa');
     }
 };
@@ -78,13 +72,13 @@ new class extends Component
         <flux:main container class="mb-1 space-y-1">
             <flux:heading size="xl" level="1">
                 <a href="{{ route('mgenres.create') }}"><flux:button size="xs" variant="ghost" icon="plus"></flux:button></a>
-                {{ $this->title_media }}
+                {{ $this->titlePage }}
             </flux:heading>
-            <flux:text class="text-base">{{ $this->subtitle_media }}</flux:text>
+            <flux:text class="text-base">{{ $this->subtitlePage }}</flux:text>
     
             <flux:breadcrumbs>
                 <flux:breadcrumbs.item href="{{ route('dashboard') }}">Dashboard</flux:breadcrumbs.item>
-                <flux:breadcrumbs.item>{{ $this->title_media }}</flux:breadcrumbs.item>
+                <flux:breadcrumbs.item>{{ $this->titlePage }}</flux:breadcrumbs.item>
             </flux:breadcrumbs>
     
             <flux:separator variant="subtle" />
@@ -124,6 +118,7 @@ new class extends Component
 
     {{-- exportacion e importacion de excel --}}
     <flux:separator class="mb-2 mt-10" variant="subtle" />
+    
     <div class="flex justify-between items-center gap-1">
         <flux:button icon="cloud-arrow-down" class="text-xs text-center" wire:click="export('mgenres')">Exp.</flux:button>
         <div class="flex gap-3">

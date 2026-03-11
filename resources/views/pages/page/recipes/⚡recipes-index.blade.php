@@ -11,10 +11,10 @@ new class extends Component
     use WithFileUploads;
     use WithPagination;
 
+    //////////////////////////////////////////////////////////////////// PROPIEDADES DE PAGINACION
     // propiedades para paginacion y orden, actualizar al buscar
     public $search = '', $sortField = 'title', $sortDirection = 'asc', $perPage = 10000;
     public function updatingSearch(){$this->resetPage();}
-
     // funcion para ordenar la tabla
     public function sortBy($field){
         if ($this->sortField === $field) {
@@ -25,12 +25,13 @@ new class extends Component
         $this->sortField = $field;
     }
 
+    //////////////////////////////////////////////////////////////////// PROPIEDADES
     // propiedades de item y titulos
     public $file;
-    public $recipes;
     public $titlePage = 'Recetas';
     public $subtitlePage = 'Listado de recetas';
 
+    //////////////////////////////////////////////////////////////////// CONSULTA DE LISTADO Y ELIMINAR ITEM
     // consulta de item
     public function queryRecipes(){
         return Recipe::where('user_id', Auth::id())
@@ -41,30 +42,23 @@ new class extends Component
             ->orderBy($this->sortField, $this->sortDirection)
             ->paginate($this->perPage);
     }
-
     // eliminar item
     public function deleteItem($codigo){
         $item = Recipe::where('user_id', Auth::id())->where('uuid', $codigo)->first();
         $item->delete();
     }
 
+    //////////////////////////////////////////////////////////////////// EXPORTAR E IMPORTAR EXCEL
     // exportar tabla cruda a excel
-    public function exportComplete()
-    {
+    public function exportComplete(){
         return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\RecipesExport,"recipes_info.xlsx");
     }
 
     // importar tabla cruda de excel
-    public function importComplete()
-    {
-        $this->validate([
-            'file' => 'required|mimes:xlsx,csv'
-        ]);
-
+    public function importComplete(){
+        $this->validate(['file' => 'required|mimes:xlsx,csv']);
         \Maatwebsite\Excel\Facades\Excel::import(new \App\Imports\RecipesImport, $this->file);
-
         $this->reset('file');
-
         session()->flash('success', 'Importación exitosa');
     }
 };
@@ -127,6 +121,7 @@ new class extends Component
 
     {{-- exportacion e importacion de excel --}}
     <flux:separator class="mb-2 mt-10" variant="subtle" />
+    
     <div class="flex justify-between items-center gap-1">
         <flux:button icon="cloud-arrow-down" class="text-xs text-center" wire:click="exportComplete()">Exp.</flux:button>
         <div class="flex gap-3">

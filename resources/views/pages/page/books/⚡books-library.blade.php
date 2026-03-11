@@ -6,22 +6,13 @@ new class extends Component
 {
     use \Livewire\WithPagination;
 
-    //////////////////////////////////////////////////////////////////// PROPIEDADES PRINCIPALES
-    // propiedades de item y titulos
-    public $books;
-    public $title = 'Libreria';
-    public $subtitle = 'Listado de libros leidos';
-
+    //////////////////////////////////////////////////////////////////// PROPIEDADES DE PAGINACION
     // propiedades para paginacion y orden, actualizar al buscar
     public $search = '', $sortField = 'title', $sortDirection = 'desc', $perPage = 10000;
     public function updatingSearch(){$this->resetPage();}
     public function updatingSortField(){$this->resetPage();}
     public function updatingSortDirection(){$this->resetPage();}
     public function updatingPerPage(){$this->resetPage();}
-
-    public $status_read, $collection_selected, $subject_selected, $genre_selected, $star_selected;
-
-    //////////////////////////////////////////////////////////////////// CONSULTA DE DATOS
     // funcion para ordenar la tabla
     public function sortBy($field){
         if ($this->sortField === $field) {
@@ -31,7 +22,7 @@ new class extends Component
         }
         $this->sortField = $field;
     }
-
+    //////////////////////////////////////////////////////////////////// FUNCIONES PARA FILTRAR
     // mostrar variables en queryString
     protected function queryString(){
         return [
@@ -44,6 +35,19 @@ new class extends Component
         ];
     }
 
+    //////////////////////////////////////////////////////////////////// PROPIEDADES
+    // propiedades de item y titulos
+    public $books = [];
+    public $titlePage = 'Libreria';
+    public $subtitlePage = 'Listado de libros leidos';
+    public $status_read, $collection_selected, $subject_selected, $genre_selected, $star_selected;
+
+    //////////////////////////////////////////////////////////////////// PRE CARGAR DATOS
+    public function mount(){
+        $this->books = $this->movieQuery()->get();
+    }
+
+    //////////////////////////////////////////////////////////////////// CONSULTA DE LISTADO Y ELIMINAR ITEM
     public function booksQuery(){
         return \App\Models\Page\Book::where('user_id', \Illuminate\Support\Facades\Auth::id())
         
@@ -81,14 +85,14 @@ new class extends Component
     <div>
         <div container class="mb-1 space-y-1">
             <flux:heading size="xl" level="1">
-                <a href="{{ route('subjects.index') }}"><flux:button size="xs" variant="ghost" icon="arrow-uturn-left"></flux:button></a>
-                {{ $this->title }}
+                <a href="{{ route('books.index') }}"><flux:button size="xs" variant="ghost" icon="arrow-uturn-left"></flux:button></a>
+                {{ $this->titlePage }}
             </flux:heading>
-            <flux:text class="text-base">{{ $this->subtitle }}</flux:text>
+            <flux:text class="text-base">{{ $this->subtitlePage }}</flux:text>
     
             <flux:breadcrumbs>
                 <flux:breadcrumbs.item href="{{ route('dashboard') }}">Dashboard</flux:breadcrumbs.item>
-                <flux:breadcrumbs.item>{{ $this->title }}</flux:breadcrumbs.item>
+                <flux:breadcrumbs.item>{{ $this->titlePage }}</flux:breadcrumbs.item>
             </flux:breadcrumbs>
     
             <flux:separator variant="subtle" />
@@ -99,7 +103,7 @@ new class extends Component
     <div class="relative shadow-md sm:rounded-lg">
         <div class="flex flex-wrap justify-center gap-1 px-1 py-3">
             
-            @foreach ($this->booksQuery()->get() as $item)
+            @foreach ($this->books as $item)
             <a 
                 href="{{ route('books.show', ['bookUuid' => $item->uuid]) }}"
             >

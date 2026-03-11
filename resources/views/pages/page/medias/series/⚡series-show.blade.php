@@ -7,8 +7,8 @@ new class extends Component
 {
     //////////////////////////////////////////////////////////////////// PROPIEDADES PRINCIPALES
     //propiedades de titulos
-    public string $title = 'Ver serie';
-    public string $subtitle = 'Ver serie de lista';
+    public string $titlePage = 'Ver serie';
+    public string $subtitlePage = 'Ver serie de lista';
 
     public $serie;
 
@@ -28,14 +28,14 @@ new class extends Component
         <div class="mb-1 space-y-1">
             <flux:heading size="xl" level="1">
                 <a href="{{ route('series.index') }}"><flux:button size="xs" variant="ghost" icon="arrow-uturn-left"></flux:button></a>
-                {{ $this->title }}
+                {{ $this->titlePage }}
             </flux:heading>
-            <flux:text class="text-base">{{ $this->subtitle }}</flux:text>
+            <flux:text class="text-base">{{ $this->subtitlePage }}</flux:text>
     
             <flux:breadcrumbs>
                 <flux:breadcrumbs.item href="{{ route('dashboard') }}">Dashboard</flux:breadcrumbs.item>
                 <flux:breadcrumbs.item href="{{ route('series.index') }}">Series</flux:breadcrumbs.item>
-                <flux:breadcrumbs.item>{{ $this->title }}</flux:breadcrumbs.item>
+                <flux:breadcrumbs.item>{{ $this->titlePage }}</flux:breadcrumbs.item>
             </flux:breadcrumbs>
     
             <flux:separator variant="subtle" />
@@ -50,9 +50,9 @@ new class extends Component
             class_w_h="h-40 sm:h-96"
             class="mx-auto"
         />
-        {{-- <img src="{{ $serie->cover_image_url }}" class="w-full sm:w-auto sm:h-96 mx-auto mb-1" alt="portada"> --}}
+        
         <p class="text-xl sm:text-lg font-bold text-gray-900 dark:text-gray-200">{{ $serie->title }}</p>
-        <p class="text-xs sm:text-sm text-gray-800 dark:text-gray-300 font-light italic">
+        <p class="text-sm sm:text-sm text-gray-800 dark:text-gray-300 font-light italic">
             <a href="{{ route('series.edit', ['serieUuid' => $serie->uuid]) }}"><flux:button size="xs" variant="ghost" icon="pencil-square"></flux:button></a>
             {{ $serie->original_title }}
         </p>
@@ -93,7 +93,7 @@ new class extends Component
             <p class="mt-1 text-sm sm:text-base text-gray-800 dark:text-gray-300 font-bold">
                 Etiquetas:
                 @foreach ($serie->tags as $item)
-                    <flux:badge size="sm" variant="pill" as="button" variant="solid" color="violet">
+                    <flux:badge class="m-0.5" size="sm" variant="pill" as="button" variant="solid" color="violet">
                         <a
                             href="#"
                         >#{{ $item->name }}</a>
@@ -143,17 +143,17 @@ new class extends Component
 
         <flux:separator text="Anotaciones Personales" />
 
-        @if ($serie->summary)
-            <div class="text-sm text-gray-800 dark:text-gray-300 break-words">
-                <p class="text-lg sm:text-xl font-bold text-gray-900 dark:text-gray-300">Resumen 🗒️</p>
-                <p style="white-space: pre-line;">{!! $serie->summary !!}</p>
-            </div>
-        @endif
-
         @if ($serie->notes)
             <div class="text-sm text-gray-800 dark:text-gray-300 break-words">
                 <p class="text-lg sm:text-xl font-bold text-gray-900 dark:text-gray-300">Reseña ✍️</p>
                 <p style="white-space: pre-line;">{!! $serie->notes !!}</p>
+            </div>
+        @endif
+
+        @if ($serie->summary)
+            <div class="text-sm text-gray-800 dark:text-gray-300 break-words">
+                <p class="text-lg sm:text-xl font-bold text-gray-900 dark:text-gray-300">Resumen 🗒️</p>
+                <p style="white-space: pre-line;">{!! $serie->summary !!}</p>
             </div>
         @endif
 

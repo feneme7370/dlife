@@ -11,10 +11,10 @@ new class extends Component
     use WithFileUploads;
     use WithPagination;
 
+    //////////////////////////////////////////////////////////////////// PROPIEDADES DE PAGINACION
     // propiedades para paginacion y orden, actualizar al buscar
     public $search = '', $sortField = 'name', $sortDirection = 'asc', $perPage = 10000;
     public function updatingSearch(){$this->resetPage();}
-
     // funcion para ordenar la tabla
     public function sortBy($field){
         if ($this->sortField === $field) {
@@ -25,12 +25,13 @@ new class extends Component
         $this->sortField = $field;
     }
 
+    //////////////////////////////////////////////////////////////////// PROPIEDADES
     // propiedades de item y titulos
     public $file;
-    public $dcategories;
-    public $title = 'Categorias';
-    public $subtitle = 'Listado de categorias';
+    public $titlePage = 'Categorias';
+    public $subtitlePage = 'Listado de categorias';
 
+    //////////////////////////////////////////////////////////////////// CONSULTA DE LISTADO Y ELIMINAR ITEM
     // consulta de item
     public function queryDcategories(){
         return Dcategory::where('user_id', Auth::id())
@@ -43,30 +44,23 @@ new class extends Component
     }
 
     // eliminar item
-    public function deleteItem($codigo){
-        $item = Dcategory::where('user_id', Auth::id())->where('uuid', $codigo)->first();
+    public function deleteItem($uuid){
+        $item = Dcategory::where('user_id', Auth::id())->where('uuid', $uuid)->first();
         $item->delete();
     }
 
+    //////////////////////////////////////////////////////////////////// EXPORTAR E IMPORTAR EXCEL
     // exportar tabla cruda a excel
-    public function export($table)
-    {
+    public function export($table){
         $data = \Illuminate\Support\Facades\DB::table($table)->where('user_id', Auth::id())->get();
-
         return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\GenericExport($data, $table),"{$table}.xlsx");
     }
 
     // importar tabla cruda de excel
-    public function import($table)
-    {
-        $this->validate([
-            'file' => 'required|mimes:xlsx,csv'
-        ]);
-
+    public function import($table){
+        $this->validate(['file' => 'required|mimes:xlsx,csv']);
         \Maatwebsite\Excel\Facades\Excel::import(new \App\Imports\GenericImport($table), $this->file);
-
         $this->reset('file');
-
         session()->flash('success', 'Importación exitosa');
     }
 };
@@ -78,14 +72,14 @@ new class extends Component
         <div container class="mb-1 space-y-1">
             <flux:heading size="xl" level="1">
                 <a href="{{ route('dcategories.create') }}"><flux:button size="xs" variant="ghost" icon="plus"></flux:button></a>
-                {{ $this->title }}
+                {{ $this->titlePage }}
             </flux:heading>
-            <flux:text class="text-base">{{ $this->subtitle }}</flux:text>
+            <flux:text class="text-base">{{ $this->subtitlePage }}</flux:text>
     
             <flux:breadcrumbs>
                 <flux:breadcrumbs.item href="{{ route('dashboard') }}">Dashboard</flux:breadcrumbs.item>
                 <flux:breadcrumbs.item href="{{ route('diaries.index') }}">Diario</flux:breadcrumbs.item>
-                <flux:breadcrumbs.item>{{ $this->title }}</flux:breadcrumbs.item>
+                <flux:breadcrumbs.item>{{ $this->titlePage }}</flux:breadcrumbs.item>
             </flux:breadcrumbs>
     
             <flux:separator variant="subtle" />
@@ -122,6 +116,7 @@ new class extends Component
 
     {{-- exportacion e importacion de excel --}}
     <flux:separator class="mb-2 mt-10" variant="subtle" />
+    
     <div class="flex justify-between items-center gap-1">
         <flux:button icon="cloud-arrow-down" class="text-xs text-center" wire:click="export('dcategories')">Exp.</flux:button>
         <div class="flex gap-3">

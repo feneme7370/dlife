@@ -7,11 +7,11 @@ new class extends Component
     //////////////////////////////////////////////////////////////////// PROPIEDADES PRINCIPALES
     // propiedades de item y titulos
     public $books;
-    public $title = 'Datos de libros';
-    public $subtitle = 'Estadisticas de libros leidos';
+    public $titlePage = 'Datos de libros';
+    public $subtitlePage = 'Estadisticas de libros leidos';
 
-    public $year_start;
-    public $year_end;
+    // fecjas de inicio y fin
+    public $year_start, $year_end;
 
     // filtro con años leidos
     public $read_years;
@@ -32,7 +32,7 @@ new class extends Component
         '12' => 'Dic',
     ];
 
-        //////////////////////////////////////////////////////////////////// PRECARGAR DATOS INICIALES
+    //////////////////////////////////////////////////////////////////// PRECARGAR DATOS INICIALES
     // cargar datos iniciales
     public function mount(){
         // year today
@@ -153,7 +153,7 @@ new class extends Component
             ->values();
     }    
 
-    //////////////////////////////////////////////////////////////////// FILTRAR POR AÑO
+    //////////////////////////////////////////////////////////////////// FILTRO DE AÑO
     // chage new year filter
     public function newYear($value){
         if($value === 'todo'){
@@ -186,14 +186,14 @@ new class extends Component
         <div container class="mb-1 space-y-1">
             <flux:heading size="xl" level="1">
                 <a href="{{ route('books.index') }}"><flux:button size="xs" variant="ghost" icon="arrow-uturn-left"></flux:button></a>
-                {{ $this->title }}
+                {{ $this->titlePage }}
             </flux:heading>
-            <flux:text class="text-base">{{ $this->subtitle }}</flux:text>
+            <flux:text class="text-base">{{ $this->subtitlePage }}</flux:text>
     
             <flux:breadcrumbs>
                 <flux:breadcrumbs.item href="{{ route('dashboard') }}">Dashboard</flux:breadcrumbs.item>
                 <flux:breadcrumbs.item href="{{ route('books.index') }}">Libros</flux:breadcrumbs.item>
-                <flux:breadcrumbs.item>{{ $this->title }}</flux:breadcrumbs.item>
+                <flux:breadcrumbs.item>{{ $this->titlePage }}</flux:breadcrumbs.item>
             </flux:breadcrumbs>
     
             <flux:separator variant="subtle" />

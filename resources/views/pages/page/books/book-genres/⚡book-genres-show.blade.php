@@ -5,9 +5,10 @@ use Livewire\Component;
 
 new class extends Component
 {
+    //////////////////////////////////////////////////////////////////// PROPIEDADES
     //propiedades de titulos
-    public string $title = 'Ver genero';
-    public string $subtitle = 'Ver generos de libros';
+    public string $titlePage = 'Ver genero';
+    public string $subtitlePage = 'Ver generos de libros';
 
     // propiedades del item
     public string $name = '';
@@ -19,6 +20,7 @@ new class extends Component
     public string $uuid = '';
     public int $user_id = 0;
 
+    //////////////////////////////////////////////////////////////////// PRE CARGAR DATOS
     // precargar datos al iniciar pagina
     public function mount($bookGenreUuid){
         $item = BookGenre::where('uuid', $bookGenreUuid)->first();
@@ -40,14 +42,14 @@ new class extends Component
         <div class="mb-1 space-y-1">
             <flux:heading size="xl" level="1">
                 <a href="{{ route('book-genres.index') }}"><flux:button size="xs" variant="ghost" icon="arrow-uturn-left"></flux:button></a>
-                {{ $this->title }}
+                {{ $this->titlePage }}
             </flux:heading>
-            <flux:text class="text-base">{{ $this->subtitle }}</flux:text>
+            <flux:text class="text-base">{{ $this->subtitlePage }}</flux:text>
     
             <flux:breadcrumbs>
                 <flux:breadcrumbs.item href="{{ route('dashboard') }}">Dashboard</flux:breadcrumbs.item>
                 <flux:breadcrumbs.item href="{{ route('book-genres.index') }}">Generos</flux:breadcrumbs.item>
-                <flux:breadcrumbs.item>{{ $this->title }}</flux:breadcrumbs.item>
+                <flux:breadcrumbs.item>{{ $this->titlePage }}</flux:breadcrumbs.item>
             </flux:breadcrumbs>
     
             <flux:separator variant="subtle" />

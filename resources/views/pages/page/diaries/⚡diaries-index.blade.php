@@ -14,26 +14,13 @@ new class extends Component
     use WithFileUploads;
     use WithPagination;
 
-
+    //////////////////////////////////////////////////////////////////// PROPIEDADES DE PAGINACION
     // propiedades para paginacion y orden, actualizar al buscar
     public $search = '', $sortField = 'day', $sortDirection = 'desc', $perPage = 10000;
-    public function updatingSearch(){
-        $this->resetPage();
-    }
+    public function updatingSearch(){$this->resetPage();}
     public function updatedSearch(){$this->diariesQuery();}
     public function updatedDayStart(){$this->diariesQuery();}
     public function updatedDayEnd(){$this->diariesQuery();}
-
-    // mostrar variables en queryString
-    protected function queryString(){
-        return [
-        'search' => [ 'as' => 'q' ],
-        'selectedCategory' => [ 'as' => 'cat' ],
-        'selectedTag' => [ 'as' => 'tag' ],
-        ];
-    }
-    public $selectedTag, $selectedCategory;
-
     // funcion para ordenar la tabla
     public function sortBy($field){
         if ($this->sortField === $field) {
@@ -44,115 +31,33 @@ new class extends Component
         $this->sortField = $field;
     }
 
-    // propiedades de item y titulos
-    public $file;
-    public $diaries;
-    public $title = 'Diario';
-    public $subtitle = 'Listado de dias';
-
-    // eliminar item
-    public function deleteItem($codigo){
-        $item = Diary::where('user_id', Auth::id())->where('uuid', $codigo)->first();
-        $item->delete();
-    }
-
-    // eliminar template
-    public function deleteTemplate($codigo){
-        $item = DiaryTemplate::where('user_id', Auth::id())->where('uuid', $codigo)->first();
-        $item->delete();
-    }
-    
-    // exportar tabla cruda a excel
-    public function exportComplete()
-    {
-        return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\DailyLogExport,"diaries_info.xlsx");
-    }
-
-    // importar tabla cruda de excel
-    public function importComplete()
-    {
-        $this->validate([
-            'file' => 'required|mimes:xlsx,csv'
-        ]);
-
-        \Maatwebsite\Excel\Facades\Excel::import(new \App\Imports\DailyLogImport(), $this->file);
-
-        $this->reset('file');
-        $this->diariesQuery();
-        session()->flash('success', 'Importación exitosa');
-    }
-
-    public function getDiaryTemplates(){
-        return \App\Models\Page\DiaryTemplate::where('user_id', Auth::id())->get();
-    }
-    public $title_template;
-    public $content_template;
-    public function addTemplate(){
-        \App\Models\Page\DiaryTemplate::create([
-            'title' => $this->title_template,
-            'content' => $this->content_template,
-            'user_id' => \Illuminate\Support\Facades\Auth::id(),
-            'uuid' => \Illuminate\Support\Str::random(24),
-        ]);
-        $this->getDiaryTemplates();
-        $this->modal('add-template')->close();
-    }
-
+    //////////////////////////////////////////////////////////////////// PRE CARGAR DATOS
     public function mount(){
         $this->diariesQuery();
         $this->highlightedDays = $this->getDays();
     }
-    public function getDays(){
-        $s =  $this->diaries
-            ->pluck('day')
-            ->map(fn ($d) => \Carbon\Carbon::parse($d)->format('Y-m-d'))
-            ->toArray();
-        return $s;
-    }
-    // propiedades del item
-    public $diaryId;
 
-    public $dayStart;
-    public $dayEnd;
-    public $highlightedDays = [];
-
-    #[On('reading-day-selected')]
-    public function selectDay($date){
-        $this->dayStart = \Carbon\Carbon::parse($date)->format('Y-m-d');
-        $this->dayEnd = \Carbon\Carbon::parse($date)->format('Y-m-d');
-        $this->diariesQuery();
-    }
-    public function clearDate(){
-        $this->dayStart = \Carbon\Carbon::parse('1900-01-01')->format('Y-m-d');
-        $this->dayEnd = \Carbon\Carbon::parse('2100-01-01')->format('Y-m-d');
-        $this->search = '';
-        $this->selectedCategory = '';
-        $this->selectedTag = '';
-        $this->diariesQuery();
+    //////////////////////////////////////////////////////////////////// FUNCIONES PARA FILTRAR
+    // mostrar variables en queryString
+    protected function queryString(){
+        return [
+        'search' => [ 'as' => 'q' ],
+        'selectedCategory' => [ 'as' => 'cat' ],
+        'selectedTag' => [ 'as' => 'tag' ],
+        ];
     }
 
-    public $selected = [];
-    public $selectAll = false;
-    public function updatedSelectAll($value){
-        if ($value) {
-            $this->selected = $this->diaries->pluck('uuid')->toArray();
-        } else {
-            $this->selected = [];
-        }
-    }
-    public function deleteSelected(){
-        \App\Models\Page\Diary::where('user_id', Auth::id())
-            ->whereIn('uuid', $this->selected)
-            ->delete();
+    //////////////////////////////////////////////////////////////////// PROPIEDADES
+    // propiedades de item y titulos
+    public $file;
+    public $diaries;
+    public $titlePage = 'Diario';
+    public $subtitlePage = 'Listado de dias';
 
-        $this->selected = [];
-        $this->selectAll = false;
+    public $selectedTag, $selectedCategory;
 
-        $this->diariesQuery();
-    }
-
-    protected function diariesQuery()
-    {
+    //////////////////////////////////////////////////////////////////// CONSULTA DE LISTADO Y ELIMINAR ITEM
+    protected function diariesQuery(){
         $this->diaries = Diary::where('user_id', Auth::id())
             ->where(function ($query) {
                 $query->where('title', 'like', "%{$this->search}%")
@@ -181,6 +86,107 @@ new class extends Component
 
         return $this->diaries;
     }
+    // eliminar item
+    public function deleteItem($uuid){
+        $item = Diary::where('user_id', Auth::id())->where('uuid', $uuid)->first();
+        $item->delete();
+    }
+
+    //////////////////////////////////////////////////////////////////// CONSULTA DE TEMPLATES
+    public $title_template;
+    public $content_template;
+
+    public function getDiaryTemplates(){
+        return \App\Models\Page\DiaryTemplate::where('user_id', Auth::id())->get();
+    }
+    public function addTemplate(){
+        \App\Models\Page\DiaryTemplate::create([
+            'title' => $this->title_template,
+            'content' => $this->content_template,
+            'user_id' => \Illuminate\Support\Facades\Auth::id(),
+            'uuid' => \Illuminate\Support\Str::random(24),
+        ]);
+        $this->getDiaryTemplates();
+        $this->modal('add-template')->close();
+    }
+    // eliminar template
+    public function deleteTemplate($codigo){
+        $item = DiaryTemplate::where('user_id', Auth::id())->where('uuid', $codigo)->first();
+        $item->delete();
+    }
+    
+    //////////////////////////////////////////////////////////////////// EXPORTAR E IMPORTAR EXCEL
+    // exportar tabla cruda a excel
+    public function exportComplete(){
+        return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\DailyLogExport,"diaries_info.xlsx");
+    }
+    // importar tabla cruda de excel
+    public function importComplete(){
+        $this->validate(['file' => 'required|mimes:xlsx,csv']);
+        \Maatwebsite\Excel\Facades\Excel::import(new \App\Imports\DailyLogImport(), $this->file);
+        $this->reset('file');
+        $this->diariesQuery();
+        session()->flash('success', 'Importación exitosa');
+    }
+
+    //////////////////////////////////////////////////////////////////// LITEPICKER JS
+    // propiedades del item
+    public $diaryId;
+    public $dayStart, $dayEnd;
+    public $highlightedDays = [];
+
+    // clickear un dia del calendario y filtrar ese mismo dia
+    #[On('reading-day-selected')]
+    public function selectDay($date){
+        $this->dayStart = \Carbon\Carbon::parse($date)->format('Y-m-d');
+        $this->dayEnd = \Carbon\Carbon::parse($date)->format('Y-m-d');
+        $this->diariesQuery();
+    }
+
+    // eliminar filtros y traer todo nuevamente
+    public function clearDate(){
+        $this->dayStart = \Carbon\Carbon::parse('1900-01-01')->format('Y-m-d');
+        $this->dayEnd = \Carbon\Carbon::parse('2100-01-01')->format('Y-m-d');
+        $this->search = '';
+        $this->selectedCategory = '';
+        $this->selectedTag = '';
+        $this->diariesQuery();
+    }
+
+    // obtener los dias con datos
+    public function getDays(){
+        $s =  $this->diaries
+            ->pluck('day')
+            ->map(fn ($d) => \Carbon\Carbon::parse($d)->format('Y-m-d'))
+            ->toArray();
+        return $s;
+    }
+
+    //////////////////////////////////////////////////////////////////// ELIMINAR MASIVAMENTE
+    // propiedades
+    public $selected = [];
+    public $selectAll = false;
+
+    // colocar los uuid en el array para luego tener dato a eliminar
+    public function updatedSelectAll($value){
+        if ($value) {
+            $this->selected = $this->diaries->pluck('uuid')->toArray();
+        } else {
+            $this->selected = [];
+        }
+    }
+
+    // eliminar datos del array
+    public function deleteSelected(){
+        \App\Models\Page\Diary::where('user_id', Auth::id())
+            ->whereIn('uuid', $this->selected)
+            ->delete();
+
+        $this->selected = [];
+        $this->selectAll = false;
+
+        $this->diariesQuery();
+    }
 };
 ?>
 <div>
@@ -190,13 +196,13 @@ new class extends Component
         <div container class="space-y-1">
             <flux:heading size="xl" level="1">
                 <a href="{{ route('diaries.create') }}"><flux:button size="xs" variant="ghost" icon="plus"></flux:button></a>
-                {{ $this->title }}
+                {{ $this->titlePage }}
             </flux:heading>
-            <flux:text class="text-base">{{ $this->subtitle }}</flux:text>
+            <flux:text class="text-base">{{ $this->subtitlePage }}</flux:text>
     
             <flux:breadcrumbs>
                 <flux:breadcrumbs.item href="{{ route('dashboard') }}">Dashboard</flux:breadcrumbs.item>
-                <flux:breadcrumbs.item>{{ $this->title }}</flux:breadcrumbs.item>
+                <flux:breadcrumbs.item>{{ $this->titlePage }}</flux:breadcrumbs.item>
             </flux:breadcrumbs>
     
             <flux:separator variant="subtle" />
@@ -224,8 +230,9 @@ new class extends Component
         </div>
     </div>
 
+    {{-- calendario, buscador y listado --}}
     <div class="grid gap-1 sm:gap-5 md:grid-cols-12">
-        {{-- calendar --}}
+        {{-- calendar, filtros de fecha y boton de eliminacion --}}
         <div class="md:col-span-4">
 
             <x-libraries.calendar-litepicker 
@@ -262,6 +269,7 @@ new class extends Component
             </div>
         </div>
 
+        {{-- buscador y listado --}}
         <div class="md:col-span-8">
             {{-- buscador --}}
             <div class="mb-3">
@@ -308,6 +316,7 @@ new class extends Component
 
     {{-- exportacion e importacion de excel --}}
     <flux:separator class="mb-2 mt-10" variant="subtle" />
+
     <div class="flex justify-between items-center gap-1">
         <flux:button icon="cloud-arrow-down" class="text-xs text-center" wire:click="exportComplete()">Exp.</flux:button>
         <div class="flex gap-3">
@@ -316,6 +325,7 @@ new class extends Component
         </div>
     </div>
 
+    {{-- modal para agregar templates --}}
     <flux:modal name="add-template" class="md:w-96">
         <div class="space-y-6">
             <div>

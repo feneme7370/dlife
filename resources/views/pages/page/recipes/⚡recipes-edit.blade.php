@@ -6,6 +6,10 @@ use Livewire\Component;
 
 new class extends Component
 {
+    use \App\Traits\HandlesTags;
+    use \App\Traits\CleansHtml;
+
+    //////////////////////////////////////////////////////////////////// PROPIEDADES
     //propiedades de titulos
     public string $titlePage = '';
     public string $subtitlePage = '';
@@ -28,6 +32,7 @@ new class extends Component
     public $selectedRecipeCategories = [];
     public $selectedRecipeTags = [];
 
+    //////////////////////////////////////////////////////////////////// PRE CARGAR DATOS
     // precargar datos al iniciar pagina
     public function mount($recipeUuid = null){
         $this->recipe = Recipe::where('uuid', $recipeUuid)->first();
@@ -53,15 +58,7 @@ new class extends Component
         $this->selectedRecipeTags = $this->recipe?->tags->pluck('name')->toArray() ?? [];
     }
 
-    //////////////////////////////////////////////////////////////////// DATOS PARA ASOCIAR
-    // traer datos de generos para asociar
-    public function categories(){
-        return Rcategory::where('user_id', \Illuminate\Support\Facades\Auth::id())
-            ->orderBy('name', 'asc')
-            ->get();
-    }
-
-    //////////////////////////////////////////////////////////////////// REGLAS DE VALIDACION
+    //////////////////////////////////////////////////////////////////// VALIDACIONES
     // reglas de validacion
     protected function rules(){
         return [
@@ -92,6 +89,7 @@ new class extends Component
         'user_id' => 'usuario',
     ];
 
+    //////////////////////////////////////////////////////////////////// STORE PARA CREAR O EDITAR
     // editar o crear item en la BD
     public function updateItem(){
         // normalizar
@@ -163,46 +161,12 @@ new class extends Component
         $this->redirectRoute('recipes.index', navigate:true);
     }
 
-    //////////////////////////////////////////////////////////////////// STORE PARA TAGS
-    // store para crear tags
-    public $name_tag;
-    public $newTag = '';   // input actual
-    // public $selectedBookTags = [];     // array de tags agregados
-
-    public function addTag()
-    {
-        $formatted = str_replace(' ', '', \Illuminate\Support\Str::title(trim($this->newTag)));
-
-        if ($formatted && !in_array($formatted, $this->selectedRecipeTags)) {
-            $this->selectedRecipeTags[] = $formatted;
-        }
-
-        $this->newTag = '';
-    }
-
-    public function removeTag($index)
-    {
-        unset($this->selectedRecipeTags[$index]);
-        $this->selectedRecipeTags = array_values($this->selectedRecipeTags); // reindexa
-    }
-
-   public function cleanNotes(?string $html): string
-    {
-        if (!$html) return '';
-
-        $text = str_replace(
-            ['</p>', '<br>', '<br/>', '<br />'],
-            "\n",
-            $html
-        );
-
-        return trim(
-            html_entity_decode(
-                strip_tags($text),
-                ENT_QUOTES | ENT_HTML5,
-                'UTF-8'
-            )
-        );
+    //////////////////////////////////////////////////////////////////// DATOS PARA ASOCIAR
+    // traer datos de generos para asociar
+    public function categories(){
+        return Rcategory::where('user_id', \Illuminate\Support\Facades\Auth::id())
+            ->orderBy('name', 'asc')
+            ->get();
     }
 };
 ?>
@@ -227,6 +191,7 @@ new class extends Component
         </div>
     </div>
 
+    {{-- formulario completo --}}
     <div class="space-y-2">
         <flux:input type="text" label="Nombre" wire:model="title" placeholder="Nombre del sujeto" autofocus/>
         <flux:input type="text" label="Link de imagen" wire:model="cover_image_url" placeholder="Pegue el link de una imagen"/>
@@ -263,11 +228,16 @@ new class extends Component
             @endforeach
         </flux:select>
 
-        <flux:input type="text" label="Etiquetas" wire:model="newTag" wire:keydown.period.prevent="addTag" placeholder="Agregue etiquetas" />
+        <flux:label>Etiquetas</flux:label>
+        <flux:input.group>
+            <flux:input type="text" wire:model="newTag" wire:keydown.period.prevent="addTag('selectedRecipeTags')" placeholder="Agregue etiquetas" />
+            <flux:button wire:click="addTag('selectedRecipeTags')" icon="plus">Agregar</flux:button>
+        </flux:input.group>
+
         <div class="flex gap-2 mt-2">
             @foreach($selectedRecipeTags as $index => $tag)
                 <flux:badge size="sm" color="purple">
-                    <button class="mr-2" wire:click="removeTag({{ $index }})">
+                    <button class="mr-2" wire:click="removeTag('selectedRecipeTags', {{ $index }})">
                         x
                     </button>
                     #{{ $tag }}

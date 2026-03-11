@@ -5,6 +5,7 @@ use Livewire\Component;
 
 new class extends Component
 {
+    //////////////////////////////////////////////////////////////////// PROPIEDADES
     //propiedades de titulos
     public string $titlePage = '';
     public string $subtitlePage = '';
@@ -13,12 +14,14 @@ new class extends Component
     // propiedades del item
     public $quote;
 
+    // propiedades del formulario
     public ?string $content = null;
     public ?string $author = null;
     public ?string $source = null;
     public ?string $uuid = null;
     public ?int $user_id = null;
 
+    //////////////////////////////////////////////////////////////////// PRE CARGAR DATOS
     // precargar datos al iniciar pagina
     public function mount($quoteUuid = null){
         $this->quote = Quote::where('uuid', $quoteUuid)->first();
@@ -34,6 +37,7 @@ new class extends Component
         $this->user_id = $this->quote?->user_id ?? \Illuminate\Support\Facades\Auth::id();
     }
 
+    //////////////////////////////////////////////////////////////////// VALIDACIONES
     // reglas de validacion
     protected function rules(){
         return [
@@ -54,6 +58,7 @@ new class extends Component
         'user_id' => 'usuario',
     ];
 
+    //////////////////////////////////////////////////////////////////// STORE PARA CREAR O EDITAR
     // editar o crear item en la BD
     public function updateItem(){
         // normalizar
@@ -112,14 +117,15 @@ new class extends Component
         </div>
     </div>
 
+    {{-- formulario completo --}}
     <div class="space-y-2">
         
         <flux:textarea
-        label="Frase"
-        placeholder="Coloque frase"
-        wire:model="content"
-        rows="10"
-        autofocus
+            label="Frase"
+            placeholder="Coloque frase"
+            wire:model="content"
+            rows="10"
+            autofocus
         />
 
         <flux:input type="text" label="Autor" wire:model="author" placeholder="Nombre del autor"/>
