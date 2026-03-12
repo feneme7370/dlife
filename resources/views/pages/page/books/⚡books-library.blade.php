@@ -44,7 +44,7 @@ new class extends Component
 
     //////////////////////////////////////////////////////////////////// PRE CARGAR DATOS
     public function mount(){
-        $this->books = $this->movieQuery()->get();
+        $this->books = $this->booksQuery()->get();
     }
 
     //////////////////////////////////////////////////////////////////// CONSULTA DE LISTADO Y ELIMINAR ITEM

@@ -43,7 +43,7 @@ new class extends Component
 
     //////////////////////////////////////////////////////////////////// PRE CARGAR DATOS
     public function mount(){
-        $this->series = $this->movieQuery()->get();
+        $this->series = $this->serieQuery()->get();
     }
 
     //////////////////////////////////////////////////////////////////// CONSULTA DE LISTADO Y ELIMINAR ITEM

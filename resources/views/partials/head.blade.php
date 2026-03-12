@@ -20,4 +20,6 @@
 <script src="{{asset('data/libraries/quill/quill.js')}}"></script>
 <link href="{{asset('data/libraries/quill/quill.snow.css')}}" rel="stylesheet">
 
-<script src="https://cdn.jsdelivr.net/npm/litepicker/dist/litepicker.js"></script>
+<script src="{{asset('data/libraries/litepicker/litepicker.js')}}"></script>
+
+<script src="{{asset('data/libraries/apexcharts/apexcharts.js')}}"  ></script>

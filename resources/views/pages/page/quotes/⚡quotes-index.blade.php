@@ -88,16 +88,21 @@ new class extends Component
 
     {{-- buscador --}}
     <div class="mb-3">
-        <flux:input type="text" label="Buscar" wire:model.live.debounce.250ms="search" placeholder="Buscar" autofocus/>
+        <flux:input type="text" label="Buscar" wire:model.live.debounce.250ms="search" placeholder="Buscar"/>
     </div>
 
     {{-- listado de frases --}}
-    <div class="space-y-2">
+    <div class="space-y-3">
         @foreach ($this->queryQuotes() as $item)
+
+            <div class="w-10/12 mx-auto">
+                <flux:separator  />
+            </div>
+
             <div class="flex items-center justify-between">
 
                 <div class="flex flex-col justify-items-center items-start gap-1">
-                    <p class="text-gray-800 dark:text-gray-100">{{ $item->content }}</p>
+                    <p class="text-gray-800 dark:text-gray-100 text-sm">{{ $item->content }}</p>
                     <p class="ml-5 text-sm italic text-gray-600 dark:text-gray-300">
                         {{ $item->author ? ' -- '. $item->author : '' }}
                         {{ $item->source ? ' | '. $item->source : '' }}

@@ -64,7 +64,7 @@ new class extends Component
         return [
             'title' => ['required', 'string', 'max:255'],
             'slug' => ['required', 'string', 'max:255', \Illuminate\Validation\Rule::unique('recipes', 'slug')->ignore($this->recipe?->id ?? 0)],
-            'description' => ['nullable', 'string'],
+            'description' => ['required', 'string'],
             'ingredients' => ['nullable', 'string'],
             'ingredients_clear' => ['nullable', 'string'],
             'instructions' => ['nullable', 'string'],

@@ -63,7 +63,7 @@ Route::middleware(['auth'])->group(function () {
     // Seccion peliculas
     Route::livewire('movies', 'pages::page.medias.movies.movies-index')->name('movies.index');
     Route::livewire('movies_library', 'pages::page.medias.movies.movies-library')->name('movies_library.index');
-    // Route::livewire('movies_data', 'pages::page.medias.movies.movies-data')->name('movies_data.index');
+    Route::livewire('movies_data', 'pages::page.medias.movies.movies-data')->name('movies_data.index');
     // Route::livewire('movies_incomplete', 'pages::page.medias.movies.movies-incomplete')->name('movies_incomplete.index');
     Route::livewire('movies/create', 'pages::page.medias.movies.movies-create')->name('movies.create');
     Route::livewire('movies/{movieUuid}/edit', 'pages::page.medias.movies.movies-edit')->name('movies.edit');
@@ -72,7 +72,7 @@ Route::middleware(['auth'])->group(function () {
     // Seccion series
     Route::livewire('series', 'pages::page.medias.series.series-index')->name('series.index');
     Route::livewire('series_library', 'pages::page.medias.series.series-library')->name('series_library.index');
-    // Route::livewire('series_data', 'pages::page.medias.series.series-data')->name('series_data.index');
+    Route::livewire('series_data', 'pages::page.medias.series.series-data')->name('series_data.index');
     // Route::livewire('series_incomplete', 'pages::page.medias.series.series-incomplete')->name('series_incomplete.index');
     Route::livewire('series/create', 'pages::page.medias.series.series-create')->name('series.create');
     Route::livewire('series/{serieUuid}/edit', 'pages::page.medias.series.series-edit')->name('series.edit');

@@ -23,7 +23,7 @@ new class extends Component
     public string $slug = '';
     public string $original_title = '';
     public string $synopsis = '';
-    public int $start_date = 1;
+    public int $start_date = 2;
     public int $end_date;
     public float $number_collection = 1;
     public int $seasons = 1;
@@ -122,6 +122,7 @@ new class extends Component
     public function storeItem(){
         // datos automaticos
         $this->user_id = \Illuminate\Support\Facades\Auth::id();
+        $this->title = \Illuminate\Support\Str::title(trim($this->title));
         $this->slug = \Illuminate\Support\Str::slug($this->title . '-' . \Illuminate\Support\Str::random(4));
         $this->uuid = \Illuminate\Support\Str::random(24);
         $this->summary_clear = $this->cleanNotes($this->summary);
@@ -284,17 +285,19 @@ new class extends Component
         <div class="flex items-center gap-1">
             <flux:modal.trigger name="add-subject">
                 <flux:button size="xs" variant="ghost" icon="plus"></flux:button>
-                <flux:label>Autor</flux:label>
+                <flux:label>Actor(es) {{ count($selectedSerieSubjects) }}</flux:label>
             </flux:modal.trigger>
         </div>
-
-        <flux:checkbox.group wire:model.live="selectedSerieSubjects" :label="'Actor(es) '.count($selectedSerieSubjects)">
-            <div class="h-40 overflow-scroll space-y-1">
-                @foreach ($this->subjects() as $item)
-                    <flux:checkbox label="{{ $item->name }}" value="{{ $item->id }}" />
-                @endforeach
-            </div>
-        </flux:checkbox.group>
+ 
+        <div class="col-span-12 sm:col-span-6">
+            <x-libraries.flux.select-multiple
+                model="subject" 
+                relation="subjects" 
+                wire:model="selectedSerieSubjects" 
+                {{-- label="Autores" --}}
+                :items="$this->subjects()"
+            />
+        </div>
 
         <flux:label>Etiquetas</flux:label>
         <flux:input.group>

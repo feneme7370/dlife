@@ -50,6 +50,38 @@ new class extends Component
         $item->delete();
     }
 
+    //////////////////////////////////////////////////////////////////// EXPORTAR PDF
+    // exportar pdf
+    // public function exportBooksPdf()
+    // {
+    //     $books = $this->queryBooks();
+
+    //     $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('exports.books-pdf', [
+    //         'books' => $books
+    //     ]);
+
+    //     return $pdf->download('books.pdf');
+    // }
+    public function exportBooksPdf()
+    {
+        $books = $this->queryBooks();
+
+        $html = view('exports.books-pdf', [
+            'books' => $books
+        ])->render();
+
+        $pdf = \Spatie\Browsershot\Browsershot::html($html)
+            ->format('A4')
+            ->margins(10,10,10,10)
+            ->pdf();
+
+        return response()->streamDownload(
+            fn() => print($pdf),
+            "books_library.pdf"
+        );
+    }
+
+
     //////////////////////////////////////////////////////////////////// EXPORTAR E IMPORTAR EXCEL
     // exportar tabla cruda a excel
     public function exportComplete(){
@@ -140,8 +172,11 @@ new class extends Component
     <flux:separator class="mb-2 mt-10" variant="subtle" />
     
     <div class="flex justify-between items-center gap-1">
-            <flux:button icon="cloud-arrow-down" class="text-xs text-center" wire:click="exportComplete()">Exp. Libros</flux:button>
-            <div class="flex gap-3">
+        <div>
+            <flux:button icon="cloud-arrow-down" class="text-xs text-center" wire:click="exportComplete()">Excel</flux:button>
+            <flux:button icon="document" class="text-xs text-center" wire:click="exportBooksPdf()">PDF</flux:button>
+        </div>
+        <div class="flex gap-3">
             <flux:button icon="cloud-arrow-up" class="text-xs text-center" wire:click="importComplete()">Imp. Libros</flux:button>
             <flux:input type="file" wire:model="file" />
         </div>

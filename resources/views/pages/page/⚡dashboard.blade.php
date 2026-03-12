@@ -6,6 +6,7 @@ use App\Models\Page\MovieView;
 use App\Models\Page\Recipe;
 use App\Models\Page\SerieView;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 
 new class extends Component
@@ -25,6 +26,8 @@ new class extends Component
 
     public $quoteContent;
     public $quoteAuthor;
+
+    public $data;
 
     public function mount(){
         $movies = MovieView::where('user_id', Auth::id());
@@ -126,5 +129,30 @@ new class extends Component
                 <flux:text class="mt-2">Recetas en total ({{ $recipesTotal }}).</flux:text>
             </flux:card>
         </a>
+    </div>
+
+    <div class="mt-32">
+        <p>Favorito ❤️</p>
+        <p>Abandonado 🚫</p>
+        <p>Resumido 🗒️</p>
+        <p>Reseñado ✍️</p>
+        <p>Visto/leido ✅</p>
+        <p>Hashtag #️⃣</p>
+
+        <p>Paginas 📃</p>
+        <p>Mensual 📇</p>
+        <p>Mensual 📅</p>
+        <p>Listado libros 📖</p>
+
+        <p>Valoracion ⭐</p>
+        <p>Clasificacion 🏷</p>
+        <p>Estadisticas 📊</p>
+
+        <p>Comidas 🍳</p>
+        <p>Series 📺</p>
+        <p>Peliculas 🎥</p>
+        <p>Animes 👾</p>
+        <p>Juegos 🕹️</p>
+        <p>Libros 📙</p>
     </div>
 </div>

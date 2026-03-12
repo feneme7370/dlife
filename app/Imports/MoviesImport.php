@@ -14,7 +14,7 @@ class MoviesImport implements ToModel, WithHeadingRow
         $movie = \App\Models\Page\Movie::updateOrCreate(
             ['uuid' => $row['uuid']], // clave única
             [
-                'title' => $row['title'],
+                'title' => \Illuminate\Support\Str::title(trim($row['title'])),
                 'slug' => \Illuminate\Support\Str::slug($row['title'] . '-' . \Illuminate\Support\Str::random(4)),
                 'original_title' => $row['original_title'],
                 'synopsis' => $row['synopsis'],

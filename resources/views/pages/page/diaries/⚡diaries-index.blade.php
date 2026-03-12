@@ -90,6 +90,7 @@ new class extends Component
     public function deleteItem($uuid){
         $item = Diary::where('user_id', Auth::id())->where('uuid', $uuid)->first();
         $item->delete();
+        $this->diariesQuery();
     }
 
     //////////////////////////////////////////////////////////////////// CONSULTA DE TEMPLATES
@@ -110,8 +111,8 @@ new class extends Component
         $this->modal('add-template')->close();
     }
     // eliminar template
-    public function deleteTemplate($codigo){
-        $item = DiaryTemplate::where('user_id', Auth::id())->where('uuid', $codigo)->first();
+    public function deleteTemplate($uuid){
+        $item = DiaryTemplate::where('user_id', Auth::id())->where('uuid', $uuid)->first();
         $item->delete();
     }
     

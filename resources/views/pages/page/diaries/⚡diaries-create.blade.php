@@ -160,7 +160,7 @@ new class extends Component
             <flux:label>Categorias {{ count($selectedDiaryCategories) }}</flux:label>
         </div>
         <flux:checkbox.group wire:model.live="selectedDiaryCategories">
-            <div class="h-40 overflow-scroll space-y-1">
+            <div class="grid grid-cols-2 md:grid-cols-3 h-max-96 overflow-scroll space-y-1">
                 @foreach ($this->diary_categories() as $item)
                     <flux:checkbox label="{{ $item->name }}" value="{{ $item->id }}" />
                 @endforeach

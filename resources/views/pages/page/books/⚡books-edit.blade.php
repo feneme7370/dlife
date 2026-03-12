@@ -6,6 +6,7 @@ use App\Models\Page\Collection;
 use App\Models\Page\Language;
 use App\Models\Page\ReadingFormat;
 use App\Models\Page\Subject;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
 new class extends Component
@@ -219,6 +220,7 @@ new class extends Component
     // crear item en la BD
     public function updateItem(){
         // datos automaticos
+        $this->title = \Illuminate\Support\Str::title(trim($this->title));
         $this->slug = \Illuminate\Support\Str::slug($this->title . '-' . \Illuminate\Support\Str::random(4));
         $this->summary_clear = $this->cleanNotes($this->summary);
         $this->notes_clear = $this->cleanNotes($this->notes);
@@ -448,16 +450,19 @@ new class extends Component
         <div class="flex items-center gap-1">
             <flux:modal.trigger name="add-subject">
                 <flux:button size="xs" variant="ghost" icon="plus"></flux:button>
-                <flux:label>Autor {{ count($selectedBookSubjects) }}</flux:label>
+                <flux:label>Autor(es) {{ count($selectedBookSubjects) }}</flux:label>
             </flux:modal.trigger>
         </div>
-        <flux:checkbox.group wire:model.live="selectedBookSubjects">
-            <div class="h-40 overflow-scroll space-y-1">
-                @foreach ($this->subjects() as $item)
-                    <flux:checkbox label="{{ $item->name }}" value="{{ $item->id }}" />
-                @endforeach
-            </div>
-        </flux:checkbox.group>
+ 
+        <div class="col-span-12 sm:col-span-6">
+            <x-libraries.flux.select-multiple
+                model="subject" 
+                relation="subjects" 
+                wire:model="selectedBookSubjects" 
+                {{-- label="Autores" --}}
+                :items="$this->subjects()"
+            />
+        </div>
 
         <flux:label>Etiquetas</flux:label>
         <flux:input.group>

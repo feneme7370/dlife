@@ -82,8 +82,8 @@ new class extends Component
             <flux:separator variant="subtle" />
 
             <flux:badge color="pink"><a href="{{ route('series_library.index') }}">Estanteria</a></flux:badge>
-            {{-- <flux:badge color="violet"><a href="{{ route('series_data.index') }}">Estadisticas</a></flux:badge>
-            <flux:badge color="purple"><a href="{{ route('series_incomplete.index') }}">Pendientes</a></flux:badge> --}}
+            <flux:badge color="violet"><a href="{{ route('series_data.index') }}">Estadisticas</a></flux:badge>
+            {{-- <flux:badge color="purple"><a href="{{ route('series_incomplete.index') }}">Pendientes</a></flux:badge> --}}
             <flux:badge color="fuchsia"><a href="{{ route('mgenres.index') }}">Generos</a></flux:badge>
             <flux:badge color="fuchsia"><a href="{{ route('mtags.index') }}">Etiquetas</a></flux:badge>
         </div>

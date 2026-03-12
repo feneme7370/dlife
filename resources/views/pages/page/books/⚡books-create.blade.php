@@ -6,6 +6,7 @@ use App\Models\Page\Collection;
 use App\Models\Page\Language;
 use App\Models\Page\ReadingFormat;
 use App\Models\Page\Subject;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
 new class extends Component
@@ -133,6 +134,7 @@ new class extends Component
     public function storeItem(){
         // datos automaticos
         $this->user_id = \Illuminate\Support\Facades\Auth::id();
+        $this->title = \Illuminate\Support\Str::title(trim($this->title));
         $this->slug = \Illuminate\Support\Str::slug($this->title . '-' . \Illuminate\Support\Str::random(4));
         $this->uuid = \Illuminate\Support\Str::random(24);
         $this->summary_clear = $this->cleanNotes($this->summary);
@@ -188,58 +190,57 @@ new class extends Component
     <div>
         <div class="mb-1 space-y-1">
             <flux:heading size="xl" level="1">
-                <a href="{{ route('books.index') }}"><flux:button size="xs" variant="ghost" icon="arrow-uturn-left"></flux:button></a>
+                <a href="{{ route('books.index') }}">
+                    <flux:button size="xs" variant="ghost" icon="arrow-uturn-left"></flux:button>
+                </a>
                 {{ $this->titlePage }}
             </flux:heading>
             <flux:text class="text-base">{{ $this->subtitlePage }}</flux:text>
-    
+
             <flux:breadcrumbs>
                 <flux:breadcrumbs.item href="{{ route('dashboard') }}">Dashboard</flux:breadcrumbs.item>
                 <flux:breadcrumbs.item href="{{ route('books.index') }}">Libros</flux:breadcrumbs.item>
                 <flux:breadcrumbs.item>{{ $this->titlePage }}</flux:breadcrumbs.item>
             </flux:breadcrumbs>
-    
+
             <flux:separator variant="subtle" />
         </div>
     </div>
 
     {{-- formulario completo --}}
     <div class="space-y-2">
-        
-        <flux:input type="text" label="Nombre" wire:model="title" placeholder="Nombre del libro" autofocus/>
-        <flux:input type="text" label="Nombre Original" wire:model="original_title" placeholder="Nombre del libro original" />
-        <flux:textarea
-            label="Sinopsis"
-            placeholder="Coloque la sinopsis"
-            wire:model="synopsis"
-            rows="6"
-        />
+
+        <flux:input type="text" label="Nombre" wire:model="title" placeholder="Nombre del libro" autofocus />
+        <flux:input type="text" label="Nombre Original" wire:model="original_title"
+            placeholder="Nombre del libro original" />
+        <flux:textarea label="Sinopsis" placeholder="Coloque la sinopsis" wire:model="synopsis" rows="6" />
         <div class="grid grid-cols-3 gap-1">
-            <flux:input type="number" max="2999" min="1" label="Año de publicacion" wire:model="release_date"/>
-            <flux:input type="number" max="2999" min="1" label="Paginas" wire:model="pages"/>
+            <flux:input type="number" max="2999" min="1" label="Año de publicacion" wire:model="release_date" />
+            <flux:input type="number" max="2999" min="1" label="Paginas" wire:model="pages" />
             <flux:select wire:model="type" label="Tipo">
                 <option value="">Seleccionar tipo</option>
                 @foreach ($this->types() as $key => $item)
-                    <option value="{{ $key }}">{{ $item }}</option>
+                <option value="{{ $key }}">{{ $item }}</option>
                 @endforeach
             </flux:select>
         </div>
 
-        <flux:input type="text" label="Link de portada" wire:model="cover_image_url" placeholder="Pegue el link de una imagen"/>
+        <flux:input type="text" label="Link de portada" wire:model="cover_image_url"
+            placeholder="Pegue el link de una imagen" />
 
         <div class="grid grid-cols-2 gap-1 my-5">
             <flux:field variant="inline" class="flex items-center">
                 <flux:checkbox wire:model="is_favorite" />
-    
+
                 <flux:label>Favorito? ❤️</flux:label>
-    
+
                 <flux:error name="is_favorite" />
             </flux:field>
             <flux:field variant="inline" class="flex items-center">
                 <flux:checkbox wire:model="is_abandonated" />
-    
+
                 <flux:label>Abandonado? 🚫</flux:label>
-    
+
                 <flux:error name="is_abandonated" />
             </flux:field>
         </div>
@@ -258,7 +259,7 @@ new class extends Component
         <flux:checkbox.group wire:model="selectedBookLanguages" label="Idiomas">
             <div class="grid grid-cols-3 gap-1">
                 @foreach($this->languages() as $item)
-                        <flux:checkbox label="{{ $item->name }}" value="{{ $item->id }}"/>
+                <flux:checkbox label="{{ $item->name }}" value="{{ $item->id }}" />
                 @endforeach
             </div>
         </flux:checkbox.group>
@@ -266,7 +267,7 @@ new class extends Component
         <flux:checkbox.group wire:model="selectedBookReadingFormats" label="Formatos">
             <div class="grid grid-cols-3 gap-1">
                 @foreach($this->formats() as $item)
-                        <flux:checkbox label="{{ $item->name }}" value="{{ $item->id }}"/>
+                <flux:checkbox label="{{ $item->name }}" value="{{ $item->id }}" />
                 @endforeach
             </div>
         </flux:checkbox.group>
@@ -279,7 +280,7 @@ new class extends Component
         <flux:select wire:model="selectedBookGenres" label="Genero">
             <option value="">Seleccionar genero</option>
             @foreach ($this->genres() as $item)
-                <option value="{{ $item->id }}">{{ $item->name_general }} - {{ $item->name }}</option>
+            <option value="{{ $item->id }}">{{ $item->name_general }} - {{ $item->name }}</option>
             @endforeach
         </flux:select>
 
@@ -294,7 +295,7 @@ new class extends Component
                 <flux:select wire:model="selectedBookCollections">
                     <option value="">Seleccionar saga</option>
                     @foreach ($this->collections() as $item)
-                        <option value="{{ $item->id }}">{{ $item->name }}</option>
+                    <option value="{{ $item->id }}">{{ $item->name }}</option>
                     @endforeach
                 </flux:select>
             </div>
@@ -302,57 +303,50 @@ new class extends Component
                 <div>
                     <flux:label>N° de coleccion</flux:label>
                 </div>
-                <flux:input type="number" max="2999" min="0" step="0.1" wire:model="number_collection"/>
+                <flux:input type="number" max="2999" min="0" step="0.1" wire:model="number_collection" />
             </div>
         </div>
 
         <div class="flex items-center gap-1">
             <flux:modal.trigger name="add-subject">
                 <flux:button size="xs" variant="ghost" icon="plus"></flux:button>
-                <flux:label>Autor</flux:label>
+                <flux:label>Autor(es) {{ count($selectedBookSubjects) }}</flux:label>
             </flux:modal.trigger>
         </div>
-
-        <flux:checkbox.group wire:model.live="selectedBookSubjects" :label="'Autor(es) '.count($selectedBookSubjects)">
-            <div class="h-40 overflow-scroll space-y-1">
-                @foreach ($this->subjects() as $item)
-                    <flux:checkbox label="{{ $item->name }}" value="{{ $item->id }}" />
-                @endforeach
-            </div>
-        </flux:checkbox.group>
+ 
+        <div class="col-span-12 sm:col-span-6">
+            <x-libraries.flux.select-multiple
+                model="subject" 
+                relation="subjects" 
+                wire:model="selectedBookSubjects" 
+                {{-- label="Autores" --}}
+                :items="$this->subjects()"
+            />
+        </div>
 
         <flux:label>Etiquetas</flux:label>
         <flux:input.group>
-            <flux:input type="text" wire:model="newTag" wire:keydown.period.prevent="addTag('selectedBookTags')" placeholder="Agregue etiquetas" />
+            <flux:input type="text" wire:model="newTag" wire:keydown.period.prevent="addTag('selectedBookTags')"
+                placeholder="Agregue etiquetas" />
             <flux:button wire:click="addTag('selectedBookTags')" icon="plus">Agregar</flux:button>
         </flux:input.group>
 
         <div class="flex gap-2 mt-2">
             @foreach($selectedBookTags as $index => $tag)
-                <flux:badge size="sm" color="purple">
-                    <button class="mr-2" wire:click="removeTag('selectedBookTags', {{ $index }})">
-                        x
-                    </button>
-                    #{{ $tag }}
-                </flux:badge>
+            <flux:badge size="sm" color="purple">
+                <button class="mr-2" wire:click="removeTag('selectedBookTags', {{ $index }})">
+                    x
+                </button>
+                #{{ $tag }}
+            </flux:badge>
             @endforeach
         </div>
 
-        <x-libraries.quill-textarea-form 
-        id_quill="editor_create_summary" 
-        name="summary"
-        rows="15" 
-        placeholder="{{ __('Resumen personal') }}" model="summary"
-        model_data="{{ $summary }}" 
-        />
-        
-        <x-libraries.quill-textarea-form 
-            id_quill="editor_create_notes" 
-            name="notes"
-            rows="15" 
-            placeholder="{{ __('Reseña') }}" model="notes"
-            model_data="{{ $notes }}" 
-        />
+        <x-libraries.quill-textarea-form id_quill="editor_create_summary" name="summary" rows="15"
+            placeholder="{{ __('Resumen personal') }}" model="summary" model_data="{{ $summary }}" />
+
+        <x-libraries.quill-textarea-form id_quill="editor_create_notes" name="notes" rows="15"
+            placeholder="{{ __('Reseña') }}" model="notes" model_data="{{ $notes }}" />
 
         <x-libraries.utilities.errors />
 
@@ -367,17 +361,21 @@ new class extends Component
                 <flux:text class="mt-2">Cree una saga que no este en el listado.</flux:text>
             </div>
 
-            <flux:input label="Nombre" placeholder="Nombre de la saga" wire:model="name_collection" autofocus/>
-            <flux:input type="number" label="Numero de libros" placeholder="Cantidad de libros" wire:model="books_amount_collection"/>
-            <flux:input type="number" label="Numero de peliculas" placeholder="Cantidad de peliculas" wire:model="movies_amount_collection"/>
-            <flux:input type="number" label="Numero de temporadas" placeholder="Cantidad de temporadas" wire:model="seasons_amount_collection"/>
+            <flux:input label="Nombre" placeholder="Nombre de la saga" wire:model="name_collection" autofocus />
+            <flux:input type="number" label="Numero de libros" placeholder="Cantidad de libros"
+                wire:model="books_amount_collection" />
+            <flux:input type="number" label="Numero de peliculas" placeholder="Cantidad de peliculas"
+                wire:model="movies_amount_collection" />
+            <flux:input type="number" label="Numero de temporadas" placeholder="Cantidad de temporadas"
+                wire:model="seasons_amount_collection" />
 
             <div class="flex">
                 <flux:spacer />
 
                 <x-libraries.utilities.errors />
 
-                <flux:button wire:click="storeCollection('selectedBookCollections')" variant="primary">Agregar</flux:button>
+                <flux:button wire:click="storeCollection('selectedBookCollections')" variant="primary">Agregar
+                </flux:button>
             </div>
         </div>
     </flux:modal>
@@ -390,7 +388,7 @@ new class extends Component
                 <flux:text class="mt-2">Cree un autor que no este en el listado.</flux:text>
             </div>
 
-            <flux:input label="Nombre" placeholder="Nombre del autor" wire:model="name_subject" autofocus/>
+            <flux:input label="Nombre" placeholder="Nombre del autor" wire:model="name_subject" autofocus />
 
             <div class="flex">
                 <flux:spacer />
