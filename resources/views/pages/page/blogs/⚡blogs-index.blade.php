@@ -1,0 +1,131 @@
+<?php
+
+use App\Models\Page\Blog;
+use Illuminate\Support\Facades\Auth;
+use Livewire\Component;
+use Livewire\WithFileUploads;
+use Livewire\WithPagination;
+
+new class extends Component
+{
+    use WithFileUploads;
+    use WithPagination;
+
+    //////////////////////////////////////////////////////////////////// PROPIEDADES DE PAGINACION
+    // propiedades para paginacion y orden, actualizar al buscar
+    public $search = '', $sortField = 'title', $sortDirection = 'asc', $perPage = 10000;
+    public function updatingSearch(){$this->resetPage();}
+    // funcion para ordenar la tabla
+    public function sortBy($field){
+        if ($this->sortField === $field) {
+            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            $this->sortDirection = 'asc';
+        }
+        $this->sortField = $field;
+    }
+
+    //////////////////////////////////////////////////////////////////// PROPIEDADES
+    // propiedades de item y titulos
+    public $file;
+    public $titlePage = 'Blogs';
+    public $subtitlePage = 'Listado de blogs';
+
+    //////////////////////////////////////////////////////////////////// CONSULTA DE LISTADO Y ELIMINAR ITEM
+    // consulta de item
+    public function queryBlogs(){
+        return Blog::where('user_id', Auth::id())
+            ->where(function ($query) {
+                $query->where('title', 'like', "%{$this->search}%")
+                      ->orWhere('slug', 'like', "%{$this->search}%");
+            })
+            ->orderBy($this->sortField, $this->sortDirection)
+            ->paginate($this->perPage);
+    }
+    // eliminar item
+    public function deleteItem($codigo){
+        $item = Blog::where('user_id', Auth::id())->where('uuid', $codigo)->first();
+        $item->delete();
+    }
+
+    //////////////////////////////////////////////////////////////////// EXPORTAR E IMPORTAR EXCEL
+    // exportar tabla cruda a excel
+    public function exportComplete(){
+        return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\BlogsExport,"blogs_info.xlsx");
+    }
+
+    // importar tabla cruda de excel
+    public function importComplete(){
+        $this->validate(['file' => 'required|mimes:xlsx,csv']);
+        \Maatwebsite\Excel\Facades\Excel::import(new \App\Imports\BlogsImport, $this->file);
+        $this->reset('file');
+        session()->flash('success', 'Importación exitosa');
+    }
+};
+?>
+
+<div>
+    {{-- titulo, descripcion y breadcrumbs --}}
+    <div>
+        <div container class="mb-1 space-y-1">
+            <flux:heading size="xl" level="1">
+                <a href="{{ route('blogs.create') }}"><flux:button size="xs" variant="ghost" icon="plus"></flux:button></a>
+                {{ $this->titlePage }}
+            </flux:heading>
+            <flux:text class="text-base">{{ $this->subtitlePage }}</flux:text>
+    
+            <flux:breadcrumbs>
+                <flux:breadcrumbs.item href="{{ route('dashboard') }}">Dashboard</flux:breadcrumbs.item>
+                <flux:breadcrumbs.item>{{ $this->titlePage }}</flux:breadcrumbs.item>
+            </flux:breadcrumbs>
+    
+            <flux:separator variant="subtle" />
+
+            <flux:badge color="fuchsia"><a href="{{ route('bltags.index') }}">Etiquetas</a></flux:badge>
+        </div>
+    </div>
+
+    {{-- toast de mensaje --}}
+    <x-libraries.flux.toast-success />
+
+    {{-- buscador --}}
+    <div class="mb-3">
+        <flux:input type="text" label="Buscar" wire:model.live.debounce.250ms="search" placeholder="Buscar" autofocus/>
+    </div>
+
+    {{-- listado de sagas --}}
+    <div class="space-y-2">
+        @foreach ($this->queryBlogs() as $item)
+            <div class="flex items-center justify-between">
+
+                <div class="flex items-center gap-3">
+                    <img src="{{ $item->cover_image_url }}" class="w-8 h-8 bg-cover rounded-sm" alt="">
+                    <p><a class="hover:underline" href="{{ route('blogs.show', ['blogUuid' => $item->uuid]) }}">{{ $item->title }}</p></a>
+                </div>
+
+                <div class="flex items-center justify-center">
+                        <a href="{{ route('blogs.edit', ['blogUuid' => $item->uuid]) }}"><flux:button size="xs" variant="ghost" icon="pencil-square"></flux:button></a>
+                        <a><flux:button size="xs" variant="ghost" icon="trash" wire:confirm="Quiere eliminar?" wire:click="deleteItem('{{ $item->uuid }}')"></flux:button></a>
+                </div>
+
+            </div>
+        @endforeach
+    </div>
+
+    {{-- paginacion --}}
+    <div class="mt-3">
+        {{ $this->queryBlogs()->links() }}
+    </div>
+
+    {{-- exportacion e importacion de excel --}}
+    <flux:separator class="mb-2 mt-10" variant="subtle" />
+    
+    <div class="flex justify-between items-center gap-1">
+        <flux:button icon="cloud-arrow-down" class="text-xs text-center" wire:click="exportComplete()">Exp.</flux:button>
+        <div class="flex gap-3">
+            <flux:button icon="cloud-arrow-up" class="text-xs text-center" wire:click="importComplete()">Imp.</flux:button>
+            <flux:input type="file" wire:model="file" />
+        </div>
+    </div>
+
+</div>

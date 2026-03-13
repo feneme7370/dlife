@@ -1,6 +1,6 @@
 <?php
 
-use App\Models\Page\Rtag;
+use App\Models\Page\Bltag;
 use Livewire\Component;
 
 new class extends Component
@@ -12,7 +12,7 @@ new class extends Component
     public string $buttonSubmit = '';
     
     // propiedades del item
-    public $rtag;
+    public $bltag;
 
     // propiedades del formulario
     public ?string $name = null;
@@ -22,17 +22,17 @@ new class extends Component
 
     //////////////////////////////////////////////////////////////////// PRE CARGAR DATOS
     // precargar datos al iniciar pagina
-    public function mount($rtagUuid = null){
-        $this->rtag = Rtag::where('uuid', $rtagUuid)->first();
+    public function mount($bltagUuid = null){
+        $this->bltag = Bltag::where('uuid', $bltagUuid)->first();
 
-        $this->titlePage = $this->rtag ? 'Modificar etiqueta' : 'Agregar etiqueta';
-        $this->subtitlePage = $this->rtag ? 'Modificar datos del etiqueta' : 'Agregar datos del etiqueta';
-        $this->buttonSubmit = $this->rtag ? 'Modificar' : 'Agregar';
+        $this->titlePage = $this->bltag ? 'Modificar etiqueta' : 'Agregar etiqueta';
+        $this->subtitlePage = $this->bltag ? 'Modificar datos del etiqueta' : 'Agregar datos del etiqueta';
+        $this->buttonSubmit = $this->bltag ? 'Modificar' : 'Agregar';
 
-        $this->name = $this->rtag?->name ?? null;
-        $this->slug = $this->rtag?->slug ?? null;
-        $this->uuid = $this->rtag?->uuid ?? null;
-        $this->user_id = $this->rtag?->user_id ?? \Illuminate\Support\Facades\Auth::id();
+        $this->name = $this->bltag?->name ?? null;
+        $this->slug = $this->bltag?->slug ?? null;
+        $this->uuid = $this->bltag?->uuid ?? null;
+        $this->user_id = $this->bltag?->user_id ?? \Illuminate\Support\Facades\Auth::id();
     }
 
     //////////////////////////////////////////////////////////////////// VALIDACIONES
@@ -40,8 +40,8 @@ new class extends Component
     protected function rules(){
         return [
             'name' => ['required', 'string', 'max:255'],
-            'slug' => ['required', 'string', 'max:255', \Illuminate\Validation\Rule::unique('rtags', 'slug')->ignore($this->rtag?->id ?? 0)],
-            'uuid' => ['required', 'string', 'max:255', \Illuminate\Validation\Rule::unique('rtags', 'uuid')->ignore($this->rtag?->id ?? 0)],
+            'slug' => ['required', 'string', 'max:255', \Illuminate\Validation\Rule::unique('bltags', 'slug')->ignore($this->bltag?->id ?? 0)],
+            'uuid' => ['required', 'string', 'max:255', \Illuminate\Validation\Rule::unique('bltags', 'uuid')->ignore($this->bltag?->id ?? 0)],
             'user_id' => ['required', 'exists:users,id'],
         ];
     }
@@ -61,12 +61,12 @@ new class extends Component
         $this->name = str_replace(' ', '', \Illuminate\Support\Str::title(trim($this->name)));
         $this->slug = \Illuminate\Support\Str::slug($this->name . '-' . \Illuminate\Support\Str::random(4));
 
-        if($this->rtag){
+        if($this->bltag){
             // validar
             $validatedData = $this->validate();
 
             // actualizar item en BD
-            $this->rtag->update($validatedData);
+            $this->bltag->update($validatedData);
 
             // mensaje de success
             session()->flash('success', 'Editado correctamente');
@@ -80,14 +80,14 @@ new class extends Component
             $validatedData = $this->validate();
 
             // crear en BD
-            Rtag::create($validatedData);
+            Bltag::create($validatedData);
             
             // mensaje de success
             session()->flash('success', 'Creado correctamente');
         }
 
         // redireccionar
-        $this->redirectRoute('rtags.index', navigate:true);
+        $this->redirectRoute('bltags.index', navigate:true);
     }
 };
 ?>
@@ -97,15 +97,15 @@ new class extends Component
     <div>
         <div class="mb-1 space-y-1">
             <flux:heading size="xl" level="1">
-                <a href="{{ route('rtags.index') }}"><flux:button size="xs" variant="ghost" icon="arrow-uturn-left"></flux:button></a>
+                <a href="{{ route('bltags.index') }}"><flux:button size="xs" variant="ghost" icon="arrow-uturn-left"></flux:button></a>
                 {{ $this->titlePage }}
             </flux:heading>
             <flux:text class="text-base">{{ $this->subtitlePage }}</flux:text>
     
             <flux:breadcrumbs>
                 <flux:breadcrumbs.item href="{{ route('dashboard') }}">Dashboard</flux:breadcrumbs.item>
-                <flux:breadcrumbs.item href="{{ route('recipes.index') }}">Recetas</flux:breadcrumbs.item>
-                <flux:breadcrumbs.item href="{{ route('rtags.index') }}">Categorias</flux:breadcrumbs.item>
+                <flux:breadcrumbs.item href="{{ route('blogs.index') }}">Blogs</flux:breadcrumbs.item>
+                <flux:breadcrumbs.item href="{{ route('bltags.index') }}">Etiquetas</flux:breadcrumbs.item>
                 <flux:breadcrumbs.item>{{ $this->titlePage }}</flux:breadcrumbs.item>
             </flux:breadcrumbs>
     
@@ -119,6 +119,6 @@ new class extends Component
 
         <x-libraries.utilities.errors />
 
-        <flux:button :icon="$rtag ? 'pencil-square' : 'plus'" wire:click="updateItem">{{ $this->buttonSubmit }}</flux:button>
+        <flux:button :icon="$bltag ? 'pencil-square' : 'plus'" wire:click="updateItem">{{ $this->buttonSubmit }}</flux:button>
     </div>
 </div>

@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Page\Blog;
 use App\Models\Page\BookRead;
 use App\Models\Page\Diary;
 use App\Models\Page\MovieView;
@@ -23,6 +24,7 @@ new class extends Component
     public $diariesYear;
     public $diariesTotal;
     public $recipesTotal;
+    public $blogsTotal;
 
     public $quoteContent;
     public $quoteAuthor;
@@ -47,6 +49,7 @@ new class extends Component
         $this->diariesYear = $diaries->whereYear('day', now()->year)->count();
 
         $this->recipesTotal = Recipe::where('user_id', Auth::id())->count();
+        $this->blogsTotal = Blog::where('user_id', Auth::id())->count();
 
         $this->randomQuote();
     }
@@ -127,6 +130,12 @@ new class extends Component
             <flux:card size="sm" class="hover:bg-zinc-50 dark:hover:bg-zinc-700">
                 <flux:heading class="flex items-center gap-2">Recetas <flux:icon name="arrow-up-right" class="ml-auto text-zinc-400" variant="micro" /></flux:heading>
                 <flux:text class="mt-2">Recetas en total ({{ $recipesTotal }}).</flux:text>
+            </flux:card>
+        </a>
+        <a href="{{ route('blogs.index') }}" aria-label="Latest on our blog">
+            <flux:card size="sm" class="hover:bg-zinc-50 dark:hover:bg-zinc-700">
+                <flux:heading class="flex items-center gap-2">Blogs <flux:icon name="arrow-up-right" class="ml-auto text-zinc-400" variant="micro" /></flux:heading>
+                <flux:text class="mt-2">Blogs en total ({{ $blogsTotal }}).</flux:text>
             </flux:card>
         </a>
     </div>

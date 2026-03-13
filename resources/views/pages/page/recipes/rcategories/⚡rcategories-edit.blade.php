@@ -104,7 +104,7 @@ new class extends Component
     
             <flux:breadcrumbs>
                 <flux:breadcrumbs.item href="{{ route('dashboard') }}">Dashboard</flux:breadcrumbs.item>
-                <flux:breadcrumbs.item href="{{ route('diaries.index') }}">Libros</flux:breadcrumbs.item>
+                <flux:breadcrumbs.item href="{{ route('recipes.index') }}">Recetas</flux:breadcrumbs.item>
                 <flux:breadcrumbs.item href="{{ route('rcategories.index') }}">Categorias</flux:breadcrumbs.item>
                 <flux:breadcrumbs.item>{{ $this->titlePage }}</flux:breadcrumbs.item>
             </flux:breadcrumbs>

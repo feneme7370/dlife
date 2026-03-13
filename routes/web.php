@@ -112,6 +112,19 @@ Route::middleware(['auth'])->group(function () {
     Route::livewire('quotes', 'pages::page.quotes.quotes-index')->name('quotes.index');
     Route::livewire('quotes/create', 'pages::page.quotes.quotes-edit')->name('quotes.create');
     Route::livewire('quotes/{quoteUuid}/edit', 'pages::page.quotes.quotes-edit')->name('quotes.edit');
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    // Seccion recipes
+    Route::livewire('blogs', 'pages::page.blogs.blogs-index')->name('blogs.index');
+    Route::livewire('blogs/create', 'pages::page.blogs.blogs-edit')->name('blogs.create');
+    Route::livewire('blogs/{blogUuid}/edit', 'pages::page.blogs.blogs-edit')->name('blogs.edit');
+    Route::livewire('blogs/{blogUuid}/show', 'pages::page.blogs.blogs-show')->name('blogs.show');
+
+    // Seccion tags de blogs
+    Route::livewire('bltags', 'pages::page.blogs.bltags.bltags-index')->name('bltags.index');
+    Route::livewire('bltags/create', 'pages::page.blogs.bltags.bltags-edit')->name('bltags.create');
+    Route::livewire('bltags/{bltagUuid}/edit', 'pages::page.blogs.bltags.bltags-edit')->name('bltags.edit');
 });
 
 require __DIR__.'/settings.php';

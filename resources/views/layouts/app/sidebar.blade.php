@@ -23,6 +23,9 @@
                     <flux:sidebar.item icon="pencil" :href="route('diaries.index')" :current="request()->routeIs('diaries.index')" wire:navigate>
                         {{ __('Diario') }}
                     </flux:sidebar.item>
+                    <flux:sidebar.item icon="chat-bubble-oval-left" :href="route('blogs.index')" :current="request()->routeIs('blogs.index')" wire:navigate>
+                        {{ __('Blogs') }}
+                    </flux:sidebar.item>
                     <flux:sidebar.item icon="chat-bubble-bottom-center-text" :href="route('quotes.index')" :current="request()->routeIs('quotes.index')" wire:navigate>
                         {{ __('Frases') }}
                     </flux:sidebar.item>
