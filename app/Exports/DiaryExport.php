@@ -7,7 +7,7 @@ use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use PhpOffice\PhpSpreadsheet\Shared\Date;
 
-class DailyLogExport implements FromCollection, WithHeadings
+class DiaryExport implements FromCollection, WithHeadings
 {
     public function collection()
     {

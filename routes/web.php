@@ -35,14 +35,14 @@ Route::middleware(['auth'])->group(function () {
     Route::livewire('books_library', 'pages::page.books.books-library')->name('books_library.index');
     Route::livewire('books_data', 'pages::page.books.books-data')->name('books_data.index');
     Route::livewire('books_incomplete', 'pages::page.books.books-incomplete')->name('books_incomplete.index');
-    Route::livewire('books/create', 'pages::page.books.books-create')->name('books.create');
+    Route::livewire('books/create', 'pages::page.books.books-edit')->name('books.create');
     Route::livewire('books/{bookUuid}/edit', 'pages::page.books.books-edit')->name('books.edit');
     Route::livewire('books/{bookUuid}/show', 'pages::page.books.books-show')->name('books.show');
     
     //////////////////////////////////////////////////////////////////////////////////////////////////////
     // Seccion diario
     Route::livewire('diaries', 'pages::page.diaries.diaries-index')->name('diaries.index');
-    Route::livewire('diaries/create/{templateUuid?}', 'pages::page.diaries.diaries-create')->name('diaries.create');
+    Route::livewire('diaries/create/{templateUuid?}', 'pages::page.diaries.diaries-edit')->name('diaries.create');
     Route::livewire('diaries/{diaryUuid}/edit', 'pages::page.diaries.diaries-edit')->name('diaries.edit');
     Route::livewire('diaries/{diaryUuid}/show', 'pages::page.diaries.diaries-show')->name('diaries.show');
     
@@ -65,7 +65,7 @@ Route::middleware(['auth'])->group(function () {
     Route::livewire('movies_library', 'pages::page.medias.movies.movies-library')->name('movies_library.index');
     Route::livewire('movies_data', 'pages::page.medias.movies.movies-data')->name('movies_data.index');
     // Route::livewire('movies_incomplete', 'pages::page.medias.movies.movies-incomplete')->name('movies_incomplete.index');
-    Route::livewire('movies/create', 'pages::page.medias.movies.movies-create')->name('movies.create');
+    Route::livewire('movies/create', 'pages::page.medias.movies.movies-edit')->name('movies.create');
     Route::livewire('movies/{movieUuid}/edit', 'pages::page.medias.movies.movies-edit')->name('movies.edit');
     Route::livewire('movies/{movieUuid}/show', 'pages::page.medias.movies.movies-show')->name('movies.show');
 
@@ -74,7 +74,7 @@ Route::middleware(['auth'])->group(function () {
     Route::livewire('series_library', 'pages::page.medias.series.series-library')->name('series_library.index');
     Route::livewire('series_data', 'pages::page.medias.series.series-data')->name('series_data.index');
     // Route::livewire('series_incomplete', 'pages::page.medias.series.series-incomplete')->name('series_incomplete.index');
-    Route::livewire('series/create', 'pages::page.medias.series.series-create')->name('series.create');
+    Route::livewire('series/create', 'pages::page.medias.series.series-edit')->name('series.create');
     Route::livewire('series/{serieUuid}/edit', 'pages::page.medias.series.series-edit')->name('series.edit');
     Route::livewire('series/{serieUuid}/show', 'pages::page.medias.series.series-show')->name('series.show');
 

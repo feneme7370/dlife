@@ -11,19 +11,24 @@ new class extends Component
 
     //////////////////////////////////////////////////////////////////// PROPIEDADES PRINCIPALES
     //propiedades de titulos
-    public string $titlePage = 'Editar nota del dia';
-    public string $subtitlePage = 'Edite una nota del dia a la lista';
+    public string $titlePage = '';
+    public string $subtitlePage = '';
+    public string $buttonSubmit = '';
 
     // propiedades del item
     public string $title = '';
     public string $content = '';
     public string $content_clear = '';
-    public $day;
+    public $day = '';
     public int $status = 0;
     public string $uuid = '';
     public int $user_id = 0;
 
     public $diary;
+
+    // propiedades para asociar
+    public $diary_status = [];
+    public $diary_categories = [];
 
     // propiedades para relacion muchos a muchos
     public $selectedDiaryCategories = [];
@@ -34,9 +39,9 @@ new class extends Component
     protected function rules(){
         return [
             'title' => ['required', 'string', 'max:255'],
-            'content' => ['nullable', 'string'],
-            'content_clear' => ['nullable', 'string'],
-            'day' => ['nullable', 'date'],
+            'content' => ['required', 'string'],
+            'content_clear' => ['required', 'string'],
+            'day' => ['required', 'date'],
             'status' => ['required', 'integer', 'min:0', 'max:10'],
             'uuid' => ['required', 'string', 'max:255', \Illuminate\Validation\Rule::unique('diaries', 'uuid')->ignore($this->diary?->id ?? 0)],
             'user_id' => ['required', 'exists:users,id'],
@@ -56,63 +61,100 @@ new class extends Component
 
     //////////////////////////////////////////////////////////////////// PRE CARGAR DATOS
     // traer datos iniciales
-    public function mount($diaryUuid){
+    public function mount($diaryUuid = null, $templateUuid = ''){
         $this->diary = Diary::where('uuid', $diaryUuid)->first();
-
-        $this->title = $this->diary->title ?? '';
-        $this->content = $this->diary->content ?? '';
-        $this->content_clear = $this->diary->content_clear ?? '';
-        $this->day = \Carbon\Carbon::parse($this->diary->day)->format('Y-m-d') ?? \Carbon\Carbon::now()->format('Y-m-d');
-        $this->status = $this->diary->status ?? 0;
-        $this->uuid = $this->diary->uuid ?? '';
-        $this->user_id = $this->diary->user_id ?? 0;
-
-        $this->selectedDiaryCategories = $this->diary->diary_dcategories->pluck('id')->toArray() ?? [];
-        $this->selectedDiaryDtags = $this->diary->diary_dtags->pluck('name')->toArray() ?? [];
-    }
-
-    //////////////////////////////////////////////////////////////////// DATOS PARA ASOCIAR
-    // traer estados
-    public function diary_status(){
-        return Diary::humor_status();
-    }
-
-    // traer datos de generos para asociar
-    public function diary_categories(){
-        return Dcategory::where('user_id', \Illuminate\Support\Facades\Auth::id())
+        $this->diary_status = Diary::humor_status();
+        $this->diary_categories = Dcategory::where('user_id', \Illuminate\Support\Facades\Auth::id())
             ->orderBy('name', 'asc')
             ->get();
+
+        // titulos y textos dependiendo si se encuentra el item o no
+        $this->titlePage = $this->diary ? 'Modificar frase' : 'Agregar frase';
+        $this->subtitlePage = $this->diary ? 'Modificar datos del frase' : 'Agregar datos del frase';
+        $this->buttonSubmit = $this->diary ? 'Modificar' : 'Agregar';
+
+        // si se encuentra el item, cargar datos para editar, sino cargar datos para crear nuevo item
+        if($this->diary){      
+            // cargar datos del item a editar      
+            $this->title = $this->diary->title ?? '';
+            $this->content = $this->diary->content ?? '';
+            $this->content_clear = $this->diary->content_clear ?? '';
+            $this->day = \Carbon\Carbon::parse($this->diary->day)->format('Y-m-d') ?? \Carbon\Carbon::now()->format('Y-m-d');
+            $this->status = $this->diary->status ?? 0;
+            $this->uuid = $this->diary->uuid ?? '';
+            $this->user_id = $this->diary->user_id ?? 0;
+    
+            $this->selectedDiaryCategories = $this->diary->diary_dcategories->pluck('id')->toArray() ?? [];
+            $this->selectedDiaryDtags = $this->diary->diary_dtags->pluck('name')->toArray() ?? [];
+        }else{
+            // datos para crear nuevo item
+            $this->day = \Carbon\Carbon::now()->format('Y-m-d');
+            $content_template = \App\Models\Page\DiaryTemplate::where('uuid', $templateUuid)->first();
+            $this->content = $content_template->content ?? '';
+        }
     }
     
     //////////////////////////////////////////////////////////////////// STORE PARA EDITAR
     // crear item en la BD
     public function updateItem(){
+        // normalizar
+        $this->title = trim($this->title);
         $this->content_clear = $this->cleanNotes($this->content);
-        // validar
-        $validatedData = $this->validate();
 
-        // crear en BD
-        $this->diary->update($validatedData);
-        $this->diary->diary_dcategories()->sync($this->selectedDiaryCategories);
+        if($this->diary){
+            // validar
+            $validatedData = $this->validate();
 
-        // agregar tags
-        $tagIds = [];
-        foreach ($this->selectedDiaryDtags as $tagName) {
-            $tag = \App\Models\Page\Dtag::firstOrCreate(
-                ['name' => $tagName],
-                [
-                    'slug' => \Illuminate\Support\Str::slug($tagName),
-                    'uuid' => \Illuminate\Support\Str::random(24),
-                    'user_id' => \Illuminate\Support\Facades\Auth::id(),
-                ]
-            );
+            // crear en BD
+            $this->diary->update($validatedData);
+            $this->diary->diary_dcategories()->sync($this->selectedDiaryCategories);
 
-            $tagIds[] = $tag->id;
+            // agregar tags
+            $tagIds = [];
+            foreach ($this->selectedDiaryDtags as $tagName) {
+                $tag = \App\Models\Page\Dtag::firstOrCreate(
+                    ['name' => $tagName],
+                    [
+                        'slug' => \Illuminate\Support\Str::slug($tagName),
+                        'uuid' => \Illuminate\Support\Str::random(24),
+                        'user_id' => \Illuminate\Support\Facades\Auth::id(),
+                    ]
+                );
+
+                $tagIds[] = $tag->id;
+            }
+            $this->diary->diary_dtags()->sync($tagIds);
+        }else{
+            // datos automaticos
+            $this->user_id = \Illuminate\Support\Facades\Auth::id();
+            $this->uuid = \Illuminate\Support\Str::random(24);
+
+            // validar
+            $validatedData = $this->validate();
+
+            // crear en BD
+            $diary = Diary::create($validatedData);
+            $diary->diary_dcategories()->sync($this->selectedDiaryCategories);
+
+            // agregar tags
+            $tagIds = [];
+            foreach ($this->selectedDiaryDtags as $tagName) {
+                $tag = \App\Models\Page\Dtag::firstOrCreate(
+                    ['name' => $tagName],
+                    [
+                        'slug' => \Illuminate\Support\Str::slug($tagName),
+                        'uuid' => \Illuminate\Support\Str::random(24),
+                        'user_id' => \Illuminate\Support\Facades\Auth::id(),
+                    ]
+                );
+
+                $tagIds[] = $tag->id;
+            }
+            $diary->diary_dtags()->sync($tagIds);
         }
-        $this->diary->diary_dtags()->sync($tagIds);
 
         // mensaje de success
-        session()->flash('success', 'Editado correctamente');
+        session()->flash('success', $this->diary ? 'Editado correctamente' : 'Creado correctamente');
 
         // redireccionar
         $this->redirectRoute('diaries.index', navigate:true);
@@ -147,7 +189,7 @@ new class extends Component
             <flux:input type="date" max="2999-12-31" label="Dia" wire:model="day"/>
             <flux:select wire:model="status" label="Estado">
                 <option value="">Seleccionar humor</option>
-                @foreach ($this->diary_status() as $key => $item)
+                @foreach ($this->diary_status as $key => $item)
                     <option value="{{ $key }}">{{ $item }}</option>
                 @endforeach
             </flux:select>
@@ -156,7 +198,7 @@ new class extends Component
         <x-libraries.quill-textarea-form 
         id_quill="editor_create_content" 
         name="content"
-        rows="15" 
+        height="500" 
         placeholder="{{ __('Descripcion') }}" model="content"
         model_data="{{ $content }}" 
         />
@@ -166,7 +208,7 @@ new class extends Component
         </div>
         <flux:checkbox.group wire:model.live="selectedDiaryCategories">
             <div class="grid grid-cols-2 md:grid-cols-3 h-max-96 overflow-scroll space-y-1">
-                @foreach ($this->diary_categories() as $item)
+                @foreach ($this->diary_categories as $item)
                     <flux:checkbox label="{{ $item->name }}" value="{{ $item->id }}" />
                 @endforeach
             </div>
@@ -191,6 +233,6 @@ new class extends Component
 
         <x-libraries.utilities.errors />
 
-        <flux:button icon="pencil-square" wire:click="updateItem">Editar</flux:button>
+        <flux:button :icon="$diary ? 'pencil-square' : 'plus'" wire:click="updateItem">{{ $this->buttonSubmit }}</flux:button>
     </div>
 </div>

@@ -73,9 +73,6 @@ new class extends Component
             // actualizar item en BD
             $this->quote->update($validatedData);
 
-            // mensaje de success
-            session()->flash('success', 'Editado correctamente');
-
         }else{
             // datos automaticos
             $this->user_id = \Illuminate\Support\Facades\Auth::id();
@@ -86,11 +83,11 @@ new class extends Component
 
             // crear en BD
             Quote::create($validatedData);
-            
-            // mensaje de success
-            session()->flash('success', 'Creado correctamente');
         }
 
+        // mensaje de success
+        session()->flash('success', $this->book ? 'Editado correctamente' : 'Creado correctamente');
+        
         // redireccionar
         $this->redirectRoute('quotes.index', navigate:true);
     }

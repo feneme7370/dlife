@@ -15,8 +15,9 @@ new class extends Component
     
     //////////////////////////////////////////////////////////////////// PROPIEDADES PRINCIPALES
     //propiedades de titulos
-    public string $titlePage = 'Editar pelicula';
-    public string $subtitlePage = 'Edite un pelicula de la lista';
+    public string $titlePage = '';
+    public string $subtitlePage = '';
+    public string $buttonSubmit = '';
 
     // propiedades del item
     public string $title = '';
@@ -62,12 +63,12 @@ new class extends Component
             'slug' => ['required', 'string', 'max:255', \Illuminate\Validation\Rule::unique('series', 'slug')->ignore($this->serie?->id ?? 0)],
             'original_title' => ['nullable', 'string', 'max:255'],
             'synopsis' => ['nullable', 'string'],
-            'start_date' => ['nullable', 'integer', 'min:1'],
+            'start_date' => ['required', 'integer', 'min:1'],
             'end_date' => ['nullable', 'integer', 'min:1'],
             'number_collection' => ['required', 'numeric', 'min:0'],
-            'seasons' => ['nullable', 'integer', 'min:1'],
-            'episodes' => ['nullable', 'integer', 'min:1'],
-            'type' => ['nullable', 'integer', 'min:1'],
+            'seasons' => ['required', 'integer', 'min:1'],
+            'episodes' => ['required', 'integer', 'min:1'],
+            'type' => ['required', 'integer', 'min:1'],
             'summary' => ['nullable', 'string'],
             'summary_clear' => ['nullable', 'string'],
             'notes' => ['nullable', 'string'],
@@ -107,38 +108,45 @@ new class extends Component
 
     //////////////////////////////////////////////////////////////////// DATOS PRECARGADOS
     // cargar datos del libro
-    public function mount($serieUuid){
+    public function mount($serieUuid = null){
         // traer datos de libro
         $this->serie = Serie::where('user_id', \Illuminate\Support\Facades\Auth::id())
             ->with(['subjects', 'genres', 'collections', 'tags', 'views'])
             ->where('uuid', $serieUuid)->first();
 
-        // poner datos a las propiedades
-        $this->title = $this->serie->title;
-        $this->slug = $this->serie->slug;
-        $this->original_title = $this->serie->original_title ?? '';
-        $this->synopsis = $this->serie->synopsis ?? '';
-        $this->start_date = $this->serie->start_date ?? null;
-        $this->end_date = $this->serie->end_date ?? null;
-        $this->number_collection = $this->serie->number_collection ?? 1;
-        $this->seasons = $this->serie->seasons ?? 1;
-        $this->episodes = $this->serie->episodes ?? 1;
-        $this->summary = $this->serie->summary ?? '';
-        $this->summary_clear = $this->serie->summary_clear ?? '';
-        $this->notes = $this->serie->notes ?? '';
-        $this->notes_clear = $this->serie->notes_clear ?? '';
-        $this->is_favorite = $this->serie->is_favorite ?? false;
-        $this->is_abandonated = $this->serie->is_abandonated ?? false;
-        $this->rating = $this->serie->rating ?? 0;
-        $this->cover_image_url = $this->serie->cover_image_url ?? '';
-        $this->user_id = $this->serie->user_id;
-        $this->uuid = $this->serie->uuid;
+        // titulos y textos dependiendo si se encuentra el item o no
+        $this->titlePage = $this->serie ? 'Modificar serie' : 'Agregar serie';
+        $this->subtitlePage = $this->serie ? 'Modificar datos de la serie' : 'Agregar datos de la serie';
+        $this->buttonSubmit = $this->serie ? 'Modificar' : 'Agregar';
 
-        // poner en arrays las asociaciones de m2m
-        $this->selectedMgenres = $this->serie->genres->pluck('id')->toArray() ?? [];
-        $this->selectedSerieSubjects = $this->serie->subjects->pluck('id')->toArray() ?? [];
-        $this->selectedSerieCollections = $this->serie->collections->pluck('id')->toArray() ?? [];
-        $this->selectedSerieTags = $this->serie->tags->pluck('name')->toArray() ?? [];
+        if($this->serie){            
+            // poner datos a las propiedades
+            $this->title = $this->serie->title;
+            $this->slug = $this->serie->slug;
+            $this->original_title = $this->serie->original_title ?? '';
+            $this->synopsis = $this->serie->synopsis ?? '';
+            $this->start_date = $this->serie->start_date ?? null;
+            $this->end_date = $this->serie->end_date ?? null;
+            $this->number_collection = $this->serie->number_collection ?? 1;
+            $this->seasons = $this->serie->seasons ?? 1;
+            $this->episodes = $this->serie->episodes ?? 1;
+            $this->summary = $this->serie->summary ?? '';
+            $this->summary_clear = $this->serie->summary_clear ?? '';
+            $this->notes = $this->serie->notes ?? '';
+            $this->notes_clear = $this->serie->notes_clear ?? '';
+            $this->is_favorite = $this->serie->is_favorite ?? false;
+            $this->is_abandonated = $this->serie->is_abandonated ?? false;
+            $this->rating = $this->serie->rating ?? 0;
+            $this->cover_image_url = $this->serie->cover_image_url ?? '';
+            $this->user_id = $this->serie->user_id;
+            $this->uuid = $this->serie->uuid;
+    
+            // poner en arrays las asociaciones de m2m
+            $this->selectedMgenres = $this->serie->genres->pluck('id')->toArray() ?? [];
+            $this->selectedSerieSubjects = $this->serie->subjects->pluck('id')->toArray() ?? [];
+            $this->selectedSerieCollections = $this->serie->collections->pluck('id')->toArray() ?? [];
+            $this->selectedSerieTags = $this->serie->tags->pluck('name')->toArray() ?? [];
+        }
     }
 
     //////////////////////////////////////////////////////////////////// DATOS PARA ASOCIAR
@@ -211,33 +219,75 @@ new class extends Component
         $this->slug = \Illuminate\Support\Str::slug($this->title . '-' . \Illuminate\Support\Str::random(4));
         $this->summary_clear = $this->cleanNotes($this->summary);
         $this->notes_clear = $this->cleanNotes($this->notes);
+        
+        if($this->serie){
+            // validar
+            $validatedData = $this->validate();
+    
+            // crear en BD
+            $this->serie->update($validatedData);
+            $this->serie->subjects()->sync($this->selectedSerieSubjects);
+            $this->serie->collections()->sync($this->selectedSerieCollections);
+            $this->serie->genres()->sync($this->selectedMgenres);
+    
+            // agregar tags
+            $tagIds = [];
+            foreach ($this->selectedSerieTags as $tagName) {
+                $tag = \App\Models\Page\Mtag::firstOrCreate(
+                    ['name' => $tagName],
+                    [
+                        'slug' => \Illuminate\Support\Str::slug($tagName),
+                        'uuid' => \Illuminate\Support\Str::random(24),
+                        'user_id' => \Illuminate\Support\Facades\Auth::id(),
+                    ]
+                );
+    
+                $tagIds[] = $tag->id;
+            }
+            $this->serie->tags()->sync($tagIds);
+        }else{
+            // datos automaticos
+            $this->user_id = \Illuminate\Support\Facades\Auth::id();
+            $this->uuid = \Illuminate\Support\Str::random(24);
 
-        // validar
-        $validatedData = $this->validate();
+            // validar
+            $validatedData = $this->validate();
 
-        // crear en BD
-        $this->serie->update($validatedData);
-        $this->serie->subjects()->sync($this->selectedSerieSubjects);
-        $this->serie->collections()->sync($this->selectedSerieCollections);
-        $this->serie->genres()->sync($this->selectedMgenres);
+            // crear en BD
+            $serie = Serie::create($validatedData);
+            $serie->subjects()->sync($this->selectedSerieSubjects);
+            $serie->collections()->sync($this->selectedSerieCollections);
+            $serie->genres()->sync($this->selectedMgenres);
 
-        // agregar tags
-        $tagIds = [];
-        foreach ($this->selectedSerieTags as $tagName) {
-            $tag = \App\Models\Page\Mtag::firstOrCreate(
-                ['name' => $tagName],
-                [
-                    'slug' => \Illuminate\Support\Str::slug($tagName),
-                    'uuid' => \Illuminate\Support\Str::random(24),
+            // agregar view
+            if($this->start_view){
+                \App\Models\Page\SerieView::create([
                     'user_id' => \Illuminate\Support\Facades\Auth::id(),
-                ]
-            );
+                    'serie_id' => $serie->id,
+                    'start_view' => $this->start_view,
+                    'end_view' => $this->end_view,
+                ]);
+            };
 
-            $tagIds[] = $tag->id;
+            // agregar tags
+            $tagIds = [];
+            foreach ($this->selectedSerieTags as $tagName) {
+                $tag = \App\Models\Page\Mtag::firstOrCreate(
+                    ['name' => $tagName],
+                    [
+                        'slug' => \Illuminate\Support\Str::slug($tagName),
+                        'uuid' => \Illuminate\Support\Str::random(24),
+                        'user_id' => \Illuminate\Support\Facades\Auth::id(),
+                    ]
+                );
+
+                $tagIds[] = $tag->id;
+            }
+            $serie->tags()->sync($tagIds);
         }
-        $this->serie->tags()->sync($tagIds);
 
-        session()->flash('success', 'Editado correctamente');
+        // mensaje de success
+        session()->flash('success', $this->serie ? 'Editado correctamente' : 'Creado correctamente');
 
         // redireccionar
         $this->redirectRoute('series.index', navigate:true);
@@ -320,14 +370,19 @@ new class extends Component
             </flux:radio.group>
         </div>
 
-        <div class="flex gap-2 items-center">
+        @if ($serie)
+            <div class="flex gap-2 items-center">
+                <flux:button wire:click="modalView" class="mt-1" size="sm" variant="ghost" color="purple" icon="plus" type="submit"></flux:button>
+                <flux:separator text="Vistas" />
+            </div>
+        @else
+            <div class="grid grid-cols-2 gap-1">
+                <flux:input wire:model='start_view' type="date" max="2999-12-31" label="Inicio de vista" />
+                <flux:input wire:model='end_view' type="date" max="2999-12-31" label="Vista" />
+            </div>
+        @endif
 
-            <flux:button wire:click="modalView" class="mt-1" size="sm" variant="ghost" color="purple" icon="plus" type="submit"></flux:button>
-            <flux:separator text="Vistas" />
-
-        </div>
-
-        @if ($serie->views)
+        @if ($serie)
             @foreach ($serie->views as $item)
             <div class="flex items-start justify-between">
                 <div class="px-3 border-l-4 border-purple-800">
@@ -342,52 +397,6 @@ new class extends Component
             </div>
             @endforeach
         @endif
-
-        {{-- modales para agrear y eliminar lecturas --}}
-        <flux:modal name="add-read" class="md:w-96">
-            <div class="space-y-6">
-                <div>
-                    <flux:heading size="lg">Vista</flux:heading>
-                    <flux:text class="mt-2">Agregue una fecha de vista.</flux:text>
-                </div>
-                <div class="grid grid-cols-2 gap-1">
-                    <flux:input wire:model='start_view' type="date" max="2999-12-31" label="Inicio de vista" />
-                    <flux:input wire:model='end_view' type="date" max="2999-12-31" label="Fin de Vista" />
-                </div>
-                <div class="flex gap-2">
-                    <flux:spacer />
-
-                    <flux:modal.close>
-                        <flux:button variant="ghost">Cancelar</flux:button>
-                    </flux:modal.close>
-
-                    <flux:button wire:click="addView" type="submit" variant="primary">Editar</flux:button>
-                </div>
-            </div>
-        </flux:modal>
-
-        <flux:modal name="delete-read" class="min-w-[22rem]">
-            <div class="space-y-6">
-                <div>
-                    <flux:heading size="lg">Eliminar</flux:heading>
-
-                    <flux:text class="mt-2">
-                        <p>Desea eliminar esta lectura?.</p>
-                        <p>Esta accion no puede revertirse.</p>
-                    </flux:text>
-                </div>
-
-                <div class="flex gap-2">
-                    <flux:spacer />
-
-                    <flux:modal.close>
-                        <flux:button variant="ghost">Cancelar</flux:button>
-                    </flux:modal.close>
-
-                    <flux:button wire:click="destroyView" type="submit" variant="danger">Borrar</flux:button>
-                </div>
-            </div>
-        </flux:modal>
 
         <flux:select wire:model="selectedMgenres" label="Genero">
             <option value="">Seleccionar genero</option>
@@ -456,7 +465,7 @@ new class extends Component
         <x-libraries.quill-textarea-form
         id_quill="editor_create_summary"
         name="summary"
-        rows="15"
+        height="400"
         placeholder="{{ __('Resumen personal') }}" model="summary"
         model_data="{{ $summary }}"
         />
@@ -464,14 +473,14 @@ new class extends Component
         <x-libraries.quill-textarea-form
             id_quill="editor_create_notes"
             name="notes"
-            rows="15"
+            height="300"
             placeholder="{{ __('Reseña') }}" model="notes"
             model_data="{{ $notes }}"
         />
 
         <x-libraries.utilities.errors />
 
-        <flux:button icon="pencil-square" wire:click="updateItem">Editar</flux:button>
+        <flux:button :icon="$serie ? 'pencil-square' : 'plus'" wire:click="updateItem">{{ $this->buttonSubmit }}</flux:button>
     </div>
 
     {{-- modal para agregar coleccion --}}
@@ -513,6 +522,52 @@ new class extends Component
                 <x-libraries.utilities.errors />
 
                 <flux:button wire:click="storeSubject('selectedSerieSubjects')" variant="primary">Agregar</flux:button>
+            </div>
+        </div>
+    </flux:modal>
+
+    {{-- modales para agrear y eliminar lecturas --}}
+    <flux:modal name="add-read" class="md:w-96">
+        <div class="space-y-6">
+            <div>
+                <flux:heading size="lg">Vista</flux:heading>
+                <flux:text class="mt-2">Agregue una fecha de vista.</flux:text>
+            </div>
+            <div class="grid grid-cols-2 gap-1">
+                <flux:input wire:model='start_view' type="date" max="2999-12-31" label="Inicio de vista" />
+                <flux:input wire:model='end_view' type="date" max="2999-12-31" label="Fin de Vista" />
+            </div>
+            <div class="flex gap-2">
+                <flux:spacer />
+
+                <flux:modal.close>
+                    <flux:button variant="ghost">Cancelar</flux:button>
+                </flux:modal.close>
+
+                <flux:button wire:click="addView" type="submit" variant="primary">Editar</flux:button>
+            </div>
+        </div>
+    </flux:modal>
+
+    <flux:modal name="delete-read" class="min-w-[22rem]">
+        <div class="space-y-6">
+            <div>
+                <flux:heading size="lg">Eliminar</flux:heading>
+
+                <flux:text class="mt-2">
+                    <p>Desea eliminar esta lectura?.</p>
+                    <p>Esta accion no puede revertirse.</p>
+                </flux:text>
+            </div>
+
+            <div class="flex gap-2">
+                <flux:spacer />
+
+                <flux:modal.close>
+                    <flux:button variant="ghost">Cancelar</flux:button>
+                </flux:modal.close>
+
+                <flux:button wire:click="destroyView" type="submit" variant="danger">Borrar</flux:button>
             </div>
         </div>
     </flux:modal>

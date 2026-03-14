@@ -15,8 +15,9 @@ new class extends Component
 
     //////////////////////////////////////////////////////////////////// PROPIEDADES PRINCIPALES
     //propiedades de titulos
-    public string $titlePage = 'Editar pelicula';
-    public string $subtitlePage = 'Edite un pelicula de la lista';
+    public string $titlePage = '';
+    public string $subtitlePage = '';
+    public string $buttonSubmit = '';
 
     public string $title = '';
     public string $slug = '';
@@ -59,10 +60,10 @@ new class extends Component
             'slug' => ['required', 'string', 'max:255', \Illuminate\Validation\Rule::unique('movies', 'slug')->ignore($this->movie?->id ?? 0)],
             'original_title' => ['nullable', 'string', 'max:255'],
             'synopsis' => ['nullable', 'string'],
-            'release_date' => ['nullable', 'integer', 'min:1'],
+            'release_date' => ['required', 'integer', 'min:1'],
             'number_collection' => ['required', 'numeric', 'min:0'],
-            'runtime' => ['nullable', 'integer', 'min:1'],
-            'type' => ['nullable', 'integer', 'min:1'],
+            'runtime' => ['required', 'integer', 'min:1'],
+            'type' => ['required', 'integer', 'min:1'],
             'summary' => ['nullable', 'string'],
             'summary_clear' => ['nullable', 'string'],
             'notes' => ['nullable', 'string'],
@@ -100,37 +101,44 @@ new class extends Component
 
     //////////////////////////////////////////////////////////////////// DATOS PRECARGADOS
     // cargar datos del libro
-    public function mount($movieUuid){
+    public function mount($movieUuid = null){
         // traer datos de libro
         $this->movie = Movie::where('user_id', \Illuminate\Support\Facades\Auth::id())
             ->with(['subjects', 'genres', 'collections', 'tags', 'views'])
             ->where('uuid', $movieUuid)->first();
 
-        // poner datos a las propiedades
-        $this->title = $this->movie->title;
-        $this->slug = $this->movie->slug;
-        $this->original_title = $this->movie->original_title ?? '';
-        $this->synopsis = $this->movie->synopsis ?? '';
-        $this->release_date = $this->movie->release_date ?? 1;
-        $this->number_collection = $this->movie->number_collection ?? 1;
-        $this->runtime = $this->movie->runtime ?? 1;
-        $this->type = $this->movie->type ?? 1;
-        $this->summary = $this->movie->summary ?? '';
-        $this->summary_clear = $this->movie->summary_clear ?? '';
-        $this->notes = $this->movie->notes ?? '';
-        $this->notes_clear = $this->movie->notes_clear ?? '';
-        $this->is_favorite = $this->movie->is_favorite ?? false;
-        $this->is_abandonated = $this->movie->is_abandonated ?? false;
-        $this->rating = $this->movie->rating ?? 0;
-        $this->cover_image_url = $this->movie->cover_image_url ?? '';
-        $this->user_id = $this->movie->user_id;
-        $this->uuid = $this->movie->uuid;
+        // titulos y textos dependiendo si se encuentra el item o no
+        $this->titlePage = $this->movie ? 'Modificar pelicula' : 'Agregar pelicula';
+        $this->subtitlePage = $this->movie ? 'Modificar datos de la pelicula' : 'Agregar datos de la pelicula';
+        $this->buttonSubmit = $this->movie ? 'Modificar' : 'Agregar';
 
-        // poner en arrays las asociaciones de m2m
-        $this->selectedMgenres = $this->movie->genres->pluck('id')->toArray() ?? [];
-        $this->selectedMovieSubjects = $this->movie->subjects->pluck('id')->toArray() ?? [];
-        $this->selectedMovieCollections = $this->movie->collections->pluck('id')->toArray() ?? [];
-        $this->selectedMovieTags = $this->movie->tags->pluck('name')->toArray() ?? [];
+        if($this->movie){
+            // poner datos a las propiedades
+            $this->title = $this->movie->title;
+            $this->slug = $this->movie->slug;
+            $this->original_title = $this->movie->original_title ?? '';
+            $this->synopsis = $this->movie->synopsis ?? '';
+            $this->release_date = $this->movie->release_date ?? 1;
+            $this->number_collection = $this->movie->number_collection ?? 1;
+            $this->runtime = $this->movie->runtime ?? 1;
+            $this->type = $this->movie->type ?? 1;
+            $this->summary = $this->movie->summary ?? '';
+            $this->summary_clear = $this->movie->summary_clear ?? '';
+            $this->notes = $this->movie->notes ?? '';
+            $this->notes_clear = $this->movie->notes_clear ?? '';
+            $this->is_favorite = $this->movie->is_favorite ?? false;
+            $this->is_abandonated = $this->movie->is_abandonated ?? false;
+            $this->rating = $this->movie->rating ?? 0;
+            $this->cover_image_url = $this->movie->cover_image_url ?? '';
+            $this->user_id = $this->movie->user_id;
+            $this->uuid = $this->movie->uuid;
+    
+            // poner en arrays las asociaciones de m2m
+            $this->selectedMgenres = $this->movie->genres->pluck('id')->toArray() ?? [];
+            $this->selectedMovieSubjects = $this->movie->subjects->pluck('id')->toArray() ?? [];
+            $this->selectedMovieCollections = $this->movie->collections->pluck('id')->toArray() ?? [];
+            $this->selectedMovieTags = $this->movie->tags->pluck('name')->toArray() ?? [];
+        }
     }
 
     //////////////////////////////////////////////////////////////////// DATOS PARA ASOCIAR
@@ -204,33 +212,76 @@ new class extends Component
         $this->slug = \Illuminate\Support\Str::slug($this->title . '-' . \Illuminate\Support\Str::random(4));
         $this->summary_clear = $this->cleanNotes($this->summary);
         $this->notes_clear = $this->cleanNotes($this->notes);
+        $this->start_view = $this->end_view;
 
-        // validar
-        $validatedData = $this->validate();
+        if($this->movie){
+            // validar
+            $validatedData = $this->validate();
 
-        // crear en BD
-        $this->movie->update($validatedData);
-        $this->movie->subjects()->sync($this->selectedMovieSubjects);
-        $this->movie->collections()->sync($this->selectedMovieCollections);
-        $this->movie->genres()->sync($this->selectedMgenres);
+            // crear en BD
+            $this->movie->update($validatedData);
+            $this->movie->subjects()->sync($this->selectedMovieSubjects);
+            $this->movie->collections()->sync($this->selectedMovieCollections);
+            $this->movie->genres()->sync($this->selectedMgenres);
 
-        // agregar tags
-        $tagIds = [];
-        foreach ($this->selectedMovieTags as $tagName) {
-            $tag = \App\Models\Page\Mtag::firstOrCreate(
-                ['name' => $tagName],
-                [
-                    'slug' => \Illuminate\Support\Str::slug($tagName),
-                    'uuid' => \Illuminate\Support\Str::random(24),
+            // agregar tags
+            $tagIds = [];
+            foreach ($this->selectedMovieTags as $tagName) {
+                $tag = \App\Models\Page\Mtag::firstOrCreate(
+                    ['name' => $tagName],
+                    [
+                        'slug' => \Illuminate\Support\Str::slug($tagName),
+                        'uuid' => \Illuminate\Support\Str::random(24),
+                        'user_id' => \Illuminate\Support\Facades\Auth::id(),
+                    ]
+                );
+
+                $tagIds[] = $tag->id;
+            }
+            $this->movie->tags()->sync($tagIds);
+        }else{
+            // datos automaticos
+            $this->user_id = \Illuminate\Support\Facades\Auth::id();
+            $this->uuid = \Illuminate\Support\Str::random(24);
+
+            // validar
+            $validatedData = $this->validate();
+
+            // crear en BD
+            $movie = Movie::create($validatedData);
+            $movie->subjects()->sync($this->selectedMovieSubjects);
+            $movie->collections()->sync($this->selectedMovieCollections);
+            $movie->genres()->sync($this->selectedMgenres);
+
+            // agregar view
+            if($this->start_view || $this->end_view){
+                \App\Models\Page\MovieView::create([
                     'user_id' => \Illuminate\Support\Facades\Auth::id(),
-                ]
-            );
+                    'movie_id' => $movie->id,
+                    'start_view' => $this->start_view,
+                    'end_view' => $this->end_view,
+                ]);
+            };
 
-            $tagIds[] = $tag->id;
+            // agregar tags
+            $tagIds = [];
+            foreach ($this->selectedMovieTags as $tagName) {
+                $tag = \App\Models\Page\Mtag::firstOrCreate(
+                    ['name' => $tagName],
+                    [
+                        'slug' => \Illuminate\Support\Str::slug($tagName),
+                        'uuid' => \Illuminate\Support\Str::random(24),
+                        'user_id' => \Illuminate\Support\Facades\Auth::id(),
+                    ]
+                );
+
+                $tagIds[] = $tag->id;
+            }
+            $movie->tags()->sync($tagIds);
         }
-        $this->movie->tags()->sync($tagIds);
 
-        session()->flash('success', 'Editado correctamente');
+        // mensaje de success
+        session()->flash('success', $this->movie ? 'Editado correctamente' : 'Creado correctamente');
 
         // redireccionar
         $this->redirectRoute('movies.index', navigate:true);
@@ -309,14 +360,18 @@ new class extends Component
             </flux:radio.group>
         </div>
 
-        <div class="flex gap-2 items-center">
+        @if ($movie)
+            <div class="flex gap-2 items-center">
+                <flux:button wire:click="modalView" class="mt-1" size="sm" variant="ghost" color="purple" icon="plus" type="submit"></flux:button>
+                <flux:separator text="Vistas" />
+            </div>
+        @else
+            <div class="grid grid-cols-2 gap-1">
+                <flux:input wire:model='end_view' type="date" max="2999-12-31" label="Vista" />
+            </div>
+        @endif
 
-            <flux:button wire:click="modalView" class="mt-1" size="sm" variant="ghost" color="purple" icon="plus" type="submit"></flux:button>
-            <flux:separator text="Vistas" />
-
-        </div>
-
-        @if ($movie->views)
+        @if($movie)
             @foreach ($movie->views as $item)
             <div class="flex items-start justify-between">
                 <div class="px-3 border-l-4 border-purple-800">
@@ -329,52 +384,6 @@ new class extends Component
             </div>
             @endforeach
         @endif
-
-        {{-- modales para agrear y eliminar lecturas --}}
-        <flux:modal name="add-read" class="md:w-96">
-            <div class="space-y-6">
-                <div>
-                    <flux:heading size="lg">Vista</flux:heading>
-                    <flux:text class="mt-2">Agregue una fecha de vista.</flux:text>
-                </div>
-                <div class="grid grid-cols-2 gap-1">
-                    {{-- <flux:input wire:model='start_view' type="date" max="2999-12-31" label="Inicio de lectura" /> --}}
-                    <flux:input wire:model='end_view' type="date" max="2999-12-31" label="Vista" />
-                </div>
-                <div class="flex gap-2">
-                    <flux:spacer />
-
-                    <flux:modal.close>
-                        <flux:button variant="ghost">Cancelar</flux:button>
-                    </flux:modal.close>
-
-                    <flux:button wire:click="addView" type="submit" variant="primary">Editar</flux:button>
-                </div>
-            </div>
-        </flux:modal>
-
-        <flux:modal name="delete-read" class="min-w-[22rem]">
-            <div class="space-y-6">
-                <div>
-                    <flux:heading size="lg">Eliminar</flux:heading>
-
-                    <flux:text class="mt-2">
-                        <p>Desea eliminar esta lectura?.</p>
-                        <p>Esta accion no puede revertirse.</p>
-                    </flux:text>
-                </div>
-
-                <div class="flex gap-2">
-                    <flux:spacer />
-
-                    <flux:modal.close>
-                        <flux:button variant="ghost">Cancelar</flux:button>
-                    </flux:modal.close>
-
-                    <flux:button wire:click="destroyView" type="submit" variant="danger">Borrar</flux:button>
-                </div>
-            </div>
-        </flux:modal>
 
         <flux:select wire:model="selectedMgenres" label="Genero">
             <option value="">Seleccionar genero</option>
@@ -441,32 +450,24 @@ new class extends Component
         </div>
 
         <x-libraries.quill-textarea-form
-        id_quill="editor_create_summary"
-        name="summary"
-        rows="15"
-        placeholder="{{ __('Resumen personal') }}" model="summary"
-        model_data="{{ $summary }}"
+            id_quill="editor_create_summary"
+            name="summary"
+            height="400"
+            placeholder="{{ __('Resumen personal') }}" model="summary"
+            model_data="{{ $summary }}"
         />
 
         <x-libraries.quill-textarea-form
             id_quill="editor_create_notes"
             name="notes"
-            rows="15"
+            height="300"
             placeholder="{{ __('Reseña') }}" model="notes"
             model_data="{{ $notes }}"
         />
 
-        @if ($errors->any())
-            <div class="bg-red-100 border border-red-400 text-red-700 p-1 rounded">
-                <ul>
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
+        <x-libraries.utilities.errors />
 
-        <flux:button icon="pencil-square" wire:click="updateItem">Editar</flux:button>
+        <flux:button :icon="$movie ? 'pencil-square' : 'plus'" wire:click="updateItem">{{ $this->buttonSubmit }}</flux:button>
     </div>
 
     {{-- modal para agregar coleccion --}}
@@ -508,6 +509,51 @@ new class extends Component
                 <x-libraries.utilities.errors />
 
                 <flux:button wire:click="storeSubject('selectedMovieSubjects')" variant="primary">Agregar</flux:button>
+            </div>
+        </div>
+    </flux:modal>
+
+    {{-- modales para agrear y eliminar lecturas --}}
+    <flux:modal name="add-read" class="md:w-96">
+        <div class="space-y-6">
+            <div>
+                <flux:heading size="lg">Vista</flux:heading>
+                <flux:text class="mt-2">Agregue una fecha de vista.</flux:text>
+            </div>
+            <div class="grid grid-cols-2 gap-1">
+                {{-- <flux:input wire:model='start_view' type="date" max="2999-12-31" label="Inicio de lectura" /> --}}
+                <flux:input wire:model='end_view' type="date" max="2999-12-31" label="Vista" />
+            </div>
+            <div class="flex gap-2">
+                <flux:spacer />
+
+                <flux:modal.close>
+                    <flux:button variant="ghost">Cancelar</flux:button>
+                </flux:modal.close>
+
+                <flux:button wire:click="addView" type="submit" variant="primary">Editar</flux:button>
+            </div>
+        </div>
+    </flux:modal>
+    <flux:modal name="delete-read" class="min-w-[22rem]">
+        <div class="space-y-6">
+            <div>
+                <flux:heading size="lg">Eliminar</flux:heading>
+
+                <flux:text class="mt-2">
+                    <p>Desea eliminar esta lectura?.</p>
+                    <p>Esta accion no puede revertirse.</p>
+                </flux:text>
+            </div>
+
+            <div class="flex gap-2">
+                <flux:spacer />
+
+                <flux:modal.close>
+                    <flux:button variant="ghost">Cancelar</flux:button>
+                </flux:modal.close>
+
+                <flux:button wire:click="destroyView" type="submit" variant="danger">Borrar</flux:button>
             </div>
         </div>
     </flux:modal>

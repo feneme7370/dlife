@@ -119,12 +119,12 @@ new class extends Component
     //////////////////////////////////////////////////////////////////// EXPORTAR E IMPORTAR EXCEL
     // exportar tabla cruda a excel
     public function exportComplete(){
-        return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\DailyLogExport,"diaries_info.xlsx");
+        return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\DiaryExport,"diaries_info.xlsx");
     }
     // importar tabla cruda de excel
     public function importComplete(){
         $this->validate(['file' => 'required|mimes:xlsx,csv']);
-        \Maatwebsite\Excel\Facades\Excel::import(new \App\Imports\DailyLogImport(), $this->file);
+        \Maatwebsite\Excel\Facades\Excel::import(new \App\Imports\DiaryImport(), $this->file);
         $this->reset('file');
         $this->diariesQuery();
         session()->flash('success', 'Importación exitosa');
@@ -230,6 +230,9 @@ new class extends Component
 
         </div>
     </div>
+
+    {{-- toast de mensaje --}}
+    <x-libraries.flux.toast-success />
 
     {{-- calendario, buscador y listado --}}
     <div class="grid gap-1 sm:gap-5 md:grid-cols-12">
