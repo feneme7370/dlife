@@ -100,28 +100,33 @@ new class extends Component
     {{-- listado de libros --}}
     <div class="space-y-2">
         @foreach ($this->querySeries() as $item)
-            <div class="flex items-center justify-between">
+            <div class="grid grid-cols-12 gap-1 items-start justify-center">
 
-                <div class="flex flex-wrap items-center gap-3">
-                    <x-libraries.img-tumb-lightbox 
-                        :uri="$item->cover_image_url" 
-                        album="Portadas"
-                        class_w_h="h-12 w-9"
-                    />
+                <div class="col-span-10 flex gap-1">
+                    <div>
+                        <x-libraries.img-tumb-lightbox 
+                            :uri="$item->cover_image_url" 
+                            album="Portadas"
+                            class_w_h="h-auto w-9"
+                            class="w-10"
+                        />
+                    </div>
 
-                    <p><a class="hover:underline" href="{{ route('series.show', ['serieUuid' => $item->uuid]) }}">{{ $item->title }}</p></a>
-                    <p class="text-xs italic text-gray-700 dark:text-gray-300">
-                        ({{ $item->start_date .' / ' }} {{ $item->end_date ?? 'En emision' }}) - 
-                        {{ $item->is_favorite ? '❤️' : ''}}
-                        {{ $item->is_abandonated ? '🚫' : ''}}
-                        {{ $item->summary_clear ? '🗒️' : ''}}
-                        {{ $item->notes_clear ? '✍️' : ''}}
-                        {{ $item->views->whereNotNull('end_view')->first() ? '✅' : '' }}
-                        {{ $item->tags->count() ? '#️⃣'.$item->tags->count() : ''}}
-                    </p>
+                    <div>
+                        <p><a class="hover:underline text-sm font-medium" href="{{ route('series.show', ['serieUuid' => $item->uuid]) }}">{{ $item->title }}</p></a>
+                        <p class="text-xs italic text-gray-700 dark:text-gray-300">
+                            ({{ $item->start_date .' / ' }} {{ $item->end_date ?? 'En emision' }}) - 
+                            {{ $item->is_favorite ? '❤️' : ''}}
+                            {{ $item->is_abandonated ? '🚫' : ''}}
+                            {{ $item->summary_clear ? '🗒️' : ''}}
+                            {{ $item->notes_clear ? '✍️' : ''}}
+                            {{ $item->views->whereNotNull('end_view')->first() ? '✅' : '' }}
+                            {{ $item->tags->count() ? '#️⃣'.$item->tags->count() : ''}}
+                        </p>
+                    </div>
                 </div>
 
-                <div class="flex items-center justify-center">
+                <div class="col-span-2 flex items-center justify-center">
                         <a href="{{ route('series.edit', ['serieUuid' => $item->uuid]) }}"><flux:button size="xs" variant="ghost" icon="pencil-square"></flux:button></a>
                         <a><flux:button size="xs" variant="ghost" icon="trash" wire:confirm="Quiere eliminar?" wire:click="deleteItem('{{ $item->uuid }}')"></flux:button></a>
                 </div>

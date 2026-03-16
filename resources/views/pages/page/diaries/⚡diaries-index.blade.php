@@ -33,6 +33,8 @@ new class extends Component
 
     //////////////////////////////////////////////////////////////////// PRE CARGAR DATOS
     public function mount(){
+        $this->dayStart = \Carbon\Carbon::parse('1900-01-01')->format('Y-m-d');
+        $this->dayEnd = \Carbon\Carbon::parse('2100-01-01')->format('Y-m-d');
         $this->diariesQuery();
         $this->highlightedDays = $this->getDays();
     }
@@ -224,6 +226,7 @@ new class extends Component
                 
             </div>
             {{-- links para pendientes y estadisticas --}}
+            <flux:badge color="yellow"><a href="{{ route('diaries.all', ['s' => $dayStart, 'e' => $dayEnd]) }}">Listado</a></flux:badge>
             <flux:badge color="purple"><a href="{{ route('dcategories.index') }}">Categorias</a></flux:badge>
             <flux:badge color="violet"><a href="{{ route('dtags.index') }}">Etiquetas</a></flux:badge>
 

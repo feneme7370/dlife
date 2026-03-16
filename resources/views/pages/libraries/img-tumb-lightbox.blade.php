@@ -1,4 +1,4 @@
-@props(['uri' => '', 'album' => '', 'name' => '', 'class_w_h' => 'w-full h-full', 'class' => '', 'tumb' => true, 'temporary' => false])
+@props(['uri' => '', 'album' => '', 'name' => '', 'class_w_h' => 'w-full h-full', 'tumb' => true, 'temporary' => false])
 
 
     {{-- @if ($temporary)
@@ -16,9 +16,11 @@
 
     @endif --}}
     
-    <a href="{{ $uri }}" data-lightbox="{{ $album }}" data-title="{{ $album }}">
-        <img src="{{ $uri }}" class="{{ $class_w_h }} {{ $class }} object-cover rounded-sm" alt="imagen portada">
-    </a>
+    <div {{ $attributes->merge(['class' => '']) }}>
+        <a href="{{ $uri }}" data-lightbox="{{ $album }}" data-title="{{ $album }}">
+            <img src="{{ $uri }}" class="{{ $class_w_h }} object-cover rounded-sm" alt="imagen portada">
+        </a>
+    </div>
     
 
     @push('lightbox')

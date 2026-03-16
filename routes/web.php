@@ -41,6 +41,7 @@ Route::middleware(['auth'])->group(function () {
     
     //////////////////////////////////////////////////////////////////////////////////////////////////////
     // Seccion diario
+    Route::livewire('diaries/show/all', 'pages::page.diaries.diaries-all')->name('diaries.all');
     Route::livewire('diaries', 'pages::page.diaries.diaries-index')->name('diaries.index');
     Route::livewire('diaries/create/{templateUuid?}', 'pages::page.diaries.diaries-edit')->name('diaries.create');
     Route::livewire('diaries/{diaryUuid}/edit', 'pages::page.diaries.diaries-edit')->name('diaries.edit');

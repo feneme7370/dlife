@@ -133,28 +133,33 @@ new class extends Component
     {{-- listado de libros --}}
     <div class="space-y-2">
         @foreach ($this->queryBooks() as $item)
-            <div class="flex items-center justify-between">
+            <div class="grid grid-cols-12 gap-1 items-start justify-center">
 
-                <div class="flex flex-wrap items-center gap-3">
-                    <x-libraries.img-tumb-lightbox 
-                        :uri="$item->cover_image_url" 
-                        album="Portadas"
-                        class_w_h="h-12 w-9"
-                    />
-                    <p><a class="hover:underline" href="{{ route('books.show', ['bookUuid' => $item->uuid]) }}">{{ $item->title }}</p></a>
-                    <p class="text-xs italic text-gray-700 dark:text-gray-300">
-                        ({{ $item->release_date }}) - 
-                        {{ $item->pages }} pags. | 
-                        {{ $item->is_favorite ? '❤️' : ''}}
-                        {{ $item->is_abandonated ? '🚫' : ''}}
-                        {{ $item->summary_clear ? '🗒️' : ''}}
-                        {{ $item->notes_clear ? '✍️' : ''}}
-                        {{ $item->reads->first() ? '✅' : ''}}
-                        {{ $item->tags->count() ? '#️⃣'.$item->tags->count() : ''}}
-                    </p>
+                <div class="col-span-10 flex gap-1">
+                    <div>
+                        <x-libraries.img-tumb-lightbox 
+                            :uri="$item->cover_image_url" 
+                            album="Portadas"
+                            class_w_h="h-auto w-9"
+                            class="w-10"
+                        />
+                    </div>
+                    <div>
+                        <p><a class="hover:underline text-sm font-medium" href="{{ route('books.show', ['bookUuid' => $item->uuid]) }}">{{ $item->title }}</p></a>
+                        <p class="text-xs italic text-gray-700 dark:text-gray-300">
+                            ({{ $item->release_date }}) - 
+                            {{ $item->pages }} pags. | 
+                            {{ $item->is_favorite ? '❤️' : ''}}
+                            {{ $item->is_abandonated ? '🚫' : ''}}
+                            {{ $item->summary_clear ? '🗒️' : ''}}
+                            {{ $item->notes_clear ? '✍️' : ''}}
+                            {{ $item->reads->first() ? '✅' : ''}}
+                            {{ $item->tags->count() ? '#️⃣'.$item->tags->count() : ''}}
+                        </p>
+                    </div>
                 </div>
 
-                <div class="flex items-center justify-center">
+                <div class="col-span-2 flex items-center justify-center">
                         <a href="{{ route('books.edit', ['bookUuid' => $item->uuid]) }}"><flux:button size="xs" variant="ghost" icon="pencil-square"></flux:button></a>
                         <a><flux:button size="xs" variant="ghost" icon="trash" wire:confirm="Quiere eliminar?" wire:click="deleteItem('{{ $item->uuid }}')"></flux:button></a>
                 </div>
@@ -172,7 +177,7 @@ new class extends Component
     <flux:separator class="mb-2 mt-10" variant="subtle" />
     
     <div class="flex justify-between items-center gap-1">
-        <div>
+        <div class="flex gap-1">
             <flux:button icon="cloud-arrow-down" class="text-xs text-center" wire:click="exportComplete()">Excel</flux:button>
             <flux:button icon="document" class="text-xs text-center" wire:click="exportBooksPdf()">PDF</flux:button>
         </div>
