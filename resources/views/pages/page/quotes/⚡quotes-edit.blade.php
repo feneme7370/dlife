@@ -86,7 +86,7 @@ new class extends Component
         }
 
         // mensaje de success
-        session()->flash('success', $this->book ? 'Editado correctamente' : 'Creado correctamente');
+        session()->flash('success', $this->quote ? 'Editado correctamente' : 'Creado correctamente');
         
         // redireccionar
         $this->redirectRoute('quotes.index', navigate:true);

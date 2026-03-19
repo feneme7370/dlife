@@ -43,11 +43,11 @@ new class extends Component
     </div>
 
     {{-- datos del pelicula --}}
-    <div class="w-full ">
+    <div class="w-full">
         <x-libraries.img-tumb-lightbox 
             :uri="$movie->cover_image_url ?? ''" 
             album="Portadas"
-            class_w_h="h-40 sm:h-96"
+            class_w_h="h-40 sm:h-96 mx-auto"
             class="mx-auto"
         />
         

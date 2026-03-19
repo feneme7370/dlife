@@ -57,6 +57,115 @@ new class extends Component
     public $book;
     public $reads, $readId;
 
+    //////////////////////////////////////////////////////////////////// BUSCAR EN API GOOGLE BOOKS LOS DATOS
+    public $searchBook = '';
+    public $author_recommended = '';
+    public $category_recommended = '';
+    public $results = [];
+
+    public function searchBooks()
+    {
+        if(strlen($this->searchBook) < 3){
+            $this->results = [];
+            return;
+        }
+
+        $response = \Illuminate\Support\Facades\Http::get('https://www.googleapis.com/books/v1/volumes', [
+            'q' => $this->searchBook,
+            'langRestrict' => 'es', // 🔥 español
+            'maxResults' => 10,
+        ]);
+
+        if (!$response->successful()) {
+            $this->results = [];
+            return;
+        }
+        $this->results = collect($response->json()['items'] ?? [])
+            ->map(function ($item) {
+                $info = $item['volumeInfo'] ?? [];
+
+                return [
+                    'id' => $item['id'],
+                    'title' => $info['title'] ?? '',
+                    'authors' => $info['authors'] ?? [],
+                    'publishedDate' => $info['publishedDate'] ?? null,
+                    'pagesInfo' => $info['printedPageCount'] ?? $info['pageCount'],
+                    'thumbnail' => isset($info['imageLinks']['thumbnail'])
+                        ? str_replace('http://', 'https://', $info['imageLinks']['thumbnail'])
+                        : null,
+                ];
+            })
+            ->toArray();
+    }
+    public function selectBook($id)
+    {
+        $response = \Illuminate\Support\Facades\Http::get("https://www.googleapis.com/books/v1/volumes/{$id}");
+
+        if (!$response->successful()) return;
+
+        $info = $response->json()['volumeInfo'] ?? [];
+        
+        $this->title = $info['title'] ?? '';
+        $this->synopsis = $this->cleanNotes($info['description'] ?? '');
+        $this->pages = $info['printedPageCount'] ?? $info['pageCount'];
+        $this->release_date = $info['publishedDate'] ? \Carbon\Carbon::parse($info['publishedDate'])->year : '';
+        $this->author_recommended = isset($info['authors'])
+            ? implode(', ', $info['authors'])
+            : null;
+        $this->category_recommended = isset($info['categories'])
+            ? implode(' / ', $info['categories'])
+            : null;
+
+        $this->cover_image_url = isset($info['imageLinks']['thumbnail'])
+            ? str_replace('http://', 'https://', 
+                $info['imageLinks']['extraLarge'] ??
+                $info['imageLinks']['large'] ??
+                $info['imageLinks']['medium'] ??
+                $info['imageLinks']['small'] ??
+                $info['imageLinks']['thumbnail'] ??
+                $info['imageLinks']['smallThumbnail'] ??
+                null
+            )
+            : '';
+
+        // limpiar buscador
+        $this->results = [];
+        $this->searchBook = '';
+        
+        // cerrar modal
+        $this->modal('select-book-api')->close();
+    }
+
+    //////////////////////////////////////////////////////////////////// BUSCAR EN API OPEN LIBRARY LOS DATOS
+    public $searchBookImage = '';
+    public $resultsImages = [];
+    public function searchBooksImages()
+    {
+        if(strlen($this->searchBookImage) < 3){
+            $this->resultsImages = [];
+            return;
+        }
+
+        $res = \Illuminate\Support\Facades\Http::get('https://openlibrary.org/search.json', [
+            'q' => $this->searchBookImage,
+        ]);
+
+        $this->resultsImages = collect($res->json()['docs'])
+            ->take(10)
+            ->toArray();
+    }
+    public function selectBookImage($key, $cover_i)
+    {
+        $res = \Illuminate\Support\Facades\Http::get("https://openlibrary.org{$key}.json",);
+        // autocompletar campos
+        $this->cover_image_url = isset($cover_i)
+            ? "https://covers.openlibrary.org/b/id/".$cover_i."-L.jpg"
+            : '';
+
+        // cerrar modal
+        $this->modal('select-book-image-api')->close();
+    }
+
     //////////////////////////////////////////////////////////////////// VALIDACIONES
     // reglas de validacion
     protected function rules(){
@@ -339,6 +448,14 @@ new class extends Component
         </div>
     </div>
 
+    {{-- buscar libro en api --}}
+    <div class="flex gap-2 items-center">
+        <flux:modal.trigger name="select-book-api">
+            <flux:button size="xs" variant="ghost" icon="plus"></flux:button>
+            <flux:label>Buscar Libro</flux:label>
+        </flux:modal.trigger>
+    </div>
+
     {{-- formulario completo --}}
     <div class="space-y-2">
         <flux:input type="text" label="Nombre" wire:model="title" placeholder="Nombre del libro" autofocus/>
@@ -360,7 +477,22 @@ new class extends Component
             </flux:select>
         </div>
 
-        <flux:input type="text" label="Link de portada" wire:model="cover_image_url" placeholder="Pegue el link de una imagen"/>
+        <div class="flex flex-col gap-1">
+            <flux:label>Link de portada</flux:label>
+            <flux:input.group>
+                <flux:input type="text" wire:model="cover_image_url" placeholder="Pegue el link de una imagen" />
+                <flux:modal.trigger name="select-book-image-api">
+                    <flux:button icon="plus">OL</flux:button>
+                </flux:modal.trigger>
+                </flux:input.group>
+        </div>
+
+        @if ($this->cover_image_url)
+            <div>
+                <img src="{{ $this->cover_image_url }}" alt="Portada del libro" class="w-32 h-auto object-cover rounded">
+            </div>
+            
+        @endif
 
         <div class="grid grid-cols-2 gap-1 my-5">
             <flux:field variant="inline" class="flex items-center">
@@ -442,6 +574,9 @@ new class extends Component
                 <option value="{{ $item->id }}">{{ $item->name_general }} - {{ $item->name }}</option>
             @endforeach
         </flux:select>
+        @if ($this->category_recommended)
+            <p class="text-xs italic">Recomendado: {{ $this->category_recommended ?? '' }}</p>
+        @endif
 
         <div class="grid grid-cols-12 gap-1">
             <div class="col-span-10 space-y-1">
@@ -482,6 +617,9 @@ new class extends Component
                 :items="$this->subjects()"
             />
         </div>
+        @if ($this->author_recommended)
+            <p class="text-xs italic">Recomendado: {{ $this->author_recommended ?? '' }}</p>
+        @endif
 
         <flux:label>Etiquetas</flux:label>
         <flux:input.group>
@@ -605,6 +743,119 @@ new class extends Component
                 </flux:modal.close>
 
                 <flux:button wire:click="destroyRead" type="submit" variant="danger">Borrar</flux:button>
+            </div>
+        </div>
+    </flux:modal>
+
+
+    {{-- modales seleccionar peliculas en api --}}
+    <flux:modal name="select-book-api" class="md:w-96">
+        <div class="space-y-6">
+            <div>
+                <flux:heading size="lg">Buscar Libro</flux:heading>
+                <flux:text class="mt-2">Busque los datos de un libro.</flux:text>
+            </div>
+
+            <div class="grid gap-1">
+                <div>
+                    <flux:input.group>
+                        <flux:input 
+                            wire:model.live.debounce.500ms="searchBook"
+                            placeholder="Buscar libro..."
+                        />
+                        <flux:button wire:click="searchBooks" icon="magnifying-glass"></flux:button>
+                    </flux:input.group>
+                <div class="space-y-2 mt-4">
+
+                    @foreach($results as $item)
+                        <div 
+                            wire:click="selectBook('{{ $item['id'] }}')"
+                            class="flex gap-3 p-2 cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded"
+                        >
+                            <img 
+                                src="{{ $item['thumbnail'] ?? ''}}"
+                                class="w-12 h-16"
+                            >
+
+                            <div>
+                                <div class="font-semibold">
+                                    {{ $item['title'] }}
+                                </div>
+
+                                <div class="text-xs text-zinc-500">
+                                    {{ (\Carbon\Carbon::parse($item['publishedDate'])->year ?? '') . ' | ' . $item['pagesInfo'] . ' páginas' }}
+                                </div>
+                                <div class="text-xs text-zinc-500">
+                                    {{ implode(', ', $item['authors']) }}
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+
+                </div>
+                
+                <div class="flex gap-2">
+                    <flux:spacer />
+    
+                    <flux:modal.close>
+                        <flux:button variant="ghost">Cancelar</flux:button>
+                    </flux:modal.close>
+                </div>
+            </div>
+      
+
+        </div>
+    </flux:modal>
+   {{-- modales seleccionar peliculas en api --}}
+    <flux:modal name="select-book-image-api" class="md:w-96">
+        <div class="space-y-6">
+            <div>
+                <flux:heading size="lg">Buscar Imagen de Portada</flux:heading>
+                <flux:text class="mt-2">Busque la imagen de portada de un libro.</flux:text>
+            </div>
+
+            <div class="grid gap-1">
+                <div>
+                    <flux:input.group>
+                        <flux:input 
+                            wire:model.live.debounce.500ms="searchBookImage"
+                            placeholder="Buscar imagen..."
+                        />
+                        <flux:button wire:click="searchBooksImages" icon="magnifying-glass"></flux:button>
+                    </flux:input.group>
+                <div class="grid grid-cols-2 gap-3 mt-4">
+
+                    @foreach($resultsImages as $item)
+                        <div 
+                            wire:click="selectBookImage('{{ $item['key'] }}', '{{ $item['cover_i'] ?? '' }}')"
+                            class="flex gap-3 p-2 cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded"
+                        >
+                            <img 
+                                src="https://covers.openlibrary.org/b/id/{{ $item['cover_i'] ?? ''}}-M.jpg"
+                                class="w-12 h-16"
+                            >
+
+                            <div>
+                                <div class="font-semibold">
+                                    {{ $item['title'] }}
+                                </div>
+
+                                <div class="text-xs text-zinc-500">
+                                    {{ $item['first_publish_year'] ?? '' }}
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+
+                </div>
+                
+                <div class="flex gap-2">
+                    <flux:spacer />
+    
+                    <flux:modal.close>
+                        <flux:button variant="ghost">Cancelar</flux:button>
+                    </flux:modal.close>
+                </div>
             </div>
         </div>
     </flux:modal>

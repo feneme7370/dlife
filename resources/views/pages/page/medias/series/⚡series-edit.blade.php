@@ -55,6 +55,57 @@ new class extends Component
     public $serie;
     public $views, $viewId;
 
+            //////////////////////////////////////////////////////////////////// BUSCAR EN API TMDB LOS DATOS
+    public $searchSerie = '';
+    public $results = [];
+    public $actors_recommended = [];
+    public $genres_recommended = [];
+
+    public function searchSeries()
+    {
+        if(strlen($this->searchSerie) < 3){
+            $this->results = [];
+            return;
+        }
+
+        $response = \Illuminate\Support\Facades\Http::get('https://api.themoviedb.org/3/search/tv', [
+            'api_key' => env('API_TMDB_KEY'),
+            'query' => $this->searchSerie,
+            'language' => 'es-ES',
+        ]);
+
+        $this->results = collect($response->json()['results'])
+            ->take(5)
+            ->toArray();
+    }
+    public function selectSerie($id)
+    {
+        $response = \Illuminate\Support\Facades\Http::get("https://api.themoviedb.org/3/tv/$id", [
+            'api_key' => env('API_TMDB_KEY'),
+            'language' => 'es-ES',
+        ]);
+        $credits = \Illuminate\Support\Facades\Http::get("https://api.themoviedb.org/3/tv/$id/credits", [
+            'api_key' => env('API_TMDB_KEY'),
+            'language' => 'es-ES',
+        ]);
+
+        $selectedSerie = $response->json();
+
+        // autocompletar campos
+        $this->title = $selectedSerie['name'];
+        $this->original_title = $selectedSerie['original_name'];
+        $this->synopsis = $selectedSerie['overview'];
+        $this->start_date = substr($selectedSerie['first_air_date'], 0, 4) ?? null;
+        $this->end_date = substr($selectedSerie['last_air_date'], 0, 4) ?? null;
+        $this->seasons = $selectedSerie['number_of_seasons'] ?? 1;
+        $this->episodes = $selectedSerie['number_of_episodes'] ?? 1;
+        $this->cover_image_url = 'https://image.tmdb.org/t/p/w500'.$selectedSerie['poster_path'];
+        $this->actors_recommended = collect($credits->json()['cast'])->take(5)->pluck('name')->toArray();
+        $this->genres_recommended = collect($selectedSerie['genres'])->take(5)->pluck('name')->toArray();
+        // cerrar modal
+        $this->modal('select-serie-api')->close();
+    }
+
     //////////////////////////////////////////////////////////////////// VALIDACIONES
     // reglas de validacion
     protected function rules(){
@@ -315,6 +366,14 @@ new class extends Component
         </div>
     </div>
 
+    {{-- buscar serie en api --}}
+    <div class="flex gap-2 items-center">
+        <flux:modal.trigger name="select-serie-api">
+            <flux:button size="xs" variant="ghost" icon="plus"></flux:button>
+            <flux:label>Buscar Serie</flux:label>
+        </flux:modal.trigger>
+    </div>
+
     {{-- formulario completo --}}
     <div class="space-y-2">
         <flux:input type="text" label="Nombre" wire:model="title" placeholder="Nombre del libro" autofocus/>
@@ -404,6 +463,9 @@ new class extends Component
                 <option value="{{ $item->id }}">{{ $item->name_general }} - {{ $item->name }}</option>
             @endforeach
         </flux:select>
+        @if ($this->genres_recommended)
+            <p class="text-xs italic">Recomendado: {{ implode(', ', $this->genres_recommended) }}</p>
+        @endif
 
         <div class="grid grid-cols-12 gap-1">
             <div class="col-span-10 space-y-1">
@@ -444,6 +506,9 @@ new class extends Component
                 :items="$this->subjects()"
             />
         </div>
+        @if ($this->actors_recommended)
+            <p class="text-xs italic">Recomendado: {{ implode(', ', $this->actors_recommended) }}</p>
+        @endif
 
         <flux:label>Etiquetas</flux:label>
         <flux:input.group>
@@ -569,6 +634,65 @@ new class extends Component
 
                 <flux:button wire:click="destroyView" type="submit" variant="danger">Borrar</flux:button>
             </div>
+        </div>
+    </flux:modal>
+
+    {{-- modales seleccionar serie en api --}}
+    <flux:modal name="select-serie-api" class="md:w-96">
+        <div class="space-y-6">
+            <div>
+                <flux:heading size="lg">Buscar Serie</flux:heading>
+                <flux:text class="mt-2">Busque los datos de una serie.</flux:text>
+            </div>
+
+            <div class="grid gap-1">
+                <div>
+                    <flux:input.group>
+                        <flux:input 
+                            wire:model.live.debounce.500ms="searchSerie"
+                            placeholder="Buscar serie..."
+                        />
+                        <flux:button wire:click="searchSeries" icon="magnifying-glass"></flux:button>
+                    </flux:input.group>
+                <div class="space-y-2 mt-4">
+
+                    @foreach($results as $item)
+                        <div 
+                            wire:click="selectSerie({{ $item['id'] }})"
+                            class="flex gap-3 p-2 cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded"
+                        >
+                            <img 
+                                src="https://image.tmdb.org/t/p/w200{{ $item['poster_path'] }}" 
+                                class="w-12 h-16 object-cover rounded"
+                            />
+
+                            <div>
+                                <div class="font-semibold">
+                                    {{ $item['name'] }}
+                                </div>
+
+                                <div class="text-xs text-zinc-500">
+                                    {{ $item['first_air_date'] ?? '' }}
+                                </div>
+                                <div class="text-xs text-zinc-500">
+                                    {{ $item['end_air_date'] ?? '' }}
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+
+                </div>
+                
+                <div class="flex gap-2">
+                    <flux:spacer />
+    
+                    <flux:modal.close>
+                        <flux:button variant="ghost">Cancelar</flux:button>
+                    </flux:modal.close>
+                </div>
+            </div>
+      
+
         </div>
     </flux:modal>
 </div>
