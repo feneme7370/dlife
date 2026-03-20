@@ -75,9 +75,9 @@ new class extends Component
     public function updateItem(){
         // normalizar
         $this->name = \Illuminate\Support\Str::title(trim($this->name));
-        $this->slug = \Illuminate\Support\Str::slug($this->name . '-' . \Illuminate\Support\Str::random(4));
+        $this->slug = \Illuminate\Support\Str::slug($this->name . '-' . \Illuminate\Support\Facades\Auth::id());
         $this->name_general = \Illuminate\Support\Str::title(trim($this->name_general));
-        $this->slug_general = \Illuminate\Support\Str::slug($this->name_general . '-' . \Illuminate\Support\Str::random(4));
+        $this->slug_general = \Illuminate\Support\Str::slug($this->name_general . '-' . \Illuminate\Support\Facades\Auth::id());
 
         if($this->mgenre){
             // validar

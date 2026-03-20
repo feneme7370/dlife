@@ -15,7 +15,7 @@ class BlogsImport implements ToModel, WithHeadingRow
             ['uuid' => $row['uuid']], // clave única
             [
                 'title' => \Illuminate\Support\Str::title(trim($row['title'])),
-                'slug' => \Illuminate\Support\Str::slug($row['title'] . '-' . \Illuminate\Support\Str::random(4)),
+                'slug' => \Illuminate\Support\Str::slug($row['title'] . '-' . \Illuminate\Support\Facades\Auth::id()),
                 'excerpt' => $row['excerpt'] ?? '',
                 'type' => $row['type'] ?? '',
 
@@ -55,7 +55,7 @@ class BlogsImport implements ToModel, WithHeadingRow
             $model = $modelClass::firstOrCreate(
                 ['name' => $name],
                 [
-                    'slug' => \Illuminate\Support\Str::slug($name . '-' . \Illuminate\Support\Str::random(4)), 
+                    'slug' => \Illuminate\Support\Str::slug($name . '-' . \Illuminate\Support\Facades\Auth::id() . '-' . \Illuminate\Support\Str::random(6)), 
                     'uuid' => \Illuminate\Support\Str::random(24), 
                     'user_id' => \Illuminate\Support\Facades\Auth::id(),
                 ]

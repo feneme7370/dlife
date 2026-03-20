@@ -12,10 +12,12 @@ class MoviesImport implements ToModel, WithHeadingRow
     {
         // 1️⃣ Crear o actualizar por UUID
         $movie = \App\Models\Page\Movie::updateOrCreate(
-            ['uuid' => $row['uuid']], // clave única
+            [
+                'uuid' => $row['uuid'],
+            ], // clave única
             [
                 'title' => \Illuminate\Support\Str::title(trim($row['title'])),
-                'slug' => \Illuminate\Support\Str::slug($row['title'] . '-' . \Illuminate\Support\Str::random(4)),
+                'slug' => \Illuminate\Support\Str::slug($row['title'] . '-' . \Illuminate\Support\Facades\Auth::id()) . '-' . \Illuminate\Support\Str::random(6),
                 'original_title' => $row['original_title'],
                 'synopsis' => $row['synopsis'],
                 'release_date' => $row['release_date'],
@@ -90,8 +92,8 @@ class MoviesImport implements ToModel, WithHeadingRow
                 ['name' => $name],
                 [
                     'name_general' => 'Sin categria', 
-                    'slug_general' => \Illuminate\Support\Str::slug('Sin categoria' . '-' . \Illuminate\Support\Str::random(4)), 
-                    'slug' => \Illuminate\Support\Str::slug($name . '-' . \Illuminate\Support\Str::random(4)), 
+                    'slug_general' => \Illuminate\Support\Str::slug('Sin categoria' . '-' . \Illuminate\Support\Facades\Auth::id()), 
+                    'slug' => \Illuminate\Support\Str::slug($name . '-' . \Illuminate\Support\Facades\Auth::id()), 
                     'uuid' => \Illuminate\Support\Str::random(24), 
                     'user_id' => \Illuminate\Support\Facades\Auth::id(),
                 ]

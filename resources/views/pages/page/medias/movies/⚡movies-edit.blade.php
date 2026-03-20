@@ -58,8 +58,7 @@ new class extends Component
     public $actors_recommended = [];
     public $genres_recommended = '';
 
-    public function searchMovies()
-    {
+    public function searchMovies(){
         if(strlen($this->searchMovie) < 3){
             $this->results = [];
             return;
@@ -68,22 +67,21 @@ new class extends Component
         $response = \Illuminate\Support\Facades\Http::get('https://api.themoviedb.org/3/search/movie', [
             'api_key' => env('API_TMDB_KEY'),
             'query' => $this->searchMovie,
-            'language' => 'es-ES',
+            'language' => 'es-MX',
         ]);
 
         $this->results = collect($response->json()['results'])
             ->take(5)
             ->toArray();
     }
-    public function selectMovie($id)
-    {
+    public function selectMovie($id){
         $response = \Illuminate\Support\Facades\Http::get("https://api.themoviedb.org/3/movie/$id", [
             'api_key' => env('API_TMDB_KEY'),
-            'language' => 'es-ES',
+            'language' => 'es-MX',
         ]);
         $credits = \Illuminate\Support\Facades\Http::get("https://api.themoviedb.org/3/movie/$id/credits", [
             'api_key' => env('API_TMDB_KEY'),
-            'language' => 'es-ES',
+            'language' => 'es-MX',
         ]);
 
         $selectedMovie = $response->json();
@@ -257,7 +255,7 @@ new class extends Component
     public function updateItem(){
         // datos automaticos
         $this->title = \Illuminate\Support\Str::title(trim($this->title));
-        $this->slug = \Illuminate\Support\Str::slug($this->title . '-' . \Illuminate\Support\Str::random(4));
+        $this->slug = \Illuminate\Support\Str::slug($this->title . '-' . \Illuminate\Support\Facades\Auth::id());
         $this->summary_clear = $this->cleanNotes($this->summary);
         $this->notes_clear = $this->cleanNotes($this->notes);
         $this->start_view = $this->end_view;

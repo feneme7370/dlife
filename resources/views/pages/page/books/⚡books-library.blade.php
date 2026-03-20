@@ -35,6 +35,11 @@ new class extends Component
         ];
     }
 
+    public $name_collection;
+    public $name_subject;
+    public $name_genre;
+    public $name_star;
+
     //////////////////////////////////////////////////////////////////// PROPIEDADES
     // propiedades de item y titulos
     public $books = [];
@@ -44,7 +49,20 @@ new class extends Component
 
     //////////////////////////////////////////////////////////////////// PRE CARGAR DATOS
     public function mount(){
-        $this->books = $this->booksQuery()->get();
+        $books = $this->booksQuery()->get();
+
+        $this->books = collect($books)
+            ->groupBy(function ($book) {
+                return $book->reads_max_end_read
+                    ? \Carbon\Carbon::parse($book->reads_max_end_read)->format('Y')
+                    : 'Sin fecha';
+            })
+            ->sortKeysDesc();
+
+        $this->name_collection = $this->collection_selected ? \App\Models\Page\Collection::where('uuid', $this->collection_selected)->first()->name : null;
+        $this->name_subject = $this->subject_selected ? \App\Models\Page\Subject::where('uuid', $this->subject_selected)->first()->name : null;
+        $this->name_genre = $this->genre_selected ? \App\Models\Page\BookGenre::where('uuid', $this->genre_selected)->first()->name : null;
+        $this->name_star = $this->star_selected ? str_repeat('★', $this->star_selected) : null;
     }
 
     //////////////////////////////////////////////////////////////////// CONSULTA DE LISTADO Y ELIMINAR ITEM
@@ -99,33 +117,52 @@ new class extends Component
         </div>
     </div>
 
+    {{-- titulos de filtros --}}
+    <div>
+        <p class="text-start text-lg sm:text-2xl font-bold mb-3">
+            @if ($genre_selected || $subject_selected || $collection_selected || $star_selected)
+                {{ $this->name_genre ? 'Genero: '.$this->name_genre : null }}
+                {{ $this->name_subject ? 'Autor: '.$this->name_subject : null }}
+                {{ $this->name_collection ? 'Coleccion: '.$this->name_collection : null }}
+                {{ $this->name_star ? 'Estrellas: '.$this->name_star : null }}
+            @endif
+        </p>
+    </div>
+
     {{-- cuadricula --}}
     <div class="relative shadow-md sm:rounded-lg">
-        <div class="flex flex-wrap justify-center gap-1 px-1 py-3">
+        
+        @foreach ($books as $year => $books_by_year)
+        
+            <p class="text-center text-lg sm:text-2xl font-bold mb-3">{{ $year }}</p>
             
-            @foreach ($this->books as $item)
-            <a 
-                href="{{ route('books.show', ['bookUuid' => $item->uuid]) }}"
-            >
-                <div class="relative w-20 h-32 sm:w-40 sm:h-60 rounded-lg overflow-hidden shadow-lg group">
-                    <img src="{{ $item->cover_image_url }}" alt="Portada del libro" class="w-full h-full object-cover">
-                    <div class="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity duration-300">
-                        <div class="text-center space-y-10">
-                            <p class="text-white text-lg font-semibold px-2 text-center">{{ $item->title }}</p>
-                            <p class="relative text-xs italic text-gray-700 dark:text-gray-300">
-                                {{ $item->is_favorite ? '❤️' : ''}}
-                                {{ $item->is_abandonated ? '🚫' : ''}}
-                                {{ $item->summary_clear ? '🗒️' : ''}}
-                                {{ $item->notes_clear ? '✍️' : ''}}
-                                {{ $item->reads->first() ? '✅' : ''}}
-                            </p>
+            <div class="flex flex-wrap justify-center gap-1 px-1 py-3">
+                @foreach ($books_by_year as $item)
+                    <a 
+                        href="{{ route('books.show', ['bookUuid' => $item->uuid]) }}"
+                    >
+                        <div class="relative w-20 h-32 sm:w-40 sm:h-60 rounded-lg overflow-hidden shadow-lg group">
+                            <img src="{{ $item->cover_image_url }}" alt="Portada del libro" class="w-full h-full object-cover">
+                            <div class="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity duration-300">
+                                <div class="text-center space-y-10">
+                                    <p class="text-white text-lg font-semibold px-2 text-center">{{ $item->title }}</p>
+                                    <p class="relative text-xs italic text-gray-700 dark:text-gray-300">
+                                        {{ $item->is_favorite ? '❤️' : ''}}
+                                        {{ $item->is_abandonated ? '🚫' : ''}}
+                                        {{ $item->summary_clear ? '🗒️' : ''}}
+                                        {{ $item->notes_clear ? '✍️' : ''}}
+                                        {{ $item->reads->first() ? '✅' : ''}}
+                                    </p>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </div>
-            </a>
+                    </a>
 
-            @endforeach
+                @endforeach
+            </div>
+
+        @endforeach
+
             
-        </div>
     </div>
 </div>

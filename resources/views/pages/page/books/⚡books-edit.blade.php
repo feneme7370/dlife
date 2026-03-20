@@ -341,7 +341,7 @@ new class extends Component
     public function updateItem(){
         // datos automaticos
         $this->title = \Illuminate\Support\Str::title(trim($this->title));
-        $this->slug = \Illuminate\Support\Str::slug($this->title . '-' . \Illuminate\Support\Str::random(4));
+        $this->slug = \Illuminate\Support\Str::slug($this->title . '-' . \Illuminate\Support\Facades\Auth::id());
         $this->summary_clear = $this->cleanNotes($this->summary);
         $this->notes_clear = $this->cleanNotes($this->notes);
 

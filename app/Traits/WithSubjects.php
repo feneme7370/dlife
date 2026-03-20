@@ -17,12 +17,16 @@ trait WithSubjects
             'name_subject' => ['required', 'string', 'max:255'],
         ]);
 
-        $subject = \App\Models\Page\Subject::create([
-            'name' => $this->name_subject,
-            'slug' => Str::slug($this->name_subject . '-' . Str::random(4)),
-            'uuid' => Str::random(24),
-            'user_id' => Auth::id(),
-        ]);
+        $subject = \App\Models\Page\Subject::firstOrCreate(
+            [
+                'name' => $this->name_subject,
+                'user_id' => Auth::id(),
+            ],
+            [
+                'slug' => Str::slug($this->name_subject . '-' . Auth::id()),
+                'uuid' => Str::random(24),
+            ]
+        );
 
         $this->reset('name_subject');
 

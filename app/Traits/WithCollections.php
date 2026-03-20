@@ -24,15 +24,19 @@ trait WithCollections
             'seasons_amount_collection' => ['nullable', 'numeric'],
         ]);
 
-        $collection = Collection::create([
-            'name' => $this->name_collection,
-            'books_amount' => $this->books_amount_collection ?? 0,
-            'movies_amount' => $this->movies_amount_collection ?? 0,
-            'seasons_amount' => $this->seasons_amount_collection ?? 0,
-            'slug' => Str::slug(trim($this->name_collection) . '-' . Str::random(4)),
-            'uuid' => Str::random(24),
-            'user_id' => Auth::id(),
-        ]);
+        $collection = Collection::firstOrCreate(
+            [
+                'name' => Str::title(trim($this->name_collection)),
+                'user_id' => Auth::id(),
+            ],
+            [
+                'books_amount' => $this->books_amount_collection ?? 0,
+                'movies_amount' => $this->movies_amount_collection ?? 0,
+                'seasons_amount' => $this->seasons_amount_collection ?? 0,
+                'slug' => Str::slug(trim($this->name_collection) . '-' . Auth::id()),
+                'uuid' => Str::random(24),
+            ]
+        );
 
         $this->reset(
             'name_collection',

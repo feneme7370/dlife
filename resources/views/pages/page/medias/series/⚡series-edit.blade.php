@@ -71,7 +71,7 @@ new class extends Component
         $response = \Illuminate\Support\Facades\Http::get('https://api.themoviedb.org/3/search/tv', [
             'api_key' => env('API_TMDB_KEY'),
             'query' => $this->searchSerie,
-            'language' => 'es-ES',
+            'language' => 'es-MX',
         ]);
 
         $this->results = collect($response->json()['results'])
@@ -82,11 +82,11 @@ new class extends Component
     {
         $response = \Illuminate\Support\Facades\Http::get("https://api.themoviedb.org/3/tv/$id", [
             'api_key' => env('API_TMDB_KEY'),
-            'language' => 'es-ES',
+            'language' => 'es-MX',
         ]);
         $credits = \Illuminate\Support\Facades\Http::get("https://api.themoviedb.org/3/tv/$id/credits", [
             'api_key' => env('API_TMDB_KEY'),
-            'language' => 'es-ES',
+            'language' => 'es-MX',
         ]);
 
         $selectedSerie = $response->json();
@@ -267,7 +267,7 @@ new class extends Component
     public function updateItem(){
         // datos automaticos
         $this->title = \Illuminate\Support\Str::title(trim($this->title));
-        $this->slug = \Illuminate\Support\Str::slug($this->title . '-' . \Illuminate\Support\Str::random(4));
+        $this->slug = \Illuminate\Support\Str::slug($this->title . '-' . \Illuminate\Support\Facades\Auth::id());
         $this->summary_clear = $this->cleanNotes($this->summary);
         $this->notes_clear = $this->cleanNotes($this->notes);
         
