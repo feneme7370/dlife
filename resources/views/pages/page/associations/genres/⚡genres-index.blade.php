@@ -25,12 +25,20 @@ new class extends Component
         $this->sortField = $field;
     }
 
+    //////////////////////////////////////////////////////////////////// FUNCIONES PARA FILTRAR
+    // mostrar variables en queryString
+    protected function queryString(){
+        return [
+        'type_selected' => [ 'as' => 'type' ],
+        ];
+    }
+
     //////////////////////////////////////////////////////////////////// PROPIEDADES
     // propiedades de item y titulos
     public $file;
     public $titlePage = 'Generos';
     public $subtitlePage = 'Listado de generos';
-    public $type_selected = 'visual';
+    public $type_selected = 'todo';
 
     //////////////////////////////////////////////////////////////////// CONSULTA DE LISTADO Y ELIMINAR ITEM
     // consulta de item
@@ -88,7 +96,7 @@ new class extends Component
     {{-- selector de tipo --}}
     <flux:radio.group class="mb-1" wire:model.live="type_selected" label="Seleccionar tipo">
         <div class="flex items-center gap-2 justify-start">
-            <flux:radio value="" label="Todos" checked />
+            <flux:radio value="todo" label="Todos" checked />
             <flux:radio value="books" label="Libros" />
             <flux:radio value="visual" label="Peliculas y Series" />
         </div>

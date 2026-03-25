@@ -567,12 +567,19 @@ new class extends Component
             @endforeach
         @endif
 
-        <flux:select wire:model="selectedBookGenres" label="Genero">
-            <option value="">Seleccionar genero</option>
-            @foreach ($this->genres() as $item)
-                <option value="{{ $item->id }}">{{ $item->name_general }} - {{ $item->name }}</option>
-            @endforeach
-        </flux:select>
+        <div>
+            <div class="flex items-center mb-1">
+                <flux:label>Genero {{ count($selectedBookGenres) }}</flux:label>
+            </div>
+            <flux:checkbox.group wire:model.live="selectedBookGenres">
+                <div class="grid grid-cols-2 md:grid-cols-3 h-max-96 overflow-y-scroll space-y-1">
+                    @foreach ($this->genres() as $item)
+                        <flux:checkbox label="{{ $item->name }}" value="{{ $item->id }}" />
+                    @endforeach
+                </div>
+            </flux:checkbox.group>
+        </div>
+        
         @if ($this->category_recommended)
             <p class="text-xs italic">Recomendado: {{ $this->category_recommended ?? '' }}</p>
         @endif
@@ -594,7 +601,7 @@ new class extends Component
             </div>
             <div class="col-span-2 space-y-1">
                 <div>
-                    <flux:label>N° de coleccion</flux:label>
+                    <flux:label>N° saga</flux:label>
                 </div>
                 <flux:input type="number" max="2999" min="0" step="0.1" wire:model="number_collection"/>
             </div>
@@ -626,7 +633,7 @@ new class extends Component
             <flux:button wire:click="addTag('selectedBookTags')" icon="plus">Agregar</flux:button>
         </flux:input.group>
         
-        <div class="flex gap-2 mt-2">
+        <div class="flex gap-2 mt-2 w-full flex-wrap">
             @foreach($selectedBookTags as $index => $tag)
                 <flux:badge size="sm" color="purple">
                     <button class="mr-2" wire:click="removeTag('selectedBookTags', {{ $index }})">
@@ -637,6 +644,7 @@ new class extends Component
             @endforeach
         </div>
 
+        <flux:label>Resumen personal</flux:label>
         <x-libraries.quill-textarea-form 
         id_quill="editor_create_summary" 
         name="summary"
@@ -645,6 +653,7 @@ new class extends Component
         model_data="{{ $summary }}" 
         />
         
+        <flux:label>Reseña</flux:label>
         <x-libraries.quill-textarea-form 
             id_quill="editor_create_notes" 
             name="notes"

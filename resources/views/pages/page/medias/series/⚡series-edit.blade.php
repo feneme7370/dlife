@@ -44,7 +44,7 @@ new class extends Component
     // propiedades para relacion muchos a muchos
     public $selectedSerieSubjects = [];
     public $selectedSerieCollections = [];
-    public $selectedMgenres = [];
+    public $selectedMoviesGenres = [];
     public $selectedSerieTags = [];
 
     // propiedades para lecturas
@@ -193,7 +193,7 @@ new class extends Component
             $this->uuid = $this->serie->uuid;
     
             // poner en arrays las asociaciones de m2m
-            $this->selectedMgenres = $this->serie->genres->pluck('id')->toArray() ?? [];
+            $this->selectedMoviesGenres = $this->serie->genres->pluck('id')->toArray() ?? [];
             $this->selectedSerieSubjects = $this->serie->subjects->pluck('id')->toArray() ?? [];
             $this->selectedSerieCollections = $this->serie->collections->pluck('id')->toArray() ?? [];
             $this->selectedSerieTags = $this->serie->tags->pluck('name')->toArray() ?? [];
@@ -203,7 +203,7 @@ new class extends Component
     //////////////////////////////////////////////////////////////////// DATOS PARA ASOCIAR
     // traer datos de generos para asociar
     public function genres(){
-        return Genre::where('genre_type', 'series')->where('user_id', \Illuminate\Support\Facades\Auth::id())->orderBy('name', 'asc')->get();
+        return Genre::where('genre_type', 'visual')->where('user_id', \Illuminate\Support\Facades\Auth::id())->orderBy('name', 'asc')->get();
     }
     // traer datos de colecciones para asociar
     public function collections(){
@@ -279,7 +279,7 @@ new class extends Component
             $this->serie->update($validatedData);
             $this->serie->subjects()->sync($this->selectedSerieSubjects);
             $this->serie->collections()->sync($this->selectedSerieCollections);
-            $this->serie->genres()->sync($this->selectedMgenres);
+            $this->serie->genres()->sync($this->selectedMoviesGenres);
     
             // agregar tags
             $tagIds = [];
@@ -309,7 +309,7 @@ new class extends Component
             $serie = Serie::create($validatedData);
             $serie->subjects()->sync($this->selectedSerieSubjects);
             $serie->collections()->sync($this->selectedSerieCollections);
-            $serie->genres()->sync($this->selectedMgenres);
+            $serie->genres()->sync($this->selectedMoviesGenres);
 
             // agregar view
             if($this->start_view){
@@ -455,12 +455,18 @@ new class extends Component
             @endforeach
         @endif
 
-        <flux:select wire:model="selectedMgenres" label="Genero">
-            <option value="">Seleccionar genero</option>
-            @foreach ($this->genres() as $item)
-                <option value="{{ $item->id }}">{{ $item->name_general }} - {{ $item->name }}</option>
-            @endforeach
-        </flux:select>
+        <div>
+            <div class="flex items-center mb-1">
+                <flux:label>Generos {{ count($selectedMoviesGenres) }}</flux:label>
+            </div>
+            <flux:checkbox.group wire:model.live="selectedMoviesGenres">
+                <div class="grid grid-cols-2 md:grid-cols-3 h-max-96 overflow-y-scroll space-y-1">
+                    @foreach ($this->genres() as $item)
+                        <flux:checkbox label="{{ $item->name }}" value="{{ $item->id }}" />
+                    @endforeach
+                </div>
+            </flux:checkbox.group>
+        </div>
         @if ($this->genres_recommended)
             <p class="text-xs italic">Recomendado: {{ implode(', ', $this->genres_recommended) }}</p>
         @endif
@@ -482,7 +488,7 @@ new class extends Component
             </div>
             <div class="col-span-2 space-y-1">
                 <div>
-                    <flux:label>N° de coleccion</flux:label>
+                    <flux:label>N° saga</flux:label>
                 </div>
                 <flux:input type="number" max="2999" min="0" step="0.1" wire:model="number_collection"/>
             </div>
@@ -514,7 +520,7 @@ new class extends Component
             <flux:button wire:click="addTag('selectedSerieTags')" icon="plus">Agregar</flux:button>
         </flux:input.group>
 
-        <div class="flex gap-2 mt-2">
+        <div class="flex gap-2 mt-2 w-full flex-wrap">
             @foreach($selectedSerieTags as $index => $tag)
                 <flux:badge size="sm" color="purple">
                     <button class="mr-2" wire:click="removeTag('selectedSerieTags', {{ $index }})">
@@ -525,6 +531,7 @@ new class extends Component
             @endforeach
         </div>
 
+        <flux:label>Resumen personal</flux:label>
         <x-libraries.quill-textarea-form
         id_quill="editor_create_summary"
         name="summary"
@@ -533,6 +540,7 @@ new class extends Component
         model_data="{{ $summary }}"
         />
 
+        <flux:label>Reseña</flux:label>
         <x-libraries.quill-textarea-form
             id_quill="editor_create_notes"
             name="notes"

@@ -23,7 +23,9 @@ new class extends Component
     {{-- toast de mensaje --}}
     <x-libraries.flux.toast-success />
     
-    <div class="mb-3 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+    {{-- varios --}}
+    <flux:separator text="Sujetos, Colecciones, Etiquetas" />
+    <div class="grid grid-cols-3 gap-1 mb-3 mt-1">
     
         <a href="{{ route('subjects.index') }}">
             <flux:card size="sm" class="hover:bg-zinc-50 dark:hover:bg-zinc-700">
@@ -41,19 +43,48 @@ new class extends Component
                 <flux:heading class="flex items-center gap-2">Etiquetas <flux:icon name="arrow-up-right" class="ml-auto text-zinc-400" variant="micro" /></flux:heading>
             </flux:card>
         </a>
-
-        <a href="{{ route('genres.index') }}">
-            <flux:card size="sm" class="hover:bg-zinc-50 dark:hover:bg-zinc-700">
-                <flux:heading class="flex items-center gap-2">Generos <flux:icon name="arrow-up-right" class="ml-auto text-zinc-400" variant="micro" /></flux:heading>
-            </flux:card>
-        </a>
         
-        <a href="{{ route('categories.index') }}">
+    </div>
+
+
+    {{-- generos --}}
+    <flux:separator text="Generos" />
+    <div class="grid grid-cols-3 gap-1 mb-3 mt-1">
+        <a href="{{ route('genres.index', ['type' => 'todo']) }}">
             <flux:card size="sm" class="hover:bg-zinc-50 dark:hover:bg-zinc-700">
-                <flux:heading class="flex items-center gap-2">Categorías <flux:icon name="arrow-up-right" class="ml-auto text-zinc-400" variant="micro" /></flux:heading>
+                <flux:heading class="flex items-center gap-2">Todos <flux:icon name="arrow-up-right" class="ml-auto text-zinc-400" variant="micro" /></flux:heading>
             </flux:card>
         </a>
-
+        <a href="{{ route('genres.index', ['type' => 'visual']) }}">
+            <flux:card size="sm" class="hover:bg-zinc-50 dark:hover:bg-zinc-700">
+                <flux:heading class="flex items-center gap-2">Peliculas y Series <flux:icon name="arrow-up-right" class="ml-auto text-zinc-400" variant="micro" /></flux:heading>
+            </flux:card>
+        </a>
+        <a href="{{ route('genres.index', ['type' => 'books']) }}">
+            <flux:card size="sm" class="hover:bg-zinc-50 dark:hover:bg-zinc-700">
+                <flux:heading class="flex items-center gap-2">Libros <flux:icon name="arrow-up-right" class="ml-auto text-zinc-400" variant="micro" /></flux:heading>
+            </flux:card>
+        </a>
+    </div>
+    
+    {{-- categorias --}}
+    <flux:separator text="Categorías"/>
+    <div class="grid grid-cols-3 gap-1 mb-3 mt-1">
+        <a href="{{ route('categories.index', ['type' => 'todo']) }}">
+            <flux:card size="sm" class="hover:bg-zinc-50 dark:hover:bg-zinc-700">
+                <flux:heading class="flex items-center gap-2">Todas<flux:icon name="arrow-up-right" class="ml-auto text-zinc-400" variant="micro" /></flux:heading>
+            </flux:card>
+        </a>
+        <a href="{{ route('categories.index', ['type' => 'diaries']) }}">
+            <flux:card size="sm" class="hover:bg-zinc-50 dark:hover:bg-zinc-700">
+                <flux:heading class="flex items-center gap-2">Diarios <flux:icon name="arrow-up-right" class="ml-auto text-zinc-400" variant="micro" /></flux:heading>
+            </flux:card>
+        </a>
+        <a href="{{ route('categories.index', ['type' => 'recipes']) }}">
+            <flux:card size="sm" class="hover:bg-zinc-50 dark:hover:bg-zinc-700">
+                <flux:heading class="flex items-center gap-2">Recetas <flux:icon name="arrow-up-right" class="ml-auto text-zinc-400" variant="micro" /></flux:heading>
+            </flux:card>
+        </a>
     </div>
 
 </div>

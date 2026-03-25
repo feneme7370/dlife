@@ -86,11 +86,9 @@ new class extends Component
      {{-- titulo, descripcion y breadcrumbs --}}
     <x-page.partials.title-page 
         :title="$this->titlePage"
-        :create-route="'books.index'"
-        icon="arrow-uturn-left"
+        :create-route="'books.create'"
         :breadcrumbs="[
             ['label' => 'Dashboard', 'route' => 'dashboard'],
-            ['label' => 'Libros', 'route' => 'books.index'],
             ['label' => $this->titlePage]
             ]"
     />

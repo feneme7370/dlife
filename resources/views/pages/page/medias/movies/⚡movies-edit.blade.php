@@ -12,7 +12,6 @@ new class extends Component
     use \App\Traits\CleansHtml;
     use \App\Traits\WithCollections;
     use \App\Traits\WithSubjects;
-use App\Models\Page\Genre;
 
     //////////////////////////////////////////////////////////////////// PROPIEDADES PRINCIPALES
     //propiedades de titulos
@@ -42,7 +41,7 @@ use App\Models\Page\Genre;
     // propiedades para relacion muchos a muchos
     public $selectedMovieSubjects = [];
     public $selectedMovieCollections = [];
-    public $selectedMgenres = [];
+    public $selectedMoviesGenres = [];
     public $selectedMovieTags = [];
 
     // propiedades para lecturas
@@ -181,7 +180,7 @@ use App\Models\Page\Genre;
             $this->uuid = $this->movie->uuid;
     
             // poner en arrays las asociaciones de m2m
-            $this->selectedMgenres = $this->movie->genres->pluck('id')->toArray() ?? [];
+            $this->selectedMoviesGenres = $this->movie->genres->pluck('id')->toArray() ?? [];
             $this->selectedMovieSubjects = $this->movie->subjects->pluck('id')->toArray() ?? [];
             $this->selectedMovieCollections = $this->movie->collections->pluck('id')->toArray() ?? [];
             $this->selectedMovieTags = $this->movie->tags->pluck('name')->toArray() ?? [];
@@ -191,7 +190,7 @@ use App\Models\Page\Genre;
     //////////////////////////////////////////////////////////////////// DATOS PARA ASOCIAR
     // traer datos de generos para asociar
     public function genres(){
-        return Genre::where('genre_type', 'movies')->where('user_id', \Illuminate\Support\Facades\Auth::id())->orderBy('name', 'asc')->get();
+        return Genre::where('genre_type', 'visual')->where('user_id', \Illuminate\Support\Facades\Auth::id())->orderBy('name', 'asc')->get();
     }
     // traer datos de colecciones para asociar
     public function collections(){
@@ -218,7 +217,7 @@ use App\Models\Page\Genre;
         $this->start_view = $this->end_view;
         $this->validate([
             'start_view' => ['required', 'date'],
-            'end_view' => ['required', 'date'],
+            'end_view' => ['nullable', 'date'],
         ]);
 
         \App\Models\Page\MovieView::create([
@@ -269,7 +268,7 @@ use App\Models\Page\Genre;
             $this->movie->update($validatedData);
             $this->movie->subjects()->sync($this->selectedMovieSubjects);
             $this->movie->collections()->sync($this->selectedMovieCollections);
-            $this->movie->genres()->sync($this->selectedMgenres);
+            $this->movie->genres()->sync($this->selectedMoviesGenres);
 
             // agregar tags
             $tagIds = [];
@@ -299,7 +298,7 @@ use App\Models\Page\Genre;
             $movie = Movie::create($validatedData);
             $movie->subjects()->sync($this->selectedMovieSubjects);
             $movie->collections()->sync($this->selectedMovieCollections);
-            $movie->genres()->sync($this->selectedMgenres);
+            $movie->genres()->sync($this->selectedMoviesGenres);
 
             // agregar view
             if($this->start_view || $this->end_view){
@@ -438,12 +437,18 @@ use App\Models\Page\Genre;
             @endforeach
         @endif
 
-        <flux:select wire:model="selectedMgenres" label="Genero">
-            <option value="">Seleccionar genero</option>
-            @foreach ($this->genres() as $item)
-                <option value="{{ $item->id }}">{{ $item->name_general }} - {{ $item->name }}</option>
-            @endforeach
-        </flux:select>
+        <div>
+            <div class="flex items-center mb-1">
+                <flux:label>Generos {{ count($selectedMoviesGenres) }}</flux:label>
+            </div>
+            <flux:checkbox.group wire:model.live="selectedMoviesGenres">
+                <div class="grid grid-cols-2 md:grid-cols-3 h-max-96 overflow-y-scroll space-y-1">
+                    @foreach ($this->genres() as $item)
+                        <flux:checkbox label="{{ $item->name }}" value="{{ $item->id }}" />
+                    @endforeach
+                </div>
+            </flux:checkbox.group>
+        </div>
         @if ($this->genres_recommended)
             <p class="text-xs italic">Recomendado: {{ implode(', ', $this->genres_recommended) }}</p>
         @endif
@@ -465,7 +470,7 @@ use App\Models\Page\Genre;
             </div>
             <div class="col-span-2 space-y-1">
                 <div>
-                    <flux:label>N° de coleccion</flux:label>
+                    <flux:label>N° saga</flux:label>
                 </div>
                 <flux:input type="number" max="2999" min="0" step="0.1" wire:model="number_collection"/>
             </div>
@@ -497,7 +502,7 @@ use App\Models\Page\Genre;
             <flux:button wire:click="addTag('selectedMovieTags')" icon="plus">Agregar</flux:button>
         </flux:input.group>
 
-        <div class="flex gap-2 mt-2">
+        <div class="flex gap-2 mt-2 w-full flex-wrap">
             @foreach($selectedMovieTags as $index => $tag)
                 <flux:badge size="sm" color="purple">
                     <button class="mr-2" wire:click="removeTag('selectedMovieTags', {{ $index }})">
@@ -508,6 +513,7 @@ use App\Models\Page\Genre;
             @endforeach
         </div>
 
+        <flux:label>Resumen personal</flux:label>
         <x-libraries.quill-textarea-form
             id_quill="editor_create_summary"
             name="summary"
@@ -516,6 +522,7 @@ use App\Models\Page\Genre;
             model_data="{{ $summary }}"
         />
 
+        <flux:label>Reseña</flux:label>
         <x-libraries.quill-textarea-form
             id_quill="editor_create_notes"
             name="notes"
