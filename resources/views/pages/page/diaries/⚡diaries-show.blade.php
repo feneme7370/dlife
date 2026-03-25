@@ -15,7 +15,7 @@ new class extends Component
     //////////////////////////////////////////////////////////////////// PRE CARGAR DATOS
     // traer datos iniciales
     public function mount($diaryUuid){
-        $this->diary = \App\Models\Page\Diary::where('uuid', $diaryUuid)->with('diary_dcategories', 'diary_dtags')->first();
+        $this->diary = \App\Models\Page\Diary::where('uuid', $diaryUuid)->with('categories', 'tags')->first();
     }
 
     //////////////////////////////////////////////////////////////////// CONSULTAR DATOS
@@ -28,24 +28,20 @@ new class extends Component
 ?>
 
 <div>
-    {{-- titulo, descripcion y breadcrumbs --}}
-    <div>
-        <div class="mb-1 space-y-1">
-            <flux:heading size="xl" level="1">
-                <a href="{{ route('diaries.index') }}"><flux:button size="xs" variant="ghost" icon="arrow-uturn-left"></flux:button></a>
-                {{ $this->titlePage }}
-            </flux:heading>
-            <flux:text class="text-base">{{ $this->subtitlePage }}</flux:text>
-    
-            <flux:breadcrumbs>
-                <flux:breadcrumbs.item href="{{ route('dashboard') }}">Dashboard</flux:breadcrumbs.item>
-                <flux:breadcrumbs.item href="{{ route('diaries.index') }}">Diario</flux:breadcrumbs.item>
-                <flux:breadcrumbs.item>{{ $this->titlePage }}</flux:breadcrumbs.item>
-            </flux:breadcrumbs>
-    
-            <flux:separator variant="subtle" />
-        </div>
-    </div>
+     {{-- titulo, descripcion y breadcrumbs --}}
+    <x-page.partials.title-page 
+        :title="$this->titlePage"
+        :create-route="'diaries.index'"
+        icon="arrow-uturn-left"
+        :breadcrumbs="[
+            ['label' => 'Dashboard', 'route' => 'dashboard'],
+            ['label' => 'Diario', 'route' => 'diaries.index'],
+            ['label' => $this->titlePage]
+        ]"
+    />
+
+     {{-- toast de mensaje --}}
+     <x-libraries.flux.toast-success />
 
     {{-- ver datos del item --}}
     <div class="flex flex-col sm:flex-row gap-2">
@@ -58,7 +54,7 @@ new class extends Component
 
             <flux:label>Categorias</flux:label>
             <div class="my-1">
-                @foreach ($this->diary->diary_dcategories as $item)
+                @foreach ($this->diary->categories as $item)
                     <flux:badge class="m-0.5" rounded color="amber">
                         <a href="{{ route('diaries.index', ['cat' => $item->uuid]) }}">
                             <span class="text-xs">#{{ $item->name }}</span>
@@ -69,7 +65,7 @@ new class extends Component
 
             <flux:label>Etiquetas</flux:label>
             <div class="my-1">
-                @foreach ($this->diary->diary_dtags as $item)
+                @foreach ($this->diary->tags as $item)
                     <flux:badge class="m-0.5" rounded color="fuchsia">
                         <a href="{{ route('diaries.index', ['tag' => $item->uuid]) }}">
                             <span class="text-xs">#{{ $item->name }}</span>

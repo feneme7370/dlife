@@ -45,8 +45,8 @@ class SeriesImport implements ToModel, WithHeadingRow
         // 2️⃣ Sync relaciones many-to-many
         $this->syncRelation($serie, $row['subjects'], \App\Models\Page\Subject::class, 'subjects');
         $this->syncRelation($serie, $row['collections'], \App\Models\Page\Collection::class, 'collections');
-        $this->syncRelation($serie, $row['genres'], \App\Models\Page\Mgenre::class, 'genres');
-        $this->syncRelation($serie, $row['tags'], \App\Models\Page\Mtag::class, 'tags');
+        $this->syncRelation($serie, $row['genres'], \App\Models\Page\Genre::class, 'genres');
+        $this->syncRelation($serie, $row['tags'], \App\Models\Page\Tag::class, 'tags');
 
         // 3️⃣ Restaurar lecturas (one-to-many)
         $serie->views()->delete(); // 🔥 importante en restore
@@ -91,9 +91,9 @@ class SeriesImport implements ToModel, WithHeadingRow
             $model = $modelClass::firstOrCreate(
                 ['name' => $name],
                 [
-                    'name_general' => 'Sin categria', 
-                    'slug_general' => \Illuminate\Support\Str::slug('Sin categoria' . '-' . \Illuminate\Support\Facades\Auth::id()), 
                     'slug' => \Illuminate\Support\Str::slug($name . '-' . \Illuminate\Support\Facades\Auth::id()), 
+                    'tag_type' => 'series',
+                    'genre_type' => 'visual',
                     'uuid' => \Illuminate\Support\Str::random(24), 
                     'user_id' => \Illuminate\Support\Facades\Auth::id(),
                 ]

@@ -59,13 +59,13 @@ class Serie extends Model
 
     // tiene muchos collections para relacionarse
     public function genres(){
-        return $this->belongsToMany(\App\Models\Page\Mgenre::class, 'serie_mgenre')
+        return $this->belongsToMany(\App\Models\Page\Genre::class, 'serie_genre')
                     ->withTimestamps();
     }
 
     // tiene muchos collections para relacionarse
     public function tags(){
-        return $this->belongsToMany(\App\Models\Page\Mtag::class, 'serie_mtag')
+        return $this->belongsToMany(\App\Models\Page\Tag::class, 'serie_tag')
                     ->withTimestamps();
     }
 

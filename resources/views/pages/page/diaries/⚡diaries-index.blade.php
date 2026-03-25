@@ -33,8 +33,7 @@ new class extends Component
 
     //////////////////////////////////////////////////////////////////// PRE CARGAR DATOS
     public function mount(){
-        $this->dayStart = \Carbon\Carbon::parse('1900-01-01')->format('Y-m-d');
-        $this->dayEnd = \Carbon\Carbon::parse('2100-01-01')->format('Y-m-d');
+        $this->clearDate();
         $this->diariesQuery();
         $this->highlightedDays = $this->getDays();
     }
@@ -51,7 +50,6 @@ new class extends Component
 
     //////////////////////////////////////////////////////////////////// PROPIEDADES
     // propiedades de item y titulos
-    public $file;
     public $diaries;
     public $titlePage = 'Diario';
     public $subtitlePage = 'Listado de dias';
@@ -66,12 +64,12 @@ new class extends Component
                       ->orWhere('content', 'like', "%{$this->search}%");
             })
             ->when($this->selectedTag, function ($query) {
-                $query->whereHas('diary_dtags', function ($q) {
+                $query->whereHas('tags', function ($q) {
                     $q->where('dtags.uuid', $this->selectedTag);
                 });
             })
             ->when($this->selectedCategory, function ($query) {
-                $query->whereHas('diary_dcategories', function ($q) {
+                $query->whereHas('categories', function ($q) {
                     $q->where('dcategories.uuid', $this->selectedCategory);
                 });
             })
@@ -117,20 +115,6 @@ new class extends Component
         $item = DiaryTemplate::where('user_id', Auth::id())->where('uuid', $uuid)->first();
         $item->delete();
     }
-    
-    //////////////////////////////////////////////////////////////////// EXPORTAR E IMPORTAR EXCEL
-    // exportar tabla cruda a excel
-    public function exportComplete(){
-        return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\DiaryExport,"diaries_info.xlsx");
-    }
-    // importar tabla cruda de excel
-    public function importComplete(){
-        $this->validate(['file' => 'required|mimes:xlsx,csv']);
-        \Maatwebsite\Excel\Facades\Excel::import(new \App\Imports\DiaryImport(), $this->file);
-        $this->reset('file');
-        $this->diariesQuery();
-        session()->flash('success', 'Importación exitosa');
-    }
 
     //////////////////////////////////////////////////////////////////// LITEPICKER JS
     // propiedades del item
@@ -149,7 +133,7 @@ new class extends Component
     // eliminar filtros y traer todo nuevamente
     public function clearDate(){
         $this->dayStart = \Carbon\Carbon::parse('1900-01-01')->format('Y-m-d');
-        $this->dayEnd = \Carbon\Carbon::parse('2100-01-01')->format('Y-m-d');
+        $this->dayEnd = \Carbon\Carbon::parse('2200-12-31')->format('Y-m-d');
         $this->search = '';
         $this->selectedCategory = '';
         $this->selectedTag = '';
@@ -194,48 +178,35 @@ new class extends Component
 ?>
 <div>
    
-    {{-- titulo, descripcion y breadcrumbs --}}
-    <div>
-        <div container class="space-y-1">
-            <flux:heading size="xl" level="1">
-                <a href="{{ route('diaries.create') }}"><flux:button size="xs" variant="ghost" icon="plus"></flux:button></a>
-                {{ $this->titlePage }}
-            </flux:heading>
-            <flux:text class="text-base">{{ $this->subtitlePage }}</flux:text>
-    
-            <flux:breadcrumbs>
-                <flux:breadcrumbs.item href="{{ route('dashboard') }}">Dashboard</flux:breadcrumbs.item>
-                <flux:breadcrumbs.item>{{ $this->titlePage }}</flux:breadcrumbs.item>
-            </flux:breadcrumbs>
-    
-            <flux:separator variant="subtle" />
+     {{-- titulo, descripcion y breadcrumbs --}}
+    <x-page.partials.title-page 
+        :title="$this->titlePage"
+        :create-route="'diaries.create'"
+        icon="arrow-uturn-left"
+        :breadcrumbs="[
+            ['label' => 'Dashboard', 'route' => 'dashboard'],
+            ['label' => $this->titlePage]
+        ]"
+    />
 
-            <div class="mt-1 flex items-center gap-1">
-                <flux:modal.trigger name="add-template">
-                    <flux:button variant="ghost" icon="plus"></flux:button>
-                </flux:modal.trigger>
+     {{-- toast de mensaje --}}
+     <x-libraries.flux.toast-success />
 
-                @foreach ($this->getDiaryTemplates() as $item)
-                    <flux:badge size="sm" class="hover:cursor-pointer" color="violet">
-                        <a><flux:button size="xs" variant="ghost" icon="trash" wire:confirm="Quiere eliminar?" wire:click="deleteTemplate('{{ $item->uuid }}')"></flux:button></a>
-                        <a href="{{ route('diaries.create', ['templateUuid' => $item->uuid]) }}">
-                            <span class="ml-1">{{ $item->title }}</span>
-                        </a>
-                    </flux:badge>
-                @endforeach
-                
-            </div>
-            {{-- links para pendientes y estadisticas --}}
-            <flux:badge color="yellow"><a href="{{ route('diaries.all', ['s' => $dayStart, 'e' => $dayEnd]) }}">Listado</a></flux:badge>
-            <flux:badge color="purple"><a href="{{ route('dcategories.index') }}">Categorias</a></flux:badge>
-            <flux:badge color="violet"><a href="{{ route('dtags.index') }}">Etiquetas</a></flux:badge>
+    <div class="mt-1 flex items-center gap-1">
+        <flux:modal.trigger name="add-template">
+            <flux:button variant="ghost" icon="plus"></flux:button>
+        </flux:modal.trigger>
 
-
-        </div>
+        @foreach ($this->getDiaryTemplates() as $item)
+            <flux:badge size="sm" class="hover:cursor-pointer" color="violet">
+                <a><flux:button size="xs" variant="ghost" icon="trash" wire:confirm="Quiere eliminar?" wire:click="deleteTemplate('{{ $item->uuid }}')"></flux:button></a>
+                <a href="{{ route('diaries.create', ['templateUuid' => $item->uuid]) }}">
+                    <span class="ml-1">{{ $item->title }}</span>
+                </a>
+            </flux:badge>
+        @endforeach
+        
     </div>
-
-    {{-- toast de mensaje --}}
-    <x-libraries.flux.toast-success />
 
     {{-- calendario, buscador y listado --}}
     <div class="grid gap-1 sm:gap-5 md:grid-cols-12">
@@ -278,10 +249,8 @@ new class extends Component
 
         {{-- buscador y listado --}}
         <div class="md:col-span-8">
-            {{-- buscador --}}
-            <div class="mb-3">
-                <flux:input type="text" label="Buscar" wire:model.live.debounce.250ms="search" placeholder="Buscar" autofocus/>
-            </div>
+            {{-- barra de busqueda --}}
+            <x-page.partials.input-search />
             
             {{-- listado de sujetos --}}
             <div class="space-y-1 h-96 overflow-scroll">
@@ -293,14 +262,14 @@ new class extends Component
                                 <div>
                                     <p class="text-xs italic font-light"><a class="hover:underline" href="{{ route('diaries.show', ['diaryUuid' => $item->uuid]) }}">{{ \Carbon\Carbon::parse($item->day)->format('d-m-Y') }} - <span class="text-sm">{{ $item->title }}</span></p></a>
                                     <p>
-                                        @foreach ($item->diary_dcategories as $cat)
+                                        @foreach ($item->categories as $cat)
                                             <a href="{{ route('diaries.index', ['cat' => $cat->uuid]) }}">
                                                 <flux:badge size="sm" color="lime">{{ $cat->name }}</flux:badge>
                                             </a>
                                         @endforeach
                                     </p>
                                     <p>
-                                        @foreach ($item->diary_dtags as $tag)
+                                        @foreach ($item->tags as $tag)
                                             <a href="{{ route('diaries.index', ['tag' => $tag->uuid]) }}">
                                                 <span class="text-xs">#{{ $tag->name }}</span>
                                             </a>
@@ -321,16 +290,16 @@ new class extends Component
         </div>
     </div>
 
-    {{-- exportacion e importacion de excel --}}
-    <flux:separator class="mb-2 mt-10" variant="subtle" />
+    {{-- links para pendientes y estadisticas --}}
+    <flux:badge color="yellow"><a href="{{ route('diaries.all', ['s' => $dayStart, 'e' => $dayEnd]) }}">Listado</a></flux:badge>
 
-    <div class="flex justify-between items-center gap-1">
-        <flux:button icon="cloud-arrow-down" class="text-xs text-center" wire:click="exportComplete()">Exp.</flux:button>
-        <div class="flex gap-3">
-            <flux:button icon="cloud-arrow-up" class="text-xs text-center" wire:click="importComplete()">Imp.</flux:button>
-            <flux:input type="file" wire:model="file" />
-        </div>
-    </div>
+    {{-- exportacion e importacion de excel --}}
+    <livewire:pages::page.partials.export-excel-complete 
+        table_export="Diary"
+        table_import="Diary"
+        name_file_export="diaries"
+        route_redirect_after_import="diaries.index"
+    />
 
     {{-- modal para agregar templates --}}
     <flux:modal name="add-template" class="md:w-96">

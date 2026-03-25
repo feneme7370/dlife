@@ -1,6 +1,6 @@
 <?php
 
-use App\Models\Page\Dcategory;
+use App\Models\Page\Category;
 use App\Models\Page\Diary;
 use Livewire\Component;
 
@@ -64,13 +64,14 @@ new class extends Component
     public function mount($diaryUuid = null, $templateUuid = ''){
         $this->diary = Diary::where('uuid', $diaryUuid)->first();
         $this->diary_status = Diary::humor_status();
-        $this->diary_categories = Dcategory::where('user_id', \Illuminate\Support\Facades\Auth::id())
+        $this->diary_categories = Category::where('user_id', \Illuminate\Support\Facades\Auth::id())
+            ->where('category_type', 'diaries')
             ->orderBy('name', 'asc')
             ->get();
 
         // titulos y textos dependiendo si se encuentra el item o no
-        $this->titlePage = $this->diary ? 'Modificar frase' : 'Agregar frase';
-        $this->subtitlePage = $this->diary ? 'Modificar datos del frase' : 'Agregar datos del frase';
+        $this->titlePage = $this->diary ? 'Modificar diario' : 'Agregar diario';
+        $this->subtitlePage = $this->diary ? 'Modificar datos del diario' : 'Agregar datos del diario';
         $this->buttonSubmit = $this->diary ? 'Modificar' : 'Agregar';
 
         // si se encuentra el item, cargar datos para editar, sino cargar datos para crear nuevo item
@@ -84,8 +85,8 @@ new class extends Component
             $this->uuid = $this->diary->uuid ?? '';
             $this->user_id = $this->diary->user_id ?? 0;
     
-            $this->selectedDiaryCategories = $this->diary->diary_dcategories->pluck('id')->toArray() ?? [];
-            $this->selectedDiaryDtags = $this->diary->diary_dtags->pluck('name')->toArray() ?? [];
+            $this->selectedDiaryCategories = $this->diary->categories->pluck('id')->toArray() ?? [];
+            $this->selectedDiaryDtags = $this->diary->tags->pluck('name')->toArray() ?? [];
         }else{
             // datos para crear nuevo item
             $this->day = \Carbon\Carbon::now()->format('Y-m-d');
@@ -107,15 +108,16 @@ new class extends Component
 
             // crear en BD
             $this->diary->update($validatedData);
-            $this->diary->diary_dcategories()->sync($this->selectedDiaryCategories);
+            $this->diary->categories()->sync($this->selectedDiaryCategories);
 
             // agregar tags
             $tagIds = [];
             foreach ($this->selectedDiaryDtags as $tagName) {
-                $tag = \App\Models\Page\Dtag::firstOrCreate(
+                $tag = \App\Models\Page\Tag::firstOrCreate(
                     ['name' => $tagName],
                     [
                         'slug' => \Illuminate\Support\Str::slug($tagName),
+                        'tag_type' => 'diaries',
                         'uuid' => \Illuminate\Support\Str::random(24),
                         'user_id' => \Illuminate\Support\Facades\Auth::id(),
                     ]
@@ -123,7 +125,7 @@ new class extends Component
 
                 $tagIds[] = $tag->id;
             }
-            $this->diary->diary_dtags()->sync($tagIds);
+            $this->diary->tags()->sync($tagIds);
         }else{
             // datos automaticos
             $this->user_id = \Illuminate\Support\Facades\Auth::id();
@@ -134,15 +136,16 @@ new class extends Component
 
             // crear en BD
             $diary = Diary::create($validatedData);
-            $diary->diary_dcategories()->sync($this->selectedDiaryCategories);
+            $diary->categories()->sync($this->selectedDiaryCategories);
 
             // agregar tags
             $tagIds = [];
             foreach ($this->selectedDiaryDtags as $tagName) {
-                $tag = \App\Models\Page\Dtag::firstOrCreate(
+                $tag = \App\Models\Page\Tag::firstOrCreate(
                     ['name' => $tagName],
                     [
                         'slug' => \Illuminate\Support\Str::slug($tagName),
+                        'tag_type' => 'diaries',
                         'uuid' => \Illuminate\Support\Str::random(24),
                         'user_id' => \Illuminate\Support\Facades\Auth::id(),
                     ]
@@ -150,7 +153,7 @@ new class extends Component
 
                 $tagIds[] = $tag->id;
             }
-            $diary->diary_dtags()->sync($tagIds);
+            $diary->tags()->sync($tagIds);
         }
 
         // mensaje de success
@@ -163,24 +166,21 @@ new class extends Component
 ?>
 
 <div>
-    {{-- titulo, descripcion y breadcrumbs --}}
-    <div>
-        <div class="mb-1 space-y-1">
-            <flux:heading size="xl" level="1">
-                <a href="{{ route('diaries.index') }}"><flux:button size="xs" variant="ghost" icon="arrow-uturn-left"></flux:button></a>
-                {{ $this->titlePage }}
-            </flux:heading>
-            <flux:text class="text-base">{{ $this->subtitlePage }}</flux:text>
-    
-            <flux:breadcrumbs>
-                <flux:breadcrumbs.item href="{{ route('dashboard') }}">Dashboard</flux:breadcrumbs.item>
-                <flux:breadcrumbs.item href="{{ route('diaries.index') }}">Diario</flux:breadcrumbs.item>
-                <flux:breadcrumbs.item>{{ $this->titlePage }}</flux:breadcrumbs.item>
-            </flux:breadcrumbs>
-    
-            <flux:separator variant="subtle" />
-        </div>
-    </div>
+     {{-- titulo, descripcion y breadcrumbs --}}
+    <x-page.partials.title-page 
+        :title="$this->titlePage"
+        :create-route="'diaries.index'"
+        icon="arrow-uturn-left"
+        :breadcrumbs="[
+            ['label' => 'Dashboard', 'route' => 'dashboard'],
+            ['label' => 'Diario', 'route' => 'diaries.index'],
+            ['label' => $this->titlePage]
+        ]"
+    />
+
+     {{-- toast de mensaje --}}
+     <x-libraries.flux.toast-success />
+
 
     {{-- formulario completo --}}
     <div class="space-y-2">

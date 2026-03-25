@@ -27,7 +27,6 @@ new class extends Component
 
     //////////////////////////////////////////////////////////////////// PROPIEDADES
     // propiedades de item y titulos
-    public $file;
     public $books;
     public $titlePage = 'Libros';
     public $subtitlePage = 'Listado de libros';
@@ -80,55 +79,30 @@ new class extends Component
             "books_library.pdf"
         );
     }
-
-
-    //////////////////////////////////////////////////////////////////// EXPORTAR E IMPORTAR EXCEL
-    // exportar tabla cruda a excel
-    public function exportComplete(){
-        return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\BooksExport, 'books_info.xlsx');
-    }
-
-    // importar tabla cruda de excel
-    public function importComplete(){
-        $this->validate(['file' => 'required|mimes:xlsx,csv']);
-        \Maatwebsite\Excel\Facades\Excel::import(new \App\Imports\BooksImport, $this->file);
-        $this->reset('file');
-        session()->flash('success', 'Importación exitosa');
-    }
 };
 ?>
 
 <div>
-    {{-- titulo, descripcion y breadcrumbs --}}
-    <div>
-        <div container class="mb-1 space-y-1">
-            <flux:heading size="xl" level="1">
-                <a href="{{ route('books.create') }}"><flux:button size="xs" variant="ghost" icon="plus"></flux:button></a>
-                {{ $this->titlePage }}
-            </flux:heading>
-            <flux:text class="text-base">{{ $this->subtitlePage }}</flux:text>
-    
-            <flux:breadcrumbs>
-                <flux:breadcrumbs.item href="{{ route('dashboard') }}">Dashboard</flux:breadcrumbs.item>
-                <flux:breadcrumbs.item>{{ $this->titlePage }}</flux:breadcrumbs.item>
-            </flux:breadcrumbs>
-    
-            <flux:separator variant="subtle" />
-
-            <flux:badge color="pink"><a href="{{ route('books_library.index') }}">Libreria</a></flux:badge>
-            <flux:badge color="violet"><a href="{{ route('books_data.index') }}">Estadisticas</a></flux:badge>
-            <flux:badge color="purple"><a href="{{ route('books_incomplete.index') }}">Pendientes</a></flux:badge>
-            <flux:badge color="fuchsia"><a href="{{ route('book-genres.index') }}">Generos</a></flux:badge>
-        </div>
-    </div>
+     {{-- titulo, descripcion y breadcrumbs --}}
+    <x-page.partials.title-page 
+        :title="$this->titlePage"
+        :create-route="'books.index'"
+        icon="arrow-uturn-left"
+        :breadcrumbs="[
+            ['label' => 'Dashboard', 'route' => 'dashboard'],
+            ['label' => 'Libros', 'route' => 'books.index'],
+            ['label' => $this->titlePage]
+            ]"
+    />
+    <flux:badge color="pink"><a href="{{ route('books_library.index') }}">Libreria</a></flux:badge>
+    <flux:badge color="violet"><a href="{{ route('books_data.index') }}">Estadisticas</a></flux:badge>
+    <flux:badge color="purple"><a href="{{ route('books_incomplete.index') }}">Pendientes</a></flux:badge>
 
     {{-- toast de mensaje --}}
     <x-libraries.flux.toast-success />
 
-    {{-- buscador --}}
-    <div class="mb-3">
-        <flux:input type="text" label="Buscar" wire:model.live.debounce.250ms="search" placeholder="Buscar" autofocus/>
-    </div>
+    {{-- barra de busqueda --}}
+    <x-page.partials.input-search />
 
     {{-- listado de libros --}}
     <div class="space-y-2">
@@ -174,17 +148,15 @@ new class extends Component
     </div>
 
     {{-- exportacion e importacion de excel --}}
-    <flux:separator class="mb-2 mt-10" variant="subtle" />
+    <livewire:pages::page.partials.export-excel-complete 
+        table_export="Books"
+        table_import="Books"
+        name_file_export="books"
+        route_redirect_after_import="books.index"
+    />
     
-    <div class="flex justify-between items-center gap-1">
-        <div class="flex gap-1">
-            <flux:button icon="cloud-arrow-down" class="text-xs text-center" wire:click="exportComplete()">Excel</flux:button>
-            <flux:button icon="document" class="text-xs text-center" wire:click="exportBooksPdf()">PDF</flux:button>
-        </div>
-        <div class="flex gap-3">
-            <flux:button icon="cloud-arrow-up" class="text-xs text-center" wire:click="importComplete()">Imp. Libros</flux:button>
-            <flux:input type="file" wire:model="file" />
-        </div>
+    <div class="flex justify-between items-center gap-1 mt-3">
+        <flux:button icon="document" class="text-xs text-center" wire:click="exportBooksPdf()">PDF</flux:button>
     </div>
 
 </div>

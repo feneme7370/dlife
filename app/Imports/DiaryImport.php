@@ -27,8 +27,8 @@ class DiaryImport implements ToModel, WithHeadingRow
             ]
         );
         // 2️⃣ Sync relaciones many-to-many
-        $this->syncRelation($diary, $row['categories'], \App\Models\Page\Dcategory::class, 'diary_dcategories');
-        $this->syncRelation($diary, $row['tags'], \App\Models\Page\Dtag::class, 'diary_dtags');
+        $this->syncRelation($diary, $row['categories'], \App\Models\Page\Category::class, 'categories');
+        $this->syncRelation($diary, $row['tags'], \App\Models\Page\Tag::class, 'tags');
 
         return $diary;
     }
@@ -53,6 +53,8 @@ class DiaryImport implements ToModel, WithHeadingRow
                 ['name' => $name],
                 [
                     'slug' => \Illuminate\Support\Str::slug($name . '-' . \Illuminate\Support\Str::random(4)), 
+                    'tag_type' => 'diaries',
+                    'category_type' => 'diaries',
                     'uuid' => \Illuminate\Support\Str::random(24), 
                     'user_id' => \Illuminate\Support\Facades\Auth::id(),
                 ]

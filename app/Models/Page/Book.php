@@ -56,15 +56,15 @@ class Book extends Model
                     ->withTimestamps();
     }
 
-    // tiene muchos collections para relacionarse
+    // tiene muchos generos para relacionarse
     public function genres(){
-        return $this->belongsToMany(\App\Models\Page\BookGenre::class, 'book_book_genre')
+        return $this->belongsToMany(\App\Models\Page\Genre::class, 'book_genre')
                     ->withTimestamps();
     }
 
     // tiene muchos collections para relacionarse
     public function tags(){
-        return $this->belongsToMany(\App\Models\Page\Btag::class, 'book_btag')
+        return $this->belongsToMany(\App\Models\Page\Tag::class, 'book_tag')
                     ->withTimestamps();
     }
 

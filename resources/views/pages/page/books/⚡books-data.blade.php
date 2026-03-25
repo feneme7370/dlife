@@ -189,30 +189,17 @@ new class extends Component
         id_apexCharts="books_monthr"
     /> --}}
 
-    {{-- titulo, descripcion y breadcrumbs --}}
-    <div>
-        <div container class="mb-1 space-y-1">
-            <flux:heading size="xl" level="1">
-                <a href="{{ route('books.index') }}"><flux:button size="xs" variant="ghost" icon="arrow-uturn-left"></flux:button></a>
-                {{ $this->titlePage }}
-            </flux:heading>
-            <flux:text class="text-base">{{ $this->subtitlePage }}</flux:text>
-    
-            <flux:breadcrumbs>
-                <flux:breadcrumbs.item href="{{ route('dashboard') }}">Dashboard</flux:breadcrumbs.item>
-                <flux:breadcrumbs.item href="{{ route('books.index') }}">Libros</flux:breadcrumbs.item>
-                <flux:breadcrumbs.item>{{ $this->titlePage }}</flux:breadcrumbs.item>
-            </flux:breadcrumbs>
-    
-            <flux:separator variant="subtle" />
-
-            {{-- links para pendientes y estadisticas --}}
-            <div class="mt-1">
-                <flux:badge color="violet"><a href="{{ route('books.index') }}">Libros</a></flux:badge>
-                <flux:badge color="purple"><a href="{{ route('books_incomplete.index') }}">Pendientes</a></flux:badge>
-            </div>
-        </div>
-    </div>
+     {{-- titulo, descripcion y breadcrumbs --}}
+    <x-page.partials.title-page 
+        :title="$this->titlePage"
+        :create-route="'books.index'"
+        icon="arrow-uturn-left"
+        :breadcrumbs="[
+            ['label' => 'Dashboard', 'route' => 'dashboard'],
+            ['label' => 'Libros', 'route' => 'books.index'],
+            ['label' => $this->titlePage]
+        ]"
+    />
 
     {{-- filtro por año --}}
     <div class="flex justify-between items-center gap-1">

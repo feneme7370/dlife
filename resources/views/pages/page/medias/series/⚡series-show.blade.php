@@ -23,24 +23,20 @@ new class extends Component
 ?>
 
 <div>
-    {{-- titulo, descripcion y breadcrumbs --}}
-    <div>
-        <div class="mb-1 space-y-1">
-            <flux:heading size="xl" level="1">
-                <a href="{{ route('series.index') }}"><flux:button size="xs" variant="ghost" icon="arrow-uturn-left"></flux:button></a>
-                {{ $this->titlePage }}
-            </flux:heading>
-            <flux:text class="text-base">{{ $this->subtitlePage }}</flux:text>
-    
-            <flux:breadcrumbs>
-                <flux:breadcrumbs.item href="{{ route('dashboard') }}">Dashboard</flux:breadcrumbs.item>
-                <flux:breadcrumbs.item href="{{ route('series.index') }}">Series</flux:breadcrumbs.item>
-                <flux:breadcrumbs.item>{{ $this->titlePage }}</flux:breadcrumbs.item>
-            </flux:breadcrumbs>
-    
-            <flux:separator variant="subtle" />
-        </div>
-    </div>
+     {{-- titulo, descripcion y breadcrumbs --}}
+    <x-page.partials.title-page 
+        :title="$this->titlePage"
+        :create-route="'series.index'"
+        icon="arrow-uturn-left"
+        :breadcrumbs="[
+            ['label' => 'Dashboard', 'route' => 'dashboard'],
+            ['label' => 'Series', 'route' => 'series.index'],
+            ['label' => $this->titlePage]
+        ]"
+    />
+
+     {{-- toast de mensaje --}}
+     <x-libraries.flux.toast-success />
 
     {{-- datos del serie --}}
     <div class="w-full ">
@@ -60,25 +56,27 @@ new class extends Component
         <flux:separator text="Datos" />
 
         <p class="text-base text-gray-800 dark:text-gray-300 italic">
+            | {{$serie->seasons ?? 0}} Temporadas.
+            | {{$serie->episodes ?? 0}} Episodios.
+            | ( {{ $serie->start_date }} / {{ $serie->end_date }} )
+        </p>
+
+        <p class="mt-1">
             @foreach ($serie->subjects as $item)
                 - 
                 <a 
                     class="hover:underline  " 
                     href="{{ route('series_library.index', ['a' => $item->uuid]) }}"
                 >{{ $item->name }}</a>
-                @endforeach
-            ( {{ $serie->start_date }} | {{ $serie->end_date }} )
-            | {{$serie->seasons ?? 0}} Temporadas.
-            | {{$serie->episodes ?? 0}} Episodios.
+            @endforeach
         </p>
 
-        <p class="mt-3 text-xs sm:text-sm text-gray-800 dark:text-gray-300 whitespace-pre-wrap font-light" style="white-space: pre-line;">{{ $serie->synopsis }}</p>
+        <p class="mt-1 text-sm text-gray-800 dark:text-gray-300 whitespace-pre-wrap font-light" style="white-space: pre-line;">{{ $serie->synopsis }}</p>
 
         <flux:separator text="Asociaciones" />
 
         @if (!$serie->genres->isEmpty())
             <p class="mt-1 text-sm sm:text-base text-gray-800 dark:text-gray-300 font-bold">
-                Genero:
                 @foreach ($serie->genres as $item)
                     <flux:badge size="sm" variant="pill" as="button" variant="solid" color="purple">
                         <a
@@ -90,14 +88,9 @@ new class extends Component
         @endif
 
         @if (!$serie->tags->isEmpty())
-            <p class="mt-1 text-sm sm:text-base text-gray-800 dark:text-gray-300 font-bold">
-                Etiquetas:
+            <p class="mt-1 text-xs sm:text-sm italic text-gray-800 dark:text-gray-300 font-bold">
                 @foreach ($serie->tags as $item)
-                    <flux:badge class="m-0.5" size="sm" variant="pill" as="button" variant="solid" color="violet">
-                        <a
-                            href="#"
-                        >#{{ $item->name }}</a>
-                    </flux:badge>
+                    <a href="#">#{{ $item->name }}</a>
                 @endforeach
             </p>
         @endif

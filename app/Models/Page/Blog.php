@@ -36,7 +36,7 @@ class Blog extends Model
 
     // tiene muchos collections para relacionarse
     public function tags(){
-        return $this->belongsToMany(\App\Models\Page\Bltag::class, 'blog_bltag')
+        return $this->belongsToMany(\App\Models\Page\Tag::class, 'blog_tag')
                     ->withTimestamps();
     }
 

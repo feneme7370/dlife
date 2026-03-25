@@ -58,13 +58,13 @@ class Movie extends Model
 
     // tiene muchos collections para relacionarse
     public function genres(){
-        return $this->belongsToMany(\App\Models\Page\Mgenre::class, 'movie_mgenre')
+        return $this->belongsToMany(\App\Models\Page\Genre::class, 'movie_genre')
                     ->withTimestamps();
     }
 
     // tiene muchos collections para relacionarse
     public function tags(){
-        return $this->belongsToMany(\App\Models\Page\Mtag::class, 'movie_mtag')
+        return $this->belongsToMany(\App\Models\Page\Tag::class, 'movie_tag')
                     ->withTimestamps();
     }
 

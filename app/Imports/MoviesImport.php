@@ -45,8 +45,8 @@ class MoviesImport implements ToModel, WithHeadingRow
         // 2️⃣ Sync relaciones many-to-many
         $this->syncRelation($movie, $row['subjects'], \App\Models\Page\Subject::class, 'subjects');
         $this->syncRelation($movie, $row['collections'], \App\Models\Page\Collection::class, 'collections');
-        $this->syncRelation($movie, $row['genres'], \App\Models\Page\Mgenre::class, 'genres');
-        $this->syncRelation($movie, $row['tags'], \App\Models\Page\Mtag::class, 'tags');
+        $this->syncRelation($movie, $row['genres'], \App\Models\Page\Genre::class, 'genres');
+        $this->syncRelation($movie, $row['tags'], \App\Models\Page\Tag::class, 'tags');
 
         // 3️⃣ Restaurar lecturas (one-to-many)
         $movie->views()->delete(); // 🔥 importante en restore
@@ -91,9 +91,9 @@ class MoviesImport implements ToModel, WithHeadingRow
             $model = $modelClass::firstOrCreate(
                 ['name' => $name],
                 [
-                    'name_general' => 'Sin categria', 
-                    'slug_general' => \Illuminate\Support\Str::slug('Sin categoria' . '-' . \Illuminate\Support\Facades\Auth::id()), 
                     'slug' => \Illuminate\Support\Str::slug($name . '-' . \Illuminate\Support\Facades\Auth::id()), 
+                    'tag_type' => 'movies',
+                    'genre_type' => 'visual',
                     'uuid' => \Illuminate\Support\Str::random(24), 
                     'user_id' => \Illuminate\Support\Facades\Auth::id(),
                 ]

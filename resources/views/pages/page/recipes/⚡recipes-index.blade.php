@@ -27,7 +27,6 @@ new class extends Component
 
     //////////////////////////////////////////////////////////////////// PROPIEDADES
     // propiedades de item y titulos
-    public $file;
     public $titlePage = 'Recetas';
     public $subtitlePage = 'Listado de recetas';
 
@@ -47,53 +46,25 @@ new class extends Component
         $item = Recipe::where('user_id', Auth::id())->where('uuid', $codigo)->first();
         $item->delete();
     }
-
-    //////////////////////////////////////////////////////////////////// EXPORTAR E IMPORTAR EXCEL
-    // exportar tabla cruda a excel
-    public function exportComplete(){
-        return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\RecipesExport,"recipes_info.xlsx");
-    }
-
-    // importar tabla cruda de excel
-    public function importComplete(){
-        $this->validate(['file' => 'required|mimes:xlsx,csv']);
-        \Maatwebsite\Excel\Facades\Excel::import(new \App\Imports\RecipesImport, $this->file);
-        $this->reset('file');
-        session()->flash('success', 'Importación exitosa');
-    }
 };
 ?>
 
 <div>
-    {{-- titulo, descripcion y breadcrumbs --}}
-    <div>
-        <div container class="mb-1 space-y-1">
-            <flux:heading size="xl" level="1">
-                <a href="{{ route('recipes.create') }}"><flux:button size="xs" variant="ghost" icon="plus"></flux:button></a>
-                {{ $this->titlePage }}
-            </flux:heading>
-            <flux:text class="text-base">{{ $this->subtitlePage }}</flux:text>
-    
-            <flux:breadcrumbs>
-                <flux:breadcrumbs.item href="{{ route('dashboard') }}">Dashboard</flux:breadcrumbs.item>
-                <flux:breadcrumbs.item>{{ $this->titlePage }}</flux:breadcrumbs.item>
-            </flux:breadcrumbs>
-    
-            <flux:separator variant="subtle" />
-
-            <flux:badge color="pink"><a href="{{ route('recipes_library.index') }}">Recetario</a></flux:badge>
-            <flux:badge color="fuchsia"><a href="{{ route('rcategories.index') }}">Categorias</a></flux:badge>
-            <flux:badge color="fuchsia"><a href="{{ route('rtags.index') }}">Etiquetas</a></flux:badge>
-        </div>
-    </div>
+     {{-- titulo, descripcion y breadcrumbs --}}
+    <x-page.partials.title-page 
+        :title="$this->titlePage"
+        :create-route="'recipes.create'"
+        :breadcrumbs="[
+            ['label' => 'Dashboard', 'route' => 'dashboard'],
+            ['label' => $this->titlePage]
+        ]"
+    />
 
     {{-- toast de mensaje --}}
     <x-libraries.flux.toast-success />
 
-    {{-- buscador --}}
-    <div class="mb-3">
-        <flux:input type="text" label="Buscar" wire:model.live.debounce.250ms="search" placeholder="Buscar" autofocus/>
-    </div>
+    {{-- barra de busqueda --}}
+    <x-page.partials.input-search />
 
     {{-- listado de sagas --}}
     <div class="space-y-2">
@@ -120,14 +91,11 @@ new class extends Component
     </div>
 
     {{-- exportacion e importacion de excel --}}
-    <flux:separator class="mb-2 mt-10" variant="subtle" />
-    
-    <div class="flex justify-between items-center gap-1">
-        <flux:button icon="cloud-arrow-down" class="text-xs text-center" wire:click="exportComplete()">Exp.</flux:button>
-        <div class="flex gap-3">
-            <flux:button icon="cloud-arrow-up" class="text-xs text-center" wire:click="importComplete()">Imp.</flux:button>
-            <flux:input type="file" wire:model="file" />
-        </div>
-    </div>
+    <livewire:pages::page.partials.export-excel-complete 
+        table_export="Recipes"
+        table_import="Recipes"
+        name_file_export="recipes"
+        route_redirect_after_import="recipes.index"
+    />
 
 </div>

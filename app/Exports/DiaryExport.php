@@ -12,8 +12,8 @@ class DiaryExport implements FromCollection, WithHeadings
     public function collection()
     {
         return Diary::with([
-                    'diary_dtags',
-                    'diary_dcategories',
+                    'tags',
+                    'categories',
                 ])->get()->map(function ($item) {
 
                     return [
@@ -25,11 +25,11 @@ class DiaryExport implements FromCollection, WithHeadings
                         'uuid' => $item->uuid,
                         'user_id' => $item->user_id,
 
-                        'categories' => $item->diary_dcategories
+                        'categories' => $item->categories
                             ->pluck('name')
                             ->implode(', '),
 
-                        'tags' => $item->diary_dtags
+                        'tags' => $item->tags
                             ->pluck('name')
                             ->implode(', '),
                     ];

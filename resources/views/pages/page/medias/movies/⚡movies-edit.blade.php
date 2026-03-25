@@ -1,7 +1,7 @@
 <?php
 
 use App\Models\Page\Movie;
-use App\Models\Page\Mgenre;
+use App\Models\Page\Genre;
 use App\Models\Page\Collection;
 use App\Models\Page\Subject;
 use Livewire\Component;
@@ -12,6 +12,7 @@ new class extends Component
     use \App\Traits\CleansHtml;
     use \App\Traits\WithCollections;
     use \App\Traits\WithSubjects;
+use App\Models\Page\Genre;
 
     //////////////////////////////////////////////////////////////////// PROPIEDADES PRINCIPALES
     //propiedades de titulos
@@ -190,7 +191,7 @@ new class extends Component
     //////////////////////////////////////////////////////////////////// DATOS PARA ASOCIAR
     // traer datos de generos para asociar
     public function genres(){
-        return Mgenre::where('user_id', \Illuminate\Support\Facades\Auth::id())->orderBy('name_general', 'asc')->get();
+        return Genre::where('genre_type', 'movies')->where('user_id', \Illuminate\Support\Facades\Auth::id())->orderBy('name', 'asc')->get();
     }
     // traer datos de colecciones para asociar
     public function collections(){
@@ -273,10 +274,11 @@ new class extends Component
             // agregar tags
             $tagIds = [];
             foreach ($this->selectedMovieTags as $tagName) {
-                $tag = \App\Models\Page\Mtag::firstOrCreate(
+                $tag = \App\Models\Page\Tag::firstOrCreate(
                     ['name' => $tagName],
                     [
                         'slug' => \Illuminate\Support\Str::slug($tagName),
+                        'tag_type' => 'movies',
                         'uuid' => \Illuminate\Support\Str::random(24),
                         'user_id' => \Illuminate\Support\Facades\Auth::id(),
                     ]
@@ -312,10 +314,11 @@ new class extends Component
             // agregar tags
             $tagIds = [];
             foreach ($this->selectedMovieTags as $tagName) {
-                $tag = \App\Models\Page\Mtag::firstOrCreate(
+                $tag = \App\Models\Page\Tag::firstOrCreate(
                     ['name' => $tagName],
                     [
                         'slug' => \Illuminate\Support\Str::slug($tagName),
+                        'tag_type' => 'movies',
                         'uuid' => \Illuminate\Support\Str::random(24),
                         'user_id' => \Illuminate\Support\Facades\Auth::id(),
                     ]
@@ -336,25 +339,20 @@ new class extends Component
 ?>
 
 <div>
+     {{-- titulo, descripcion y breadcrumbs --}}
+    <x-page.partials.title-page 
+        :title="$this->titlePage"
+        :create-route="'movies.index'"
+        icon="arrow-uturn-left"
+        :breadcrumbs="[
+            ['label' => 'Dashboard', 'route' => 'dashboard'],
+            ['label' => 'Peliculas', 'route' => 'movies.index'],
+            ['label' => $this->titlePage]
+        ]"
+    />
 
-    {{-- titulo, descripcion y breadcrumbs --}}
-    <div>
-        <div class="mb-1 space-y-1">
-            <flux:heading size="xl" level="1">
-                <a href="{{ route('movies.index') }}"><flux:button size="xs" variant="ghost" icon="arrow-uturn-left"></flux:button></a>
-                {{ $this->titlePage }}
-            </flux:heading>
-            <flux:text class="text-base">{{ $this->subtitlePage }}</flux:text>
-
-            <flux:breadcrumbs>
-                <flux:breadcrumbs.item href="{{ route('dashboard') }}">Dashboard</flux:breadcrumbs.item>
-                <flux:breadcrumbs.item href="{{ route('movies.index') }}">Peliculas</flux:breadcrumbs.item>
-                <flux:breadcrumbs.item>{{ $this->titlePage }}</flux:breadcrumbs.item>
-            </flux:breadcrumbs>
-
-            <flux:separator variant="subtle" />
-        </div>
-    </div>
+     {{-- toast de mensaje --}}
+     <x-libraries.flux.toast-success />
     
     {{-- buscar pelicula en api --}}
     <div class="flex gap-2 items-center">

@@ -1,7 +1,7 @@
 <?php
 
 use App\Models\Page\Serie;
-use App\Models\Page\Mgenre;
+use App\Models\Page\Genre;
 use App\Models\Page\Collection;
 use App\Models\Page\Subject;
 use Livewire\Component;
@@ -203,7 +203,7 @@ new class extends Component
     //////////////////////////////////////////////////////////////////// DATOS PARA ASOCIAR
     // traer datos de generos para asociar
     public function genres(){
-        return Mgenre::where('user_id', \Illuminate\Support\Facades\Auth::id())->orderBy('name_general', 'asc')->get();
+        return Genre::where('genre_type', 'series')->where('user_id', \Illuminate\Support\Facades\Auth::id())->orderBy('name', 'asc')->get();
     }
     // traer datos de colecciones para asociar
     public function collections(){
@@ -284,10 +284,11 @@ new class extends Component
             // agregar tags
             $tagIds = [];
             foreach ($this->selectedSerieTags as $tagName) {
-                $tag = \App\Models\Page\Mtag::firstOrCreate(
+                $tag = \App\Models\Page\Tag::firstOrCreate(
                     ['name' => $tagName],
                     [
                         'slug' => \Illuminate\Support\Str::slug($tagName),
+                        'tag_type' => 'series',
                         'uuid' => \Illuminate\Support\Str::random(24),
                         'user_id' => \Illuminate\Support\Facades\Auth::id(),
                     ]
@@ -323,10 +324,11 @@ new class extends Component
             // agregar tags
             $tagIds = [];
             foreach ($this->selectedSerieTags as $tagName) {
-                $tag = \App\Models\Page\Mtag::firstOrCreate(
+                $tag = \App\Models\Page\Tag::firstOrCreate(
                     ['name' => $tagName],
                     [
                         'slug' => \Illuminate\Support\Str::slug($tagName),
+                        'tag_type' => 'series',
                         'uuid' => \Illuminate\Support\Str::random(24),
                         'user_id' => \Illuminate\Support\Facades\Auth::id(),
                     ]
@@ -347,24 +349,20 @@ new class extends Component
 ?>
 
 <div>
-    {{-- titulo, descripcion y breadcrumbs --}}
-    <div>
-        <div class="mb-1 space-y-1">
-            <flux:heading size="xl" level="1">
-                <a href="{{ route('series.index') }}"><flux:button size="xs" variant="ghost" icon="arrow-uturn-left"></flux:button></a>
-                {{ $this->titlePage }}
-            </flux:heading>
-            <flux:text class="text-base">{{ $this->subtitlePage }}</flux:text>
+     {{-- titulo, descripcion y breadcrumbs --}}
+    <x-page.partials.title-page 
+        :title="$this->titlePage"
+        :create-route="'series.index'"
+        icon="arrow-uturn-left"
+        :breadcrumbs="[
+            ['label' => 'Dashboard', 'route' => 'dashboard'],
+            ['label' => 'Series', 'route' => 'series.index'],
+            ['label' => $this->titlePage]
+        ]"
+    />
 
-            <flux:breadcrumbs>
-                <flux:breadcrumbs.item href="{{ route('dashboard') }}">Dashboard</flux:breadcrumbs.item>
-                <flux:breadcrumbs.item href="{{ route('series.index') }}">Series</flux:breadcrumbs.item>
-                <flux:breadcrumbs.item>{{ $this->titlePage }}</flux:breadcrumbs.item>
-            </flux:breadcrumbs>
-
-            <flux:separator variant="subtle" />
-        </div>
-    </div>
+     {{-- toast de mensaje --}}
+     <x-libraries.flux.toast-success />
 
     {{-- buscar serie en api --}}
     <div class="flex gap-2 items-center">

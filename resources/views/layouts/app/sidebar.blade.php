@@ -56,11 +56,8 @@
             <flux:spacer />
 
                 <flux:sidebar.group :heading="__('Datos Generales')" class="grid">
-                    <flux:sidebar.item icon="user" :href="route('subjects.index')" :current="request()->routeIs('subjects.index')" wire:navigate>
-                        {{ __('Sujetos') }}
-                    </flux:sidebar.item>
-                    <flux:sidebar.item icon="numbered-list" :href="route('collections.index')" :current="request()->routeIs('collections.index')" wire:navigate>
-                        {{ __('Colecciones') }}
+                    <flux:sidebar.item icon="numbered-list" :href="route('associations.index')" :current="request()->routeIs('associations.index')" wire:navigate>
+                        {{ __('Asociaciones') }}
                     </flux:sidebar.item>
                 </flux:sidebar.group>
             </flux:sidebar.nav>

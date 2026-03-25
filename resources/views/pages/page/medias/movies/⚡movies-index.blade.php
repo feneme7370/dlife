@@ -15,6 +15,7 @@ new class extends Component
     // propiedades para paginacion y orden, actualizar al buscar
     public $search = '', $sortField = 'created_at', $sortDirection = 'desc', $perPage = 10000;
     public function updatingSearch(){$this->resetPage();}
+
     // funcion para ordenar la tabla
     public function sortBy($field){
         if ($this->sortField === $field) {
@@ -27,7 +28,6 @@ new class extends Component
 
     //////////////////////////////////////////////////////////////////// PROPIEDADES
     // propiedades de item y titulos
-    public $file;
     public $titlePage = 'Peliculas';
     public $subtitlePage = 'Listado de peliculas';
 
@@ -48,55 +48,31 @@ new class extends Component
         $item = Movie::where('user_id', Auth::id())->where('uuid', $codigo)->first();
         $item->delete();
     }
-
-    //////////////////////////////////////////////////////////////////// EXPORTAR E IMPORTAR EXCEL
-    // exportar tabla cruda a excel
-    public function exportComplete(){
-        return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\MoviesExport, 'movies_info.xlsx');
-    }
-
-    // importar tabla cruda de excel
-    public function importComplete(){
-        $this->validate(['file' => 'required|mimes:xlsx,csv']);
-        \Maatwebsite\Excel\Facades\Excel::import(new \App\Imports\MoviesImport, $this->file);
-        $this->reset('file');
-        session()->flash('success', 'Importación exitosa');
-    }
 };
 ?>
 
 <div>
-    {{-- titulo, descripcion y breadcrumbs --}}
-    <div>
-        <div container class="mb-1 space-y-1">
-            <flux:heading size="xl" level="1">
-                <a href="{{ route('movies.create') }}"><flux:button size="xs" variant="ghost" icon="plus"></flux:button></a>
-                {{ $this->titlePage }}
-            </flux:heading>
-            <flux:text class="text-base">{{ $this->subtitlePage }}</flux:text>
-    
-            <flux:breadcrumbs>
-                <flux:breadcrumbs.item href="{{ route('dashboard') }}">Dashboard</flux:breadcrumbs.item>
-                <flux:breadcrumbs.item>{{ $this->titlePage }}</flux:breadcrumbs.item>
-            </flux:breadcrumbs>
-    
-            <flux:separator variant="subtle" />
+     {{-- titulo, descripcion y breadcrumbs --}}
+    <x-page.partials.title-page 
+        :title="$this->titlePage"
+        :create-route="'movies.create'"
+        :breadcrumbs="[
+            ['label' => 'Dashboard', 'route' => 'dashboard'],
+            ['label' => $this->titlePage]
+        ]"
+    />
 
-            <flux:badge color="pink"><a href="{{ route('movies_library.index') }}">Estanteria</a></flux:badge>
-            <flux:badge color="violet"><a href="{{ route('movies_data.index') }}">Estadisticas</a></flux:badge>
-            {{-- <flux:badge color="purple"><a href="{{ route('movies_incomplete.index') }}">Pendientes</a></flux:badge> --}}
-            <flux:badge color="fuchsia"><a href="{{ route('mgenres.index') }}">Generos</a></flux:badge>
-            <flux:badge color="fuchsia"><a href="{{ route('mtags.index') }}">Etiquetas</a></flux:badge>
-        </div>
-    </div>
+     {{-- toast de mensaje --}}
+     <x-libraries.flux.toast-success />
+
+    <flux:badge color="pink"><a href="{{ route('movies_library.index') }}">Estanteria</a></flux:badge>
+    <flux:badge color="violet"><a href="{{ route('movies_data.index') }}">Estadisticas</a></flux:badge>
 
     {{-- toast de mensaje --}}
     <x-libraries.flux.toast-success />
-    
-    {{-- buscador --}}
-    <div class="mb-3">
-        <flux:input type="text" label="Buscar" wire:model.live.debounce.250ms="search" placeholder="Buscar" autofocus/>
-    </div>
+  
+    {{-- barra de busqueda --}}
+    <x-page.partials.input-search />
 
     {{-- listado de libros --}}
     <div class="space-y-2">
@@ -142,14 +118,11 @@ new class extends Component
     </div>
 
     {{-- exportacion e importacion de excel --}}
-    <flux:separator class="mb-2 mt-10" variant="subtle" />
-    
-    <div class="flex justify-between items-center gap-1">
-            <flux:button icon="cloud-arrow-down" class="text-xs text-center" wire:click="exportComplete()">Exp. Peliculas</flux:button>
-            <div class="flex gap-3">
-                <flux:button icon="cloud-arrow-up" class="text-xs text-center" wire:click="importComplete()">Imp. Peliculas</flux:button>
-                <flux:input type="file" wire:model="file" />
-            </div>
-    </div>
+    <livewire:pages::page.partials.export-excel-complete 
+        table_export="Movies"
+        table_import="Movies"
+        name_file_export="movies"
+        route_redirect_after_import="movies.index"
+    />
 
 </div>

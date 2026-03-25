@@ -23,24 +23,21 @@ new class extends Component
 ?>
 
 <div>
-    {{-- titulo, descripcion y breadcrumbs --}}
-    <div>
-        <div class="mb-1 space-y-1">
-            <flux:heading size="xl" level="1">
-                <a href="{{ route('books.index') }}"><flux:button size="xs" variant="ghost" icon="arrow-uturn-left"></flux:button></a>
-                {{ $this->titlePage }}
-            </flux:heading>
-            <flux:text class="text-base">{{ $this->subtitlePage }}</flux:text>
-    
-            <flux:breadcrumbs>
-                <flux:breadcrumbs.item href="{{ route('dashboard') }}">Dashboard</flux:breadcrumbs.item>
-                <flux:breadcrumbs.item href="{{ route('books.index') }}">Libros</flux:breadcrumbs.item>
-                <flux:breadcrumbs.item>{{ $this->titlePage }}</flux:breadcrumbs.item>
-            </flux:breadcrumbs>
-    
-            <flux:separator variant="subtle" />
-        </div>
-    </div>
+     {{-- titulo, descripcion y breadcrumbs --}}
+    <x-page.partials.title-page 
+        :title="$this->titlePage"
+        :create-route="'books.index'"
+        icon="arrow-uturn-left"
+        :breadcrumbs="[
+            ['label' => 'Dashboard', 'route' => 'dashboard'],
+            ['label' => 'Libros', 'route' => 'books.index'],
+            ['label' => $this->titlePage]
+        ]"
+    />
+
+     {{-- toast de mensaje --}}
+     <x-libraries.flux.toast-success />
+
 
     {{-- datos del libro --}}
     <div class="w-full ">
@@ -77,7 +74,6 @@ new class extends Component
 
         @if (!$book->genres->isEmpty())
             <p class="mt-1 text-sm sm:text-base text-gray-800 dark:text-gray-300 font-bold">
-                Genero:
                 @foreach ($book->genres as $item)
                     <flux:badge size="sm" variant="pill" as="button" variant="solid" color="purple">
                         <a
@@ -89,14 +85,9 @@ new class extends Component
         @endif
 
         @if (!$book->tags->isEmpty())
-            <p class="mt-1 text-sm sm:text-base text-gray-800 dark:text-gray-300 font-bold">
-                Etiquetas:
+            <p class="mt-1 text-xs sm:text-sm italic text-gray-800 dark:text-gray-300 font-bold">
                 @foreach ($book->tags as $item)
-                    <flux:badge class="m-0.5" size="sm" variant="pill" as="button" variant="solid" color="violet">
-                        <a
-                            href="#"
-                        >#{{ $item->name }}</a>
-                    </flux:badge>
+                        <a href="#">#{{ $item->name }}</a>
                 @endforeach
             </p>
         @endif

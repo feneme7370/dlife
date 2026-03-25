@@ -1,6 +1,6 @@
 <?php
 
-use App\Models\Page\Rcategory;
+use App\Models\Page\Category;
 use App\Models\Page\Recipe;
 use Livewire\Component;
 
@@ -109,10 +109,11 @@ new class extends Component
             // agregar tags
             $tagIds = [];
             foreach ($this->selectedRecipeTags as $tagName) {
-                $tag = \App\Models\Page\Rtag::firstOrCreate(
+                $tag = \App\Models\Page\Tag::firstOrCreate(
                     ['name' => $tagName],
                     [
                         'slug' => \Illuminate\Support\Str::slug($tagName),
+                        'tag_type' => 'recipes',
                         'uuid' => \Illuminate\Support\Str::random(24),
                         'user_id' => \Illuminate\Support\Facades\Auth::id(),
                     ]
@@ -140,10 +141,11 @@ new class extends Component
             // agregar tags
             $tagIds = [];
             foreach ($this->selectedRecipeTags as $tagName) {
-                $tag = \App\Models\Page\Rtag::firstOrCreate(
+                $tag = \App\Models\Page\Tag::firstOrCreate(
                     ['name' => $tagName],
                     [
                         'slug' => \Illuminate\Support\Str::slug($tagName),
+                        'tag_type' => 'recipes',
                         'uuid' => \Illuminate\Support\Str::random(24),
                         'user_id' => \Illuminate\Support\Facades\Auth::id(),
                     ]
@@ -164,7 +166,8 @@ new class extends Component
     //////////////////////////////////////////////////////////////////// DATOS PARA ASOCIAR
     // traer datos de generos para asociar
     public function categories(){
-        return Rcategory::where('user_id', \Illuminate\Support\Facades\Auth::id())
+        return Category::where('user_id', \Illuminate\Support\Facades\Auth::id())
+            ->where('category_type', 'recipes')
             ->orderBy('name', 'asc')
             ->get();
     }
@@ -172,24 +175,20 @@ new class extends Component
 ?>
 
 <div>
-    {{-- titulo, descripcion y breadcrumbs --}}
-    <div>
-        <div class="mb-1 space-y-1">
-            <flux:heading size="xl" level="1">
-                <a href="{{ route('recipes.index') }}"><flux:button size="xs" variant="ghost" icon="arrow-uturn-left"></flux:button></a>
-                {{ $this->titlePage }}
-            </flux:heading>
-            <flux:text class="text-base">{{ $this->subtitlePage }}</flux:text>
-    
-            <flux:breadcrumbs>
-                <flux:breadcrumbs.item href="{{ route('dashboard') }}">Dashboard</flux:breadcrumbs.item>
-                <flux:breadcrumbs.item href="{{ route('recipes.index') }}">Recetas</flux:breadcrumbs.item>
-                <flux:breadcrumbs.item>{{ $this->titlePage }}</flux:breadcrumbs.item>
-            </flux:breadcrumbs>
-    
-            <flux:separator variant="subtle" />
-        </div>
-    </div>
+     {{-- titulo, descripcion y breadcrumbs --}}
+    <x-page.partials.title-page 
+        :title="$this->titlePage"
+        :create-route="'recipes.index'"
+        icon="arrow-uturn-left"
+        :breadcrumbs="[
+            ['label' => 'Dashboard', 'route' => 'dashboard'],
+            ['label' => 'Recetas', 'route' => 'recipes.index'],
+            ['label' => $this->titlePage]
+        ]"
+    />
+
+     {{-- toast de mensaje --}}
+     <x-libraries.flux.toast-success />
 
     {{-- formulario completo --}}
     <div class="space-y-2">

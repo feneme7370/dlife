@@ -67,24 +67,18 @@ new class extends Component
 };
 ?>
 <div>
-    {{-- titulo, descripcion y breadcrumbs --}}
-    <div class="mb-3">
-        <div container class="mb-1 space-y-1">
-            <flux:heading size="xl" level="1">
-                {{ $this->titlePage }}
-            </flux:heading>
-            <flux:text class="text-base">{{ $this->subtitlePage }}</flux:text>
-    
-            <flux:breadcrumbs>
-                <flux:breadcrumbs.item href="{{ route('dashboard') }}">Dashboard</flux:breadcrumbs.item>
-            </flux:breadcrumbs>
-    
-            <flux:separator variant="subtle" />
-        </div>
-    </div>
+     {{-- titulo, descripcion y breadcrumbs --}}
+    <x-page.partials.title-page 
+        :title="$this->titlePage"
+        :create-route="'dashboard'"
+        icon="home"
+        :breadcrumbs="[
+            ['label' => $this->titlePage]
+        ]"
+    />
 
-    {{-- toast de mensaje --}}
-    <x-libraries.flux.toast-success />
+     {{-- toast de mensaje --}}
+     <x-libraries.flux.toast-success />
 
     <div class="grid grid-cols-2 gap-5">
         <a href="" aria-label="Latest on our blog" class="col-span-2">

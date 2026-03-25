@@ -3,6 +3,7 @@
 use App\Models\Page\Book;
 use App\Models\Page\BookGenre;
 use App\Models\Page\Collection;
+use App\Models\Page\Genre;
 use App\Models\Page\Language;
 use App\Models\Page\ReadingFormat;
 use App\Models\Page\Subject;
@@ -263,7 +264,7 @@ new class extends Component
     //////////////////////////////////////////////////////////////////// DATOS PARA ASOCIAR
     // traer datos de generos para asociar
     public function genres(){
-        return BookGenre::where('user_id', \Illuminate\Support\Facades\Auth::id())->orderBy('name_general', 'asc')->get();
+        return Genre::where('genre_type', 'books')->where('user_id', \Illuminate\Support\Facades\Auth::id())->orderBy('name', 'asc')->get();
     }
 
     // traer datos de colecciones para asociar
@@ -362,10 +363,11 @@ new class extends Component
             // agregar tags
             $tagIds = [];
             foreach ($this->selectedBookTags as $tagName) {
-                $tag = \App\Models\Page\Btag::firstOrCreate(
+                $tag = \App\Models\Page\Tag::firstOrCreate(
                     ['name' => $tagName],
                     [
                         'slug' => \Illuminate\Support\Str::slug($tagName),
+                        'tag_type' => 'books',
                         'uuid' => \Illuminate\Support\Str::random(24),
                         'user_id' => \Illuminate\Support\Facades\Auth::id(),
                     ]
@@ -405,10 +407,11 @@ new class extends Component
             // agregar tags
             $tagIds = [];
             foreach ($this->selectedBookTags as $tagName) {
-                $tag = \App\Models\Page\Btag::firstOrCreate(
+                $tag = \App\Models\Page\Tag::firstOrCreate(
                     ['name' => $tagName],
                     [
                         'slug' => \Illuminate\Support\Str::slug($tagName),
+                        'tag_type' => 'books',
                         'uuid' => \Illuminate\Support\Str::random(24),
                         'user_id' => \Illuminate\Support\Facades\Auth::id(),
                     ]
@@ -429,24 +432,20 @@ new class extends Component
 ?>
 
 <div>
-    {{-- titulo, descripcion y breadcrumbs --}}
-    <div>
-        <div class="mb-1 space-y-1">
-            <flux:heading size="xl" level="1">
-                <a href="{{ route('books.index') }}"><flux:button size="xs" variant="ghost" icon="arrow-uturn-left"></flux:button></a>
-                {{ $this->titlePage }}
-            </flux:heading>
-            <flux:text class="text-base">{{ $this->subtitlePage }}</flux:text>
-    
-            <flux:breadcrumbs>
-                <flux:breadcrumbs.item href="{{ route('dashboard') }}">Dashboard</flux:breadcrumbs.item>
-                <flux:breadcrumbs.item href="{{ route('books.index') }}">Libros</flux:breadcrumbs.item>
-                <flux:breadcrumbs.item>{{ $this->titlePage }}</flux:breadcrumbs.item>
-            </flux:breadcrumbs>
-    
-            <flux:separator variant="subtle" />
-        </div>
-    </div>
+     {{-- titulo, descripcion y breadcrumbs --}}
+    <x-page.partials.title-page 
+        :title="$this->titlePage"
+        :create-route="'books.index'"
+        icon="arrow-uturn-left"
+        :breadcrumbs="[
+            ['label' => 'Dashboard', 'route' => 'dashboard'],
+            ['label' => 'Libros', 'route' => 'books.index'],
+            ['label' => $this->titlePage]
+        ]"
+    />
+
+     {{-- toast de mensaje --}}
+     <x-libraries.flux.toast-success />
 
     {{-- buscar libro en api --}}
     <div class="flex gap-2 items-center">

@@ -23,24 +23,20 @@ new class extends Component
 ?>
 
 <div>
-    {{-- titulo, descripcion y breadcrumbs --}}
-    <div>
-        <div class="mb-1 space-y-1">
-            <flux:heading size="xl" level="1">
-                <a href="{{ route('movies.index') }}"><flux:button size="xs" variant="ghost" icon="arrow-uturn-left"></flux:button></a>
-                {{ $this->titlePage }}
-            </flux:heading>
-            <flux:text class="text-base">{{ $this->subtitlePage }}</flux:text>
-    
-            <flux:breadcrumbs>
-                <flux:breadcrumbs.item href="{{ route('dashboard') }}">Dashboard</flux:breadcrumbs.item>
-                <flux:breadcrumbs.item href="{{ route('movies.index') }}">Peliculas</flux:breadcrumbs.item>
-                <flux:breadcrumbs.item>{{ $this->titlePage }}</flux:breadcrumbs.item>
-            </flux:breadcrumbs>
-    
-            <flux:separator variant="subtle" />
-        </div>
-    </div>
+     {{-- titulo, descripcion y breadcrumbs --}}
+    <x-page.partials.title-page 
+        :title="$this->titlePage"
+        :create-route="'movies.index'"
+        icon="arrow-uturn-left"
+        :breadcrumbs="[
+            ['label' => 'Dashboard', 'route' => 'dashboard'],
+            ['label' => 'Peliculas', 'route' => 'movies.index'],
+            ['label' => $this->titlePage]
+        ]"
+    />
+
+     {{-- toast de mensaje --}}
+     <x-libraries.flux.toast-success />
 
     {{-- datos del pelicula --}}
     <div class="w-full">
@@ -60,24 +56,26 @@ new class extends Component
         <flux:separator text="Datos" />
 
         <p class="text-base text-gray-800 dark:text-gray-300 italic">
+            | {{$movie->runtime ?? 1}} Mins.
+            | ( {{ $movie->release_date }} )
+        </p>
+
+        <p class="mt-1">
             @foreach ($movie->subjects as $item)
                 - 
                 <a 
                     class="hover:underline  " 
                     href="{{ route('movies_library.index', ['a' => $item->uuid]) }}"
                 >{{ $item->name }}</a>
-                @endforeach
-            ( {{ $movie->release_date }} )
-            | {{$movie->runtime ?? 1}} Mins.
+            @endforeach
         </p>
 
-        <p class="mt-3 text-xs sm:text-sm text-gray-800 dark:text-gray-300 whitespace-pre-wrap font-light" style="white-space: pre-line;">{{ $movie->synopsis }}</p>
+        <p class="mt-3 text-sm text-gray-800 dark:text-gray-300 whitespace-pre-wrap font-light" style="white-space: pre-line;">{{ $movie->synopsis }}</p>
 
         <flux:separator text="Asociaciones" />
 
         @if (!$movie->genres->isEmpty())
             <p class="mt-1 text-sm sm:text-base text-gray-800 dark:text-gray-300 font-bold">
-                Genero:
                 @foreach ($movie->genres as $item)
                     <flux:badge size="sm" variant="pill" as="button" variant="solid" color="purple">
                         <a
@@ -89,14 +87,11 @@ new class extends Component
         @endif
 
         @if (!$movie->tags->isEmpty())
-            <p class="mt-1 text-sm sm:text-base text-gray-800 dark:text-gray-300 font-bold">
-                Etiquetas:
+            <p class="mt-1 text-xs sm:text-sm italic text-gray-800 dark:text-gray-300 font-bold">
                 @foreach ($movie->tags as $item)
-                    <flux:badge class="m-0.5" size="sm" variant="pill" as="button" variant="solid" color="violet">
-                        <a
-                            href="#"
-                        >#{{ $item->name }}</a>
-                    </flux:badge>
+                    <a href="#">
+                        #{{ $item->name }}
+                    </a>
                 @endforeach
             </p>
         @endif

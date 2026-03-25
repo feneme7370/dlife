@@ -34,13 +34,13 @@ class Recipe extends Model
 
     // tiene muchos collections para relacionarse
     public function categories(){
-        return $this->belongsToMany(\App\Models\Page\Rcategory::class, 'recipe_rcategory')
+        return $this->belongsToMany(\App\Models\Page\Category::class, 'recipe_category')
                     ->withTimestamps();
     }
 
     // tiene muchos collections para relacionarse
     public function tags(){
-        return $this->belongsToMany(\App\Models\Page\Rtag::class, 'recipe_rtag')
+        return $this->belongsToMany(\App\Models\Page\Tag::class, 'recipe_tag')
                     ->withTimestamps();
     }
 }

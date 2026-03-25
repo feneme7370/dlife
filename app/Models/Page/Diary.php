@@ -29,14 +29,14 @@ class Diary extends Model
     }
 
     // tiene muchos collections para relacionarse
-    public function diary_dtags(){
-        return $this->belongsToMany(\App\Models\Page\Dtag::class, 'diary_dtag')
+    public function tags(){
+        return $this->belongsToMany(\App\Models\Page\Tag::class, 'diary_tag')
                     ->withTimestamps();
     }
 
     // tiene muchos collections para relacionarse
-    public function diary_dcategories(){
-        return $this->belongsToMany(\App\Models\Page\Dcategory::class, 'diary_dcategory')
+    public function categories(){
+        return $this->belongsToMany(\App\Models\Page\Category::class, 'diary_category')
                     ->withTimestamps();
     }
 

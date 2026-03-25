@@ -32,7 +32,7 @@ class BlogsImport implements ToModel, WithHeadingRow
         );
 
         // 2️⃣ Sync relaciones many-to-many
-        $this->syncRelation($blog, $row['tags'], \App\Models\Page\Bltag::class, 'tags');
+        $this->syncRelation($blog, $row['tags'], \App\Models\Page\Tag::class, 'tags');
 
         return $blog;
     }
@@ -55,7 +55,8 @@ class BlogsImport implements ToModel, WithHeadingRow
             $model = $modelClass::firstOrCreate(
                 ['name' => $name],
                 [
-                    'slug' => \Illuminate\Support\Str::slug($name . '-' . \Illuminate\Support\Facades\Auth::id() . '-' . \Illuminate\Support\Str::random(6)), 
+                    'slug' => \Illuminate\Support\Str::slug($name . '-' . \Illuminate\Support\Facades\Auth::id() . '-' . \Illuminate\Support\Str::random(6)),
+                    'tag_type' => 'blogs',
                     'uuid' => \Illuminate\Support\Str::random(24), 
                     'user_id' => \Illuminate\Support\Facades\Auth::id(),
                 ]

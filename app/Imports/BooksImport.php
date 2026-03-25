@@ -45,8 +45,8 @@ class BooksImport implements ToModel, WithHeadingRow
         $this->syncRelation($book, $row['reading_formats'], \App\Models\Page\ReadingFormat::class, 'readingFormats');
         $this->syncRelation($book, $row['subjects'], \App\Models\Page\Subject::class, 'subjects');
         $this->syncRelation($book, $row['collections'], \App\Models\Page\Collection::class, 'collections');
-        $this->syncRelation($book, $row['genres'], \App\Models\Page\BookGenre::class, 'genres');
-        $this->syncRelation($book, $row['tags'], \App\Models\Page\Btag::class, 'tags');
+        $this->syncRelation($book, $row['genres'], \App\Models\Page\Genre::class, 'genres');
+        $this->syncRelation($book, $row['tags'], \App\Models\Page\Tag::class, 'tags');
 
         // 3️⃣ Restaurar lecturas (one-to-many)
         $book->reads()->delete(); // 🔥 importante en restore
@@ -91,8 +91,8 @@ class BooksImport implements ToModel, WithHeadingRow
             $model = $modelClass::firstOrCreate(
                 ['name' => $name],
                 [
-                    'name_general' => 'Sin categria', 
-                    'slug_general' => \Illuminate\Support\Str::slug('Sin categoria' . '-' . \Illuminate\Support\Facades\Auth::id() . '-' . \Illuminate\Support\Str::random(6)), 
+                    'tag_type' => 'books', 
+                    'genre_type' => 'books', 
                     'slug' => \Illuminate\Support\Str::slug($name . '-' . \Illuminate\Support\Facades\Auth::id() . '-' . \Illuminate\Support\Str::random(6)), 
                     'uuid' => \Illuminate\Support\Str::random(24), 
                     'user_id' => \Illuminate\Support\Facades\Auth::id(),
