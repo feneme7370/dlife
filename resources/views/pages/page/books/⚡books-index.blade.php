@@ -11,18 +11,10 @@ new class extends Component
     use WithFileUploads;
     use WithPagination;
 
-    //////////////////////////////////////////////////////////////////// PROPIEDADES DE PAGINACION
-    // propiedades para paginacion y orden, actualizar al buscar
-    public $search = '', $sortField = 'created_at', $sortDirection = 'desc', $perPage = 10000;
-    public function updatingSearch(){$this->resetPage();}
-    // funcion para ordenar la tabla
-    public function sortBy($field){
-        if ($this->sortField === $field) {
-            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
-        } else {
-            $this->sortDirection = 'asc';
-        }
-        $this->sortField = $field;
+    use \App\Traits\SortTitle;
+
+    public function mount(){
+        $this->sortFieldSelected('created_at');
     }
 
     //////////////////////////////////////////////////////////////////// PROPIEDADES
@@ -125,7 +117,7 @@ new class extends Component
                             {{ $item->is_abandonated ? '🚫' : ''}}
                             {{ $item->summary_clear ? '🗒️' : ''}}
                             {{ $item->notes_clear ? '✍️' : ''}}
-                            {{ $item->reads->first() ? '✅' : ''}}
+                            {{ $item->reads->whereNotNull('end_read')->first() ? '✅' : ''}}
                             {{ $item->tags->count() ? '#️⃣'.$item->tags->count() : ''}}
                         </p>
                     </div>

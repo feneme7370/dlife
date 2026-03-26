@@ -220,7 +220,7 @@ new class extends Component
             <flux:button wire:click="addTag('selectedDiaryDtags')" icon="plus">Agregar</flux:button>
         </flux:input.group>
         
-        <div class="flex gap-2 mt-2">
+        <div class="flex gap-2 mt-2 w-full flex-wrap">
             @foreach($selectedDiaryDtags as $index => $tag)
                 <flux:badge size="sm" color="purple">
                     <button class="mr-2" wire:click="removeTag('selectedDiaryDtags', {{ $index }})">

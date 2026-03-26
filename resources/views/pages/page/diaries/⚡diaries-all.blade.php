@@ -39,6 +39,7 @@ new class extends Component
             <p class="italic">{{ $item->day->format('Y-m-d') . ' | ' . $this->mood[$item->status] ?? 'Desconocido' }}</p>
             <p class="text-lg font-bold">{{ $item->title }}</p>
             <p>{!! $item->content !!}</p>
+            <p></p>
             <p>----------------------------</p>
         </div>
     @endforeach

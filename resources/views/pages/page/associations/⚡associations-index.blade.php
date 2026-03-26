@@ -50,7 +50,7 @@ new class extends Component
     {{-- generos --}}
     <flux:separator text="Generos" />
     <div class="grid grid-cols-3 gap-1 mb-3 mt-1">
-        <a href="{{ route('genres.index', ['type' => 'todo']) }}">
+        <a href="{{ route('genres.index', ['type' => '']) }}">
             <flux:card size="sm" class="hover:bg-zinc-50 dark:hover:bg-zinc-700">
                 <flux:heading class="flex items-center gap-2">Todos <flux:icon name="arrow-up-right" class="ml-auto text-zinc-400" variant="micro" /></flux:heading>
             </flux:card>
@@ -70,7 +70,7 @@ new class extends Component
     {{-- categorias --}}
     <flux:separator text="Categorías"/>
     <div class="grid grid-cols-3 gap-1 mb-3 mt-1">
-        <a href="{{ route('categories.index', ['type' => 'todo']) }}">
+        <a href="{{ route('categories.index', ['type' => '']) }}">
             <flux:card size="sm" class="hover:bg-zinc-50 dark:hover:bg-zinc-700">
                 <flux:heading class="flex items-center gap-2">Todas<flux:icon name="arrow-up-right" class="ml-auto text-zinc-400" variant="micro" /></flux:heading>
             </flux:card>

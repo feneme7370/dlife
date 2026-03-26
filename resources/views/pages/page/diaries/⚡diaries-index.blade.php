@@ -14,38 +14,17 @@ new class extends Component
     use WithFileUploads;
     use WithPagination;
 
-    //////////////////////////////////////////////////////////////////// PROPIEDADES DE PAGINACION
-    // propiedades para paginacion y orden, actualizar al buscar
-    public $search = '', $sortField = 'day', $sortDirection = 'desc', $perPage = 10000;
-    public function updatingSearch(){$this->resetPage();}
-    public function updatedSearch(){$this->diariesQuery();}
-    public function updatedDayStart(){$this->diariesQuery();}
-    public function updatedDayEnd(){$this->diariesQuery();}
-    // funcion para ordenar la tabla
-    public function sortBy($field){
-        if ($this->sortField === $field) {
-            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
-        } else {
-            $this->sortDirection = 'asc';
-        }
-        $this->sortField = $field;
-    }
-
+    use \App\Traits\SortTitle;
+    use \App\Traits\QueryStrings;
+    
+        
     //////////////////////////////////////////////////////////////////// PRE CARGAR DATOS
-    public function mount(){
-        $this->clearDate();
+        public function mount(){
+        $this->sortFieldSelected('day');
+        $this->dayStart = \Carbon\Carbon::parse('1900-01-01')->format('Y-m-d');
+        $this->dayEnd = \Carbon\Carbon::parse('2200-12-31')->format('Y-m-d');
         $this->diariesQuery();
         $this->highlightedDays = $this->getDays();
-    }
-
-    //////////////////////////////////////////////////////////////////// FUNCIONES PARA FILTRAR
-    // mostrar variables en queryString
-    protected function queryString(){
-        return [
-        'search' => [ 'as' => 'q' ],
-        'selectedCategory' => [ 'as' => 'cat' ],
-        'selectedTag' => [ 'as' => 'tag' ],
-        ];
     }
 
     //////////////////////////////////////////////////////////////////// PROPIEDADES
@@ -54,7 +33,7 @@ new class extends Component
     public $titlePage = 'Diario';
     public $subtitlePage = 'Listado de dias';
 
-    public $selectedTag, $selectedCategory;
+    public $tag_selected, $category_selected;
 
     //////////////////////////////////////////////////////////////////// CONSULTA DE LISTADO Y ELIMINAR ITEM
     protected function diariesQuery(){
@@ -63,14 +42,14 @@ new class extends Component
                 $query->where('title', 'like', "%{$this->search}%")
                       ->orWhere('content', 'like', "%{$this->search}%");
             })
-            ->when($this->selectedTag, function ($query) {
+            ->when($this->tag_selected, function ($query) {
                 $query->whereHas('tags', function ($q) {
-                    $q->where('dtags.uuid', $this->selectedTag);
+                    $q->where('tags.uuid', $this->tag_selected);
                 });
             })
-            ->when($this->selectedCategory, function ($query) {
+            ->when($this->category_selected, function ($query) {
                 $query->whereHas('categories', function ($q) {
-                    $q->where('dcategories.uuid', $this->selectedCategory);
+                    $q->where('categories.uuid', $this->category_selected);
                 });
             })
             ->when($this->dayStart != null, function ($query) {
@@ -101,6 +80,10 @@ new class extends Component
         return \App\Models\Page\DiaryTemplate::where('user_id', Auth::id())->get();
     }
     public function addTemplate(){
+        $this->validate([
+            'title_template' => 'required|string|max:255',
+            'content_template' => 'required|string',
+        ]);
         \App\Models\Page\DiaryTemplate::create([
             'title' => $this->title_template,
             'content' => $this->content_template,
@@ -135,8 +118,8 @@ new class extends Component
         $this->dayStart = \Carbon\Carbon::parse('1900-01-01')->format('Y-m-d');
         $this->dayEnd = \Carbon\Carbon::parse('2200-12-31')->format('Y-m-d');
         $this->search = '';
-        $this->selectedCategory = '';
-        $this->selectedTag = '';
+        $this->category_selected = '';
+        $this->tag_selected = '';
         $this->diariesQuery();
     }
 
@@ -182,7 +165,6 @@ new class extends Component
     <x-page.partials.title-page 
         :title="$this->titlePage"
         :create-route="'diaries.create'"
-        icon="arrow-uturn-left"
         :breadcrumbs="[
             ['label' => 'Dashboard', 'route' => 'dashboard'],
             ['label' => $this->titlePage]
@@ -193,10 +175,9 @@ new class extends Component
      <x-libraries.flux.toast-success />
 
     <div class="mt-1 flex items-center gap-1">
-        <flux:modal.trigger name="add-template">
-            <flux:button variant="ghost" icon="plus"></flux:button>
-        </flux:modal.trigger>
 
+        <x-page.diaries.modals.add-template />
+        
         @foreach ($this->getDiaryTemplates() as $item)
             <flux:badge size="sm" class="hover:cursor-pointer" color="violet">
                 <a><flux:button size="xs" variant="ghost" icon="trash" wire:confirm="Quiere eliminar?" wire:click="deleteTemplate('{{ $item->uuid }}')"></flux:button></a>
@@ -300,29 +281,4 @@ new class extends Component
         name_file_export="diaries"
         route_redirect_after_import="diaries.index"
     />
-
-    {{-- modal para agregar templates --}}
-    <flux:modal name="add-template" class="md:w-96">
-        <div class="space-y-6">
-            <div>
-                <flux:heading size="lg">Agregue una plantilla</flux:heading>
-                <flux:text class="mt-2">Agregue una nueva plantilla para su nota.</flux:text>
-            </div>
-
-            <flux:input wire:model="title_template" label="Titulo" placeholder="Titulo de la plantilla" />
-
-            <x-libraries.quill-textarea-form 
-                id_quill="editor_create_content" 
-                name="content_template"
-                rows="15" 
-                placeholder="{{ __('Descripcion') }}" model="content_template"
-            />
-
-            <div class="flex">
-                <flux:spacer />
-
-                <flux:button wire:click="addTemplate" variant="primary">Agregar</flux:button>
-            </div>
-        </div>
-    </flux:modal>
 </div>

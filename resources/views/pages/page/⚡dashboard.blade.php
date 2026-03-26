@@ -95,41 +95,41 @@ new class extends Component
         <a href="{{ route('movies_library.index') }}" aria-label="Latest on our blog">
             <flux:card size="sm" class="hover:bg-zinc-50 dark:hover:bg-zinc-700">
                 <flux:heading class="flex items-center gap-2">Peliculas <flux:icon name="arrow-up-right" class="ml-auto text-zinc-400" variant="micro" /></flux:heading>
-                <flux:text class="mt-2">Vistas este año ({{ $moviesYear }}).</flux:text>
-                <flux:text class="mt-2">Vistas en total ({{ $moviesTotal }}).</flux:text>
+                <flux:text class="mt-2">En año ({{ $moviesYear }}).</flux:text>
+                <flux:text class="mt-2">Total ({{ $moviesTotal }}).</flux:text>
             </flux:card>
         </a>
         <a href="{{ route('series_library.index') }}" aria-label="Latest on our blog">
             <flux:card size="sm" class="hover:bg-zinc-50 dark:hover:bg-zinc-700">
                 <flux:heading class="flex items-center gap-2">Series <flux:icon name="arrow-up-right" class="ml-auto text-zinc-400" variant="micro" /></flux:heading>
-                <flux:text class="mt-2">Vistas este año ({{ $seriesYear }}).</flux:text>
-                <flux:text class="mt-2">Vistas en total ({{ $seriesTotal }}).</flux:text>
+                <flux:text class="mt-2">En año ({{ $seriesYear }}).</flux:text>
+                <flux:text class="mt-2">Total ({{ $seriesTotal }}).</flux:text>
             </flux:card>
         </a>
         <a href="{{ route('books_library.index') }}" aria-label="Latest on our blog">
             <flux:card size="sm" class="hover:bg-zinc-50 dark:hover:bg-zinc-700">
                 <flux:heading class="flex items-center gap-2">Libros <flux:icon name="arrow-up-right" class="ml-auto text-zinc-400" variant="micro" /></flux:heading>
-                <flux:text class="mt-2">Leidos este año ({{ $booksYear }}).</flux:text>
-                <flux:text class="mt-2">Leidos en total ({{ $booksTotal }}).</flux:text>
+                <flux:text class="mt-2">En año ({{ $booksYear }}).</flux:text>
+                <flux:text class="mt-2">Total ({{ $booksTotal }}).</flux:text>
             </flux:card>
         </a>
         <a href="{{ route('diaries.index') }}" aria-label="Latest on our blog">
             <flux:card size="sm" class="hover:bg-zinc-50 dark:hover:bg-zinc-700">
                 <flux:heading class="flex items-center gap-2">Diario <flux:icon name="arrow-up-right" class="ml-auto text-zinc-400" variant="micro" /></flux:heading>
-                <flux:text class="mt-2">Escrito este año ({{ $diariesYear }} / 365).</flux:text>
-                <flux:text class="mt-2">Escrito en total ({{ $diariesTotal }}).</flux:text>
+                <flux:text class="mt-2">En año ({{ $diariesYear }} / 365).</flux:text>
+                <flux:text class="mt-2">Total ({{ $diariesTotal }}).</flux:text>
             </flux:card>
         </a>
         <a href="{{ route('recipes.index') }}" aria-label="Latest on our blog">
             <flux:card size="sm" class="hover:bg-zinc-50 dark:hover:bg-zinc-700">
                 <flux:heading class="flex items-center gap-2">Recetas <flux:icon name="arrow-up-right" class="ml-auto text-zinc-400" variant="micro" /></flux:heading>
-                <flux:text class="mt-2">Recetas en total ({{ $recipesTotal }}).</flux:text>
+                <flux:text class="mt-2">Total ({{ $recipesTotal }}).</flux:text>
             </flux:card>
         </a>
         <a href="{{ route('blogs.index') }}" aria-label="Latest on our blog">
             <flux:card size="sm" class="hover:bg-zinc-50 dark:hover:bg-zinc-700">
                 <flux:heading class="flex items-center gap-2">Blogs <flux:icon name="arrow-up-right" class="ml-auto text-zinc-400" variant="micro" /></flux:heading>
-                <flux:text class="mt-2">Blogs en total ({{ $blogsTotal }}).</flux:text>
+                <flux:text class="mt-2">Total ({{ $blogsTotal }}).</flux:text>
             </flux:card>
         </a>
     </div>

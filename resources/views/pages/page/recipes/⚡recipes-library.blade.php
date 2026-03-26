@@ -6,39 +6,15 @@ new class extends Component
 {
     use \Livewire\WithPagination;
 
-    //////////////////////////////////////////////////////////////////// PROPIEDADES PARA PAGINACION
-    // propiedades para paginacion y orden, actualizar al buscar
-    public $search = '', $sortField = 'title', $sortDirection = 'desc', $perPage = 10000;
-    public function updatingSearch(){$this->resetPage();}
-    public function updatingSortField(){$this->resetPage();}
-    public function updatingSortDirection(){$this->resetPage();}
-    public function updatingPerPage(){$this->resetPage();}
-
-    // funcion para ordenar la tabla
-    public function sortBy($field){
-        if ($this->sortField === $field) {
-            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
-        } else {
-            $this->sortDirection = 'asc';
-        }
-        $this->sortField = $field;
-    }
-
-    // mostrar variables en queryString
-    protected function queryString(){
-        return [
-        'search' => [ 'as' => 'q' ],
-        'categories_selected' => [ 'as' => 'cat' ],
-        'tag_selected' => [ 'as' => 'tag' ],
-        ];
-    }
+    use \App\Traits\SortTitle;
+    use \App\Traits\QueryStrings;
 
     //////////////////////////////////////////////////////////////////// PROPIEDADES PRINCIPALES
     // propiedades de item y titulos
     public $recipes;
     public $titlePage = 'Recetario';
     public $subtitlePage = 'Listado de recetas leidos';
-    public $categories_selected, $tags_selected;
+    public $category_selected, $tag_selected;
 
     //////////////////////////////////////////////////////////////////// PRE CARGAR DATOS
     public function mount(){
@@ -49,14 +25,14 @@ new class extends Component
     public function recipesQuery(){
         return \App\Models\Page\Recipe::where('user_id', \Illuminate\Support\Facades\Auth::id())
 
-            ->when($this->categories_selected, function ($query) {
+            ->when($this->category_selected, function ($query) {
                 $query->whereHas('categories', function ($q) {
-                    $q->where('rcategories.uuid', $this->categories_selected);
+                    $q->where('categories.uuid', $this->category_selected);
                 });
             })
-            ->when($this->tags_selected, function ($query) {
+            ->when($this->tag_selected, function ($query) {
                 $query->whereHas('tags', function ($q) {
-                    $q->where('rtags.uuid', $this->tags_selected);
+                    $q->where('tags.uuid', $this->tag_selected);
                 });
             })
 

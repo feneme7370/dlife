@@ -6,34 +6,8 @@ new class extends Component
 {
     use \Livewire\WithPagination;
 
-    //////////////////////////////////////////////////////////////////// PROPIEDADES DE PAGINACION
-    // propiedades para paginacion y orden, actualizar al buscar
-    public $search = '', $sortField = 'title', $sortDirection = 'desc', $perPage = 10000;
-    public function updatingSearch(){$this->resetPage();}
-    public function updatingSortField(){$this->resetPage();}
-    public function updatingSortDirection(){$this->resetPage();}
-    public function updatingPerPage(){$this->resetPage();}
-    // funcion para ordenar la tabla
-    public function sortBy($field){
-        if ($this->sortField === $field) {
-            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
-        } else {
-            $this->sortDirection = 'asc';
-        }
-        $this->sortField = $field;
-    }
-    //////////////////////////////////////////////////////////////////// FUNCIONES PARA FILTRAR
-    // mostrar variables en queryString
-    protected function queryString(){
-        return [
-        'search' => [ 'as' => 'q' ],
-        'status_read' => [ 'as' => 'r' ],
-        'collection_selected' => [ 'as' => 'c' ],
-        'subject_selected' => [ 'as' => 'a' ],
-        'genre_selected' => [ 'as' => 'g' ],
-        'star_selected' => [ 'as' => 'star' ],
-        ];
-    }
+    use \App\Traits\SortTitle;
+    use \App\Traits\QueryStrings;
 
     public $name_collection;
     public $name_subject;
@@ -58,10 +32,11 @@ new class extends Component
                     : 'Sin fecha';
             })
             ->sortKeysDesc();
+        
 
         $this->name_collection = $this->collection_selected ? \App\Models\Page\Collection::where('uuid', $this->collection_selected)->first()->name : null;
         $this->name_subject = $this->subject_selected ? \App\Models\Page\Subject::where('uuid', $this->subject_selected)->first()->name : null;
-        $this->name_genre = $this->genre_selected ? \App\Models\Page\BookGenre::where('uuid', $this->genre_selected)->first()->name : null;
+        $this->name_genre = $this->genre_selected ? \App\Models\Page\Genre::where('uuid', $this->genre_selected)->first()->name : null;
         $this->name_star = $this->star_selected ? str_repeat('★', $this->star_selected) : null;
     }
 
@@ -84,7 +59,7 @@ new class extends Component
             })
             ->when($this->genre_selected, function ($query) {
                 $query->whereHas('genres', function ($q) {
-                    $q->where('book_genres.uuid', $this->genre_selected);
+                    $q->where('genres.uuid', $this->genre_selected);
                 });
             })
             ->when($this->collection_selected, function ($query) {
@@ -148,7 +123,7 @@ new class extends Component
                                         {{ $item->is_abandonated ? '🚫' : ''}}
                                         {{ $item->summary_clear ? '🗒️' : ''}}
                                         {{ $item->notes_clear ? '✍️' : ''}}
-                                        {{ $item->reads->first() ? '✅' : ''}}
+                                        {{ $item->reads->whereNotNull('end_read') ? '✅' : ''}}
                                     </p>
                                 </div>
                             </div>

@@ -96,7 +96,7 @@ new class extends Component
     {{-- selector de tipo --}}
     <flux:radio.group class="mb-1" wire:model.live="type_selected" label="Seleccionar tipo">
         <div class="flex items-center gap-2 justify-start">
-            <flux:radio value="todo" label="Todos" checked />
+            <flux:radio value="" label="Todos" checked />
             <flux:radio value="books" label="Libros" />
             <flux:radio value="visual" label="Peliculas y Series" />
         </div>
