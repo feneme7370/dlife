@@ -23,7 +23,7 @@ new class extends Component
 
     //////////////////////////////////////////////////////////////////// CONSULTA DE LISTADO Y ELIMINAR ITEM
     // consulta de item
-    public function queryMovies(){
+    public function querySearch(){
         return Movie::where('user_id', Auth::id())
             ->with(['subjects', 'genres', 'collections', 'views', 'tags'])
             ->where(function ($query) {
@@ -66,13 +66,13 @@ new class extends Component
 
     {{-- listado de libros --}}
     <div class="space-y-2">
-        @foreach ($this->queryMovies() as $item)
+        @foreach ($this->querySearch() as $item)
             <div class="grid grid-cols-12 gap-1 items-start justify-center">
 
                 <div class="col-span-10 flex gap-1">
                     <div>
                         <x-libraries.img-tumb-lightbox 
-                           :uri="$item->cover_image_url" 
+                            :uri="$item->cover_image_url ? $item->cover_image_url : asset('images/placeholderVisual.jpg')" 
                            album="Portadas"
                            class_w_h="h-12 w-9"
                        />
@@ -104,7 +104,7 @@ new class extends Component
 
     {{-- paginacion --}}
     <div class="mt-3">
-        {{ $this->queryMovies()->links() }}
+        {{ $this->querySearch()->links() }}
     </div>
 
     {{-- exportacion e importacion de excel --}}

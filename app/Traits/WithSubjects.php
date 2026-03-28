@@ -40,4 +40,46 @@ trait WithSubjects
 
         $this->modal('add-subject')->close();
     }
+
+    public function selectSubject($name)
+    {
+        $actor = collect($this->subjects())->firstWhere('name', $name);
+
+        if ($actor && !in_array($actor['id'], $this->selectedMovieSubjects)) {
+            $this->selectedMovieSubjects[] = $actor['id'];
+        }
+
+        if (!$actor) {
+            $this->name_subject = $name;
+            $this->storeSubject('selectedMovieSubjects');
+        }
+    }
+
+    public function selectSubjectSerie($name)
+    {
+        $actor = collect($this->subjects())->firstWhere('name', $name);
+
+        if ($actor && !in_array($actor['id'], $this->selectedSerieSubjects)) {
+            $this->selectedSerieSubjects[] = $actor['id'];
+        }
+
+        if (!$actor) {
+            $this->name_subject = $name;
+            $this->storeSubject('selectedSerieSubjects');
+        }
+    }
+
+    public function selectSubjectBook($name)
+    {
+        $actor = collect($this->subjects())->firstWhere('name', $name);
+
+        if ($actor && !in_array($actor['id'], $this->selectedBookSubjects)) {
+            $this->selectedBookSubjects[] = $actor['id'];
+        }
+
+        if (!$actor) {
+            $this->name_subject = $name;
+            $this->storeSubject('selectedBookSubjects');
+        }
+    }
 }

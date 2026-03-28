@@ -269,7 +269,7 @@ new class extends Component
     <div class="grid grid-cols-2 gap-3 my-2">
         <div>
             <flux:heading>Generos ({{ $this->booksGenres()->count() }})</flux:heading>
-            <div>
+            <div class="overflow-y-scroll h-96">
                 @foreach($this->booksGenres() as $item)
                     <flux:text class="mt-2">
                         <a
@@ -284,7 +284,7 @@ new class extends Component
         </div>
         <div>
             <flux:heading>Sagas ({{ $this->booksCollections()->count() }})</flux:heading>
-            <div>
+            <div class="overflow-y-scroll h-96">
                 @foreach($this->booksCollections() as $item)
                     <flux:text class="mt-2">
                         <a
@@ -305,7 +305,7 @@ new class extends Component
     <div class="grid grid-cols-2 gap-3 my-2">
         <div>
             <flux:heading>Libros ({{ $this->booksYear()->count() }})</flux:heading>
-            <div>
+            <div class="overflow-y-scroll h-96">
                 @foreach($this->booksYear() as $item)
                     <flux:text class="mt-2">
                         <a
@@ -320,7 +320,7 @@ new class extends Component
         </div>
         <div>
             <flux:heading>Autores ({{ $this->booksSubjects()->count() }})</flux:heading>
-            <div>
+            <div class="overflow-y-scroll h-96">
                 @foreach($this->booksSubjects() as $item)
                     <flux:text class="mt-2">
                         <a

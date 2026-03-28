@@ -113,8 +113,8 @@ new class extends Component
                     <a 
                         href="{{ route('books.show', ['bookUuid' => $item->uuid]) }}"
                     >
-                        <div class="relative w-20 h-32 sm:w-40 sm:h-60 rounded-lg overflow-hidden shadow-lg group">
-                            <img src="{{ $item->cover_image_url }}" alt="Portada del libro" class="w-full h-full object-cover">
+                        <div class="relative w-16 h-24 sm:w-30 sm:h-44 rounded-lg overflow-hidden shadow-lg group">
+                            <img src="{{ $item->cover_image_url ? $item->cover_image_url : asset('images/placeholderBook.jpg') }}" alt="Portada del libro" class="w-full h-full object-cover">
                             <div class="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity duration-300">
                                 <div class="text-center space-y-10">
                                     <p class="text-white text-lg font-semibold px-2 text-center">{{ $item->title }}</p>

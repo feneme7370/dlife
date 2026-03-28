@@ -10,19 +10,12 @@ new class extends Component
 {
     use WithFileUploads;
     use WithPagination;
+    use \App\Traits\SortTitle;
 
-    //////////////////////////////////////////////////////////////////// PROPIEDADES DE PAGINACION
-    // propiedades para paginacion y orden, actualizar al buscar
-    public $search = '', $sortField = 'name', $sortDirection = 'asc', $perPage = 10000;
-    public function updatingSearch(){$this->resetPage();}
-    // funcion para ordenar la tabla
-    public function sortBy($field){
-        if ($this->sortField === $field) {
-            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
-        } else {
-            $this->sortDirection = 'asc';
-        }
-        $this->sortField = $field;
+    //////////////////////////////////////////////////////////////////// PROPIEDADES
+    public function mount(){
+        $this->sortField = 'name';
+        $this->sortDirection = 'asc';
     }
 
     //////////////////////////////////////////////////////////////////// PROPIEDADES
@@ -33,7 +26,7 @@ new class extends Component
 
     //////////////////////////////////////////////////////////////////// CONSULTA DE LISTADO Y ELIMINAR ITEM
     // consulta de item
-    public function queryTags(){
+    public function querySearch(){
         return Tag::where('user_id', Auth::id())
             ->where(function ($query) {
                 $query->where('name', 'like', "%{$this->search}%")
@@ -87,9 +80,9 @@ new class extends Component
 
     {{-- listado de etiquetas --}}
     <div class="space-y-2">
-        @foreach ($this->queryTags() as $item)
+        @foreach ($this->querySearch() as $item)
             <flux:badge rounded color="fuchsia">
-                <a href="{{ route('books.index', ['tag' => $item->uuid]) }}">
+                <a>
                     <span class="text-xs">#{{ $item->name }}</span>
                     <span class="text-xs italic text-gray-200">|{{ $item->tag_type }}</span>
                 </a>
@@ -103,7 +96,7 @@ new class extends Component
 
     {{-- paginacion --}}
     <div class="mt-3">
-        {{ $this->queryTags()->links() }}
+        {{ $this->querySearch()->links() }}
     </div>
 
     {{-- exportacion e importacion de excel --}}

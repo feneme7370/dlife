@@ -92,8 +92,8 @@ new class extends Component
         $this->release_date = substr($selectedMovie['release_date'], 0, 4);
         $this->runtime = $selectedMovie['runtime'];
         $this->cover_image_url = 'https://image.tmdb.org/t/p/w500'.$selectedMovie['poster_path'];
-        $this->actors_recommended = collect($credits->json()['cast'])->take(5)->pluck('name')->toArray();
-        $this->genres_recommended = collect($selectedMovie['genres'])->take(5)->pluck('name')->toArray();
+        $this->actors_recommended = collect($credits->json()['cast'])->take(10)->pluck('name')->toArray();
+        $this->genres_recommended = collect($selectedMovie['genres'])->take(10)->pluck('name')->toArray();
 
         // cerrar modal
         $this->modal('select-movie-api')->close();
@@ -488,13 +488,16 @@ new class extends Component
                 model="subject" 
                 relation="subjects" 
                 wire:model="selectedMovieSubjects" 
-                {{-- label="Autores" --}}
                 :items="$this->subjects()"
+                name_input="actor_search"
             />
         </div>
-        @if ($this->actors_recommended)
-            <p class="text-xs italic">Recomendado: {{ implode(', ', $this->actors_recommended) }}</p>
-        @endif
+
+        <div>
+            @foreach ($this->actors_recommended as $subject_recommended)
+                <span class="italic text-xs hover:underline cursor-pointer"  wire:click="selectSubject('{{ $subject_recommended }}')">{{ $subject_recommended }}</span>
+            @endforeach
+        </div>
 
         <flux:label>Etiquetas</flux:label>
         <flux:input.group>

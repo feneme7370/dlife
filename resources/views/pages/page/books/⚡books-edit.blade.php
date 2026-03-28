@@ -60,7 +60,7 @@ new class extends Component
 
     //////////////////////////////////////////////////////////////////// BUSCAR EN API GOOGLE BOOKS LOS DATOS
     public $searchBook = '';
-    public $author_recommended = '';
+    public $author_recommended = [];
     public $category_recommended = '';
     public $results = [];
 
@@ -111,7 +111,7 @@ new class extends Component
         $this->pages = $info['printedPageCount'] ?? $info['pageCount'];
         $this->release_date = $info['publishedDate'] ? \Carbon\Carbon::parse($info['publishedDate'])->year : '';
         $this->author_recommended = isset($info['authors'])
-            ? implode(', ', $info['authors'])
+            ? $info['authors']
             : null;
         $this->category_recommended = isset($info['categories'])
             ? implode(' / ', $info['categories'])
@@ -149,19 +149,47 @@ new class extends Component
 
         $res = \Illuminate\Support\Facades\Http::get('https://openlibrary.org/search.json', [
             'q' => $this->searchBookImage,
+            'lang' => 'spa' // mejor que language, // 🔥 español
         ]);
 
         $this->resultsImages = collect($res->json()['docs'])
             ->take(10)
             ->toArray();
     }
-    public function selectBookImage($key, $cover_i)
+    public function selectBookImage($key, $cover_i, $author_name, $first_publish_year, $title_name)
     {
-        $res = \Illuminate\Support\Facades\Http::get("https://openlibrary.org{$key}.json",);
+        $res = \Illuminate\Support\Facades\Http::get("https://openlibrary.org{$key}.json", [
+            'lang' => 'spa'
+        ])->json();
+        // descripción
+        if(isset($res['description'])){
+            $this->synopsis = is_array($res['description'])
+                ? ($res['description']['value'] ?? null)
+                : $res['description'];
+        }
+
+        // géneros
+        $this->category_recommended = isset($res['subjects'])
+            ? implode(' / ', $res['subjects'])
+            : null;
+
         // autocompletar campos
+        $this->author_recommended[0] = $author_name;
+        $this->release_date = $first_publish_year;
+        $this->title = $title_name;
         $this->cover_image_url = isset($cover_i)
             ? "https://covers.openlibrary.org/b/id/".$cover_i."-L.jpg"
             : '';
+
+            
+        // 🔹 2. EDITIONS (páginas)
+        $editions = \Illuminate\Support\Facades\Http::get("https://openlibrary.org{$key}/editions.json")->json();
+        foreach(($editions['entries'] ?? []) as $edition){
+            if(isset($edition['number_of_pages'])){
+                $this->pages = $edition['number_of_pages'];
+                break;
+            }
+        }
 
         // cerrar modal
         $this->modal('select-book-image-api')->close();
@@ -623,9 +651,14 @@ new class extends Component
                 :items="$this->subjects()"
             />
         </div>
-        @if ($this->author_recommended)
+        {{-- @if ($this->author_recommended)
             <p class="text-xs italic">Recomendado: {{ $this->author_recommended ?? '' }}</p>
-        @endif
+        @endif --}}
+        <div>
+            @foreach ($this->author_recommended as $subject_recommended)
+                <span class="italic text-xs hover:underline cursor-pointer"  wire:click="selectSubjectBook('{{ $subject_recommended }}')">{{ $subject_recommended }}</span>
+            @endforeach
+        </div>
 
         <flux:label>Etiquetas</flux:label>
         <flux:input.group>
@@ -835,7 +868,7 @@ new class extends Component
 
                     @foreach($resultsImages as $item)
                         <div 
-                            wire:click="selectBookImage('{{ $item['key'] }}', '{{ $item['cover_i'] ?? '' }}')"
+                            wire:click="selectBookImage('{{ $item['key'] }}', '{{ $item['cover_i'] ?? '' }}', '{{ $item['author_name'][0] ?? '' }}', '{{ $item['first_publish_year'] ?? '' }}', '{{ $item['title'] ?? '' }}')"
                             class="flex gap-3 p-2 cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded"
                         >
                             <img 
@@ -850,6 +883,9 @@ new class extends Component
 
                                 <div class="text-xs text-zinc-500">
                                     {{ $item['first_publish_year'] ?? '' }}
+                                </div>
+                                <div class="text-xs text-zinc-500">
+                                    {{ $item['author_name'][0] ?? 'Autor desconocido' }}
                                 </div>
                             </div>
                         </div>

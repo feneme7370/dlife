@@ -24,7 +24,7 @@ new class extends Component
 
     //////////////////////////////////////////////////////////////////// CONSULTA DE LISTADO Y ELIMINAR ITEM
     // consulta de item
-    public function queryQuotes(){
+    public function querySearch(){
         return Quote::where('user_id', Auth::id())
             ->where(function ($query) {
                 $query->where('content', 'like', "%{$this->search}%")
@@ -61,7 +61,7 @@ new class extends Component
 
     {{-- listado de frases --}}
     <div class="space-y-3">
-        @foreach ($this->queryQuotes() as $item)
+        @foreach ($this->querySearch() as $item)
 
             <div class="w-10/12 mx-auto">
                 <flux:separator  />
@@ -90,7 +90,7 @@ new class extends Component
 
     {{-- paginacion --}}
     <div class="mt-3">
-        {{ $this->queryQuotes()->links() }}
+        {{ $this->querySearch()->links() }}
     </div>
 
     {{-- exportacion e importacion de excel --}}

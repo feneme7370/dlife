@@ -10,19 +10,13 @@ new class extends Component
 {
     use WithFileUploads;
     use WithPagination;
+    use \App\Traits\SortTitle;
 
-    //////////////////////////////////////////////////////////////////// PROPIEDADES DE PAGINACION
-    // propiedades para paginacion y orden, actualizar al buscar
-    public $search = '', $sortField = 'name', $sortDirection = 'asc', $perPage = 10000;
-    public function updatingSearch(){$this->resetPage();}
-    // funcion para ordenar la tabla
-    public function sortBy($field){
-        if ($this->sortField === $field) {
-            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
-        } else {
-            $this->sortDirection = 'asc';
-        }
-        $this->sortField = $field;
+    //////////////////////////////////////////////////////////////////// PROPIEDADES
+    public function mount(){
+        $this->sortField = 'name';
+        $this->sortDirection = 'asc';
+        if($this->type_selected == 'todo'){$this->type_selected = '';}
     }
 
     //////////////////////////////////////////////////////////////////// FUNCIONES PARA FILTRAR
@@ -42,7 +36,7 @@ new class extends Component
 
     //////////////////////////////////////////////////////////////////// CONSULTA DE LISTADO Y ELIMINAR ITEM
     // consulta de item
-    public function queryGenres(){
+    public function querySearch(){
         return Genre::where('user_id', Auth::id())
             ->where(function ($query) {
                 $query->where('name', 'like', "%{$this->search}%")
@@ -107,11 +101,11 @@ new class extends Component
 
     {{-- listado de sujetos --}}
     <div class="space-y-2">
-        @foreach ($this->queryGenres() as $item)
+        @foreach ($this->querySearch() as $item)
             <div class="flex items-center justify-between">
 
                 <div class="flex items-center gap-3">
-                    <img src="{{ $item->cover_image_url }}" class="w-8 h-8 bg-cover rounded-sm" alt="">
+                    <img src="{{ $item->cover_image_url ? $item->cover_image_url : asset('images/placeholder.jpg') }}" class="w-8 h-8 bg-cover rounded-sm" alt="">
                     <p>
                         <a class="hover:underline" href="{{ route('genres.show', ['genreUuid' => $item->uuid]) }}">{{ $item->name }}</p>
                             <span class="text-xs text-gray-500 dark:text-gray-400 italic">
@@ -131,7 +125,7 @@ new class extends Component
 
     {{-- paginacion --}}
     <div class="mt-3">
-        {{ $this->queryGenres()->links() }}
+        {{ $this->querySearch()->links() }}
     </div>
 
     {{-- exportacion e importacion de excel --}}

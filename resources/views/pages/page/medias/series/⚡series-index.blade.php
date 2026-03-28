@@ -22,7 +22,7 @@ new class extends Component
 
     //////////////////////////////////////////////////////////////////// CONSULTA DE LISTADO Y ELIMINAR ITEM
     // consulta de item
-    public function querySeries(){
+    public function querySearch(){
         return Serie::where('user_id', Auth::id())
             ->with(['subjects', 'genres', 'collections', 'views', 'tags'])
             ->where(function ($query) {
@@ -65,13 +65,13 @@ new class extends Component
 
     {{-- listado de libros --}}
     <div class="space-y-2">
-        @foreach ($this->querySeries() as $item)
+        @foreach ($this->querySearch() as $item)
             <div class="grid grid-cols-12 gap-1 items-start justify-center">
 
                 <div class="col-span-10 flex gap-1">
                     <div>
                         <x-libraries.img-tumb-lightbox 
-                            :uri="$item->cover_image_url" 
+                            :uri="$item->cover_image_url ? $item->cover_image_url : asset('images/placeholderVisual.jpg')" 
                             album="Portadas"
                             class_w_h="h-auto w-9"
                             class="w-10"
@@ -103,7 +103,7 @@ new class extends Component
 
     {{-- paginacion --}}
     <div class="mt-3">
-        {{ $this->querySeries()->links() }}
+        {{ $this->querySearch()->links() }}
     </div>
 
     {{-- exportacion e importacion de excel --}}

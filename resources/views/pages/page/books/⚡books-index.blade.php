@@ -25,7 +25,7 @@ new class extends Component
 
     //////////////////////////////////////////////////////////////////// CONSULTA DE LISTADO Y ELIMINAR ITEM
     // consulta de item
-    public function queryBooks(){
+    public function querySearch(){
         return Book::where('user_id', Auth::id())
             ->with(['subjects', 'genres', 'collections', 'reads', 'tags'])
             ->where(function ($query) {
@@ -45,7 +45,7 @@ new class extends Component
     // exportar pdf
     // public function exportBooksPdf()
     // {
-    //     $books = $this->queryBooks();
+    //     $books = $this->querySearch();
 
     //     $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('exports.books-pdf', [
     //         'books' => $books
@@ -55,7 +55,7 @@ new class extends Component
     // }
     public function exportBooksPdf()
     {
-        $books = $this->queryBooks();
+        $books = $this->querySearch();
 
         $html = view('exports.books-pdf', [
             'books' => $books
@@ -96,13 +96,13 @@ new class extends Component
 
     {{-- listado de libros --}}
     <div class="space-y-2">
-        @foreach ($this->queryBooks() as $item)
+        @foreach ($this->querySearch() as $item)
             <div class="grid grid-cols-12 gap-1 items-start justify-center">
 
                 <div class="col-span-10 flex gap-1">
                     <div>
                         <x-libraries.img-tumb-lightbox 
-                            :uri="$item->cover_image_url" 
+                            :uri="$item->cover_image_url ? $item->cover_image_url : asset('images/placeholderBook.jpg')" 
                             album="Portadas"
                             class_w_h="h-auto w-9"
                             class="w-10"
@@ -134,7 +134,7 @@ new class extends Component
 
     {{-- paginacion --}}
     <div class="mt-3">
-        {{ $this->queryBooks()->links() }}
+        {{ $this->querySearch()->links() }}
     </div>
 
     {{-- exportacion e importacion de excel --}}

@@ -10,19 +10,12 @@ new class extends Component
 {
     use WithFileUploads;
     use WithPagination;
+    use \App\Traits\SortTitle;
 
-    //////////////////////////////////////////////////////////////////// PROPIEDADES DE PAGINACION
-    // propiedades para paginacion y orden, actualizar al buscar
-    public $search = '', $sortField = 'name', $sortDirection = 'asc', $perPage = 10000;
-    public function updatingSearch(){$this->resetPage();}
-    // funcion para ordenar la tabla
-    public function sortBy($field){
-        if ($this->sortField === $field) {
-            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
-        } else {
-            $this->sortDirection = 'asc';
-        }
-        $this->sortField = $field;
+    //////////////////////////////////////////////////////////////////// PROPIEDADES
+    public function mount(){
+        $this->sortField = 'name';
+        $this->sortDirection = 'asc';
     }
 
     //////////////////////////////////////////////////////////////////// PROPIEDADES
@@ -33,7 +26,7 @@ new class extends Component
 
     //////////////////////////////////////////////////////////////////// CONSULTA DE LISTADO Y ELIMINAR ITEM
     // consulta de item
-    public function queryCollections(){
+    public function querySearch(){
         return Collection::where('user_id', Auth::id())
             ->where(function ($query) {
                 $query->where('name', 'like', "%{$this->search}%")
@@ -86,13 +79,19 @@ new class extends Component
 
     {{-- listado de sagas --}}
     <div class="space-y-2">
-        @foreach ($this->queryCollections() as $item)
+        @foreach ($this->querySearch() as $item)
             <div class="flex items-center justify-between">
 
                 <div class="flex items-center gap-3">
-                    <img src="{{ $item->cover_image_url }}" class="w-8 h-8 bg-cover rounded-sm" alt="">
-                    <p><a class="hover:underline" href="{{ route('collections.show', ['collectionUuid' => $item->uuid]) }}">{{ $item->name }}</p></a>
-                    <p class="text-xs italic text-gray-700 dark:text-gray-300">{{ $item->books_amount . ' libro(s)'}} - {{ $item->movies_amount . ' pelicula(s)'}} - {{ $item->seasons_amount . ' temporada(s)'}}</p>
+                    <img src="{{ $item->cover_image_url ? $item->cover_image_url : asset('images/placeholder.jpg') }}" class="w-8 h-8 bg-cover rounded-sm" alt="">
+                    <div>
+                        <p><a class="hover:underline" href="{{ route('collections.show', ['collectionUuid' => $item->uuid]) }}">{{ $item->name }}</a></p>
+                        <p class="text-xs italic text-gray-700 dark:text-gray-300">
+                            {{ $item->books_amount . ' lib.'}} - 
+                            {{ $item->movies_amount . ' pel.'}} - 
+                            {{ $item->seasons_amount . ' temp.'}}
+                        </p>
+                    </div>
                 </div>
 
                 <div class="flex items-center justify-center">
@@ -106,7 +105,7 @@ new class extends Component
 
     {{-- paginacion --}}
     <div class="mt-3">
-        {{ $this->queryCollections()->links() }}
+        {{ $this->querySearch()->links() }}
     </div>
 
     {{-- exportacion e importacion de excel --}}

@@ -16,10 +16,10 @@ trait SortTitle
     public function updatingSortDirection(){$this->resetPage();}
     public function updatingPerPage(){$this->resetPage();}
 
-    public function updatedSearch(){$this->diariesQuery();}
+    public function updatedSearch(){$this->querySearch();}
     
-    public function updatedDayStart(){$this->diariesQuery();}
-    public function updatedDayEnd(){$this->diariesQuery();}
+    public function updatedDayStart(){$this->querySearch();}
+    public function updatedDayEnd(){$this->querySearch();}
  
     // funcion para ordenar la tabla
     public function sortBy($field){

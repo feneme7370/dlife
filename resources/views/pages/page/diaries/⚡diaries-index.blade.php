@@ -23,7 +23,7 @@ new class extends Component
         $this->sortFieldSelected('day');
         $this->dayStart = \Carbon\Carbon::parse('1900-01-01')->format('Y-m-d');
         $this->dayEnd = \Carbon\Carbon::parse('2200-12-31')->format('Y-m-d');
-        $this->diariesQuery();
+        $this->querySearch();
         $this->highlightedDays = $this->getDays();
     }
 
@@ -36,7 +36,7 @@ new class extends Component
     public $tag_selected, $category_selected;
 
     //////////////////////////////////////////////////////////////////// CONSULTA DE LISTADO Y ELIMINAR ITEM
-    protected function diariesQuery(){
+    protected function querySearch(){
         $this->diaries = Diary::where('user_id', Auth::id())
             ->where(function ($query) {
                 $query->where('title', 'like', "%{$this->search}%")
@@ -69,7 +69,7 @@ new class extends Component
     public function deleteItem($uuid){
         $item = Diary::where('user_id', Auth::id())->where('uuid', $uuid)->first();
         $item->delete();
-        $this->diariesQuery();
+        $this->querySearch();
     }
 
     //////////////////////////////////////////////////////////////////// CONSULTA DE TEMPLATES
@@ -110,7 +110,7 @@ new class extends Component
     public function selectDay($date){
         $this->dayStart = \Carbon\Carbon::parse($date)->format('Y-m-d');
         $this->dayEnd = \Carbon\Carbon::parse($date)->format('Y-m-d');
-        $this->diariesQuery();
+        $this->querySearch();
     }
 
     // eliminar filtros y traer todo nuevamente
@@ -120,7 +120,7 @@ new class extends Component
         $this->search = '';
         $this->category_selected = '';
         $this->tag_selected = '';
-        $this->diariesQuery();
+        $this->querySearch();
     }
 
     // obtener los dias con datos
@@ -155,7 +155,7 @@ new class extends Component
         $this->selected = [];
         $this->selectAll = false;
 
-        $this->diariesQuery();
+        $this->querySearch();
     }
 };
 ?>

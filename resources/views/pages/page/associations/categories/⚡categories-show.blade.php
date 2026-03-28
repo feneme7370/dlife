@@ -1,36 +1,30 @@
 <?php
-
-use App\Models\Page\Collection;
+use App\Models\Page\Category;
 use Livewire\Component;
 
 new class extends Component
 {
     //////////////////////////////////////////////////////////////////// PROPIEDADES
     //propiedades de titulos
-    public string $titlePage = 'Ver saga';
-    public string $subtitlePage = 'Ver sagas de lista';
+    public string $titlePage = 'Ver categoria';
 
     // propiedades del item
     public string $name = '';
     public string $slug = '';
     public string $description = '';
-    public int $books_amount = 0;
-    public int $movies_amount = 0;
-    public int $series_amount = 0;
+    public string $category_type = '';
     public string $cover_image_url = '';
     public string $uuid = '';
     public int $user_id = 0;
 
     //////////////////////////////////////////////////////////////////// PRE CARGAR DATOS
     // precargar datos al iniciar pagina
-    public function mount($collectionUuid){
-        $item = Collection::where('uuid', $collectionUuid)->first();
+    public function mount($categoryUuid){
+        $item = Category::where('uuid', $categoryUuid)->first();
         $this->name = $item->name ?? '';
         $this->slug = $item->slug ?? '';
         $this->description = $item->description ?? '';
-        $this->books_amount = $item->books_amount ?? 0;
-        $this->movies_amount = $item->movies_amount ?? 0;
-        $this->series_amount = $item->series_amount ?? 0;
+        $this->category_type = $item->category_type ?? '';
         $this->cover_image_url = $item->cover_image_url ?? '';
         $this->uuid = $item->uuid ?? '';
         $this->user_id = $item->user_id ?? 0;
@@ -47,7 +41,7 @@ new class extends Component
         :breadcrumbs="[
             ['label' => 'Dashboard', 'route' => 'dashboard'],
             ['label' => 'Asociaciones', 'route' => 'associations.index'],
-            ['label' => 'Colecciones', 'route' => 'collections.index'],
+            ['label' => 'Categorias', 'route' => 'categories.index'],
             ['label' => $this->titlePage]
         ]"
     />
@@ -57,16 +51,8 @@ new class extends Component
         <img src="{{ $this->cover_image_url }}" class="w-72 h-72 bg-cover rounded-sm" alt="">
         <div>
             <p class="text-xl font-bold">{{ $this->name }}</p>
-            @if ($this->books_amount)
-                <p class="mt-1 italic text-xs">{{ $this->books_amount }} libro(s)</p>
-            @endif
-            @if ($this->movies_amount)
-                <p class="mt-1 italic text-xs">{{ $this->movies_amount }} pelicula(s)</p>
-            @endif
-            @if ($this->series_amount)
-                <p class="mt-1 italic text-xs">{{ $this->series_amount }} serie(s)</p>
-            @endif
             <p class="mt-3">{{ $this->description }}</p>
+            <p class="mt-3">{{ $this->category_type }}</p>
         </div>
     </div>
 </div>

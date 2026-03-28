@@ -42,8 +42,8 @@ new class extends Component
             ->paginate($this->perPage);
     }
     // eliminar item
-    public function deleteItem($codigo){
-        $item = Blog::where('user_id', Auth::id())->where('uuid', $codigo)->first();
+    public function deleteItem($uuid){
+        $item = Blog::where('user_id', Auth::id())->where('uuid', $uuid)->first();
         $item->delete();
     }
 };
@@ -72,7 +72,12 @@ new class extends Component
             <div class="flex items-center justify-between">
 
                 <div class="flex items-center gap-3">
-                    <img src="{{ $item->cover_image_url }}" class="w-8 h-8 bg-cover rounded-sm" alt="">
+                    <x-libraries.img-tumb-lightbox 
+                        :uri="$item->cover_image_url ? $item->cover_image_url : asset('images/placeholderBook.jpg')" 
+                        album="Portadas"
+                        class_w_h="h-auto w-9"
+                        class="w-10"
+                    />
                     <p><a class="hover:underline" href="{{ route('blogs.show', ['blogUuid' => $item->uuid]) }}">{{ $item->title }}</p></a>
                 </div>
 

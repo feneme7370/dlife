@@ -32,7 +32,7 @@ new class extends Component
 
     //////////////////////////////////////////////////////////////////// CONSULTA DE LISTADO Y ELIMINAR ITEM
     // consulta de item
-    public function queryRecipes(){
+    public function querySearch(){
         return Recipe::where('user_id', Auth::id())
             ->where(function ($query) {
                 $query->where('title', 'like', "%{$this->search}%")
@@ -68,11 +68,16 @@ new class extends Component
 
     {{-- listado de sagas --}}
     <div class="space-y-2">
-        @foreach ($this->queryRecipes() as $item)
+        @foreach ($this->querySearch() as $item)
             <div class="flex items-center justify-between">
 
                 <div class="flex items-center gap-3">
-                    <img src="{{ $item->cover_image_url }}" class="w-8 h-8 bg-cover rounded-sm" alt="">
+                    <x-libraries.img-tumb-lightbox 
+                        :uri="$item->cover_image_url ? $item->cover_image_url : asset('images/placeholderBook.jpg')" 
+                        album="Portadas"
+                        class_w_h="h-auto w-9"
+                        class="w-10"
+                    />
                     <p><a class="hover:underline" href="{{ route('recipes.show', ['recipeUuid' => $item->uuid]) }}">{{ $item->title }}</p></a>
                 </div>
 
@@ -87,7 +92,7 @@ new class extends Component
 
     {{-- paginacion --}}
     <div class="mt-3">
-        {{ $this->queryRecipes()->links() }}
+        {{ $this->querySearch()->links() }}
     </div>
 
     {{-- exportacion e importacion de excel --}}

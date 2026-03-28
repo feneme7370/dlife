@@ -510,9 +510,12 @@ new class extends Component
                 :items="$this->subjects()"
             />
         </div>
-        @if ($this->actors_recommended)
-            <p class="text-xs italic">Recomendado: {{ implode(', ', $this->actors_recommended) }}</p>
-        @endif
+
+        <div>
+            @foreach ($this->actors_recommended as $subject_recommended)
+                <span class="italic text-xs hover:underline cursor-pointer"  wire:click="selectSubjectSerie('{{ $subject_recommended }}')">{{ $subject_recommended }}</span>
+            @endforeach
+        </div>
 
         <flux:label>Etiquetas</flux:label>
         <flux:input.group>

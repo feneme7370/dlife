@@ -15,7 +15,7 @@
     @if ($label)
         <flux:label>{{ $label }}</flux:label>
     @endif
-    <flux:input x-model="search" placeholder="Buscar..." />
+    <flux:input x-model="search"  placeholder="Buscar..." />
 
     <!-- Lista de opciones -->
     <ul class="max-h-40 overflow-y-auto text-sm grid grid-cols-2 md:grid-cols-3 gap-1 my-0.5">
