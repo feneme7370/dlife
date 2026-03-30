@@ -26,9 +26,6 @@
                     <flux:sidebar.item icon="chat-bubble-oval-left" :href="route('blogs.index')" :current="request()->routeIs('blogs.index')" wire:navigate>
                         {{ __('Blogs') }}
                     </flux:sidebar.item>
-                    <flux:sidebar.item icon="chat-bubble-bottom-center-text" :href="route('quotes.index')" :current="request()->routeIs('quotes.index')" wire:navigate>
-                        {{ __('Frases') }}
-                    </flux:sidebar.item>
                 </flux:sidebar.group>
 
             <flux:spacer />
@@ -42,6 +39,17 @@
                     </flux:sidebar.item>
                     <flux:sidebar.item icon="book-open" :href="route('books.index')" :current="request()->routeIs('books.index')" wire:navigate>
                         {{ __('Libros') }}
+                    </flux:sidebar.item>
+                </flux:sidebar.group>
+
+            <flux:spacer />
+
+                <flux:sidebar.group :heading="__('Bullet')" class="grid">
+                    <flux:sidebar.item icon="bookmark-square" :href="route('bullets.index')" :current="request()->routeIs('bullets.index')" wire:navigate>
+                        {{ __('BuJo') }}
+                    </flux:sidebar.item>
+                    <flux:sidebar.item icon="chat-bubble-bottom-center-text" :href="route('quotes.index')" :current="request()->routeIs('quotes.index')" wire:navigate>
+                        {{ __('Frases') }}
                     </flux:sidebar.item>
                 </flux:sidebar.group>
 

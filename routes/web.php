@@ -51,7 +51,9 @@ Route::middleware(['auth'])->group(function () {
     // Seccion libros
     Route::livewire('books', 'pages::page.books.books-index')->name('books.index');
     Route::livewire('books_library', 'pages::page.books.books-library')->name('books_library.index');
+    Route::livewire('books_library_manga', 'pages::page.books.books-library-manga')->name('books_library_manga.index');
     Route::livewire('books_data', 'pages::page.books.books-data')->name('books_data.index');
+    Route::livewire('books_data_manga', 'pages::page.books.books-data-manga')->name('books_data_manga.index');
     Route::livewire('books_incomplete', 'pages::page.books.books-incomplete')->name('books_incomplete.index');
     Route::livewire('books/create', 'pages::page.books.books-edit')->name('books.create');
     Route::livewire('books/{bookUuid}/edit', 'pages::page.books.books-edit')->name('books.edit');
@@ -101,12 +103,18 @@ Route::middleware(['auth'])->group(function () {
     Route::livewire('quotes/{quoteUuid}/edit', 'pages::page.quotes.quotes-edit')->name('quotes.edit');
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    // Seccion recipes
+    // Seccion blogs
     Route::livewire('blogs', 'pages::page.blogs.blogs-index')->name('blogs.index');
     Route::livewire('blogs/create', 'pages::page.blogs.blogs-edit')->name('blogs.create');
     Route::livewire('blogs/{blogUuid}/edit', 'pages::page.blogs.blogs-edit')->name('blogs.edit');
     Route::livewire('blogs/{blogUuid}/show', 'pages::page.blogs.blogs-show')->name('blogs.show');
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Seccion bullets
+    Route::livewire('bullets', 'pages::page.bullets.bullets-index')->name('bullets.index');
+    Route::livewire('bullets/create', 'pages::page.bullets.bullets-edit')->name('bullets.create');
+    Route::livewire('bullets/{bulletUuid}/edit', 'pages::page.bullets.bullets-edit')->name('bullets.edit');
+    Route::livewire('bullets/{bulletUuid}/show', 'pages::page.bullets.bullets-show')->name('bullets.show');
 });
 
 require __DIR__.'/settings.php';

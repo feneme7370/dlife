@@ -28,6 +28,6 @@ class BookRead extends Model
     // pertenece a un libro
     public function book()
     {
-        return $this->belongsTo(\App\Models\Page\Book::class, 'user_id', 'id');
+        return $this->belongsTo(\App\Models\Page\Book::class);
     }
 }

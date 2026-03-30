@@ -20,7 +20,7 @@ new class extends Component
     public ?string $slug = null;
     public ?string $excerpt = null;
     public ?string $type = null;
-    public ?string $entry_type = 'blog';
+    public ?string $entry_type = 'bullet';
     public ?int $year = null;
     public ?string $content = null;
     public ?string $content_clear = null;
@@ -33,17 +33,19 @@ new class extends Component
 
     //////////////////////////////////////////////////////////////////// PRE CARGAR DATOS
     // precargar datos al iniciar pagina
-    public function mount($blogUuid = null){
-        $this->blog = Blog::where('uuid', $blogUuid)->first();
+    public function mount($bulletUuid = null){
+        $this->blog = Blog::where('uuid', $bulletUuid)->first();
         
-        $this->titlePage = $this->blog ? 'Modificar blog' : 'Agregar blog';
-        $this->subtitlePage = $this->blog ? 'Modificar datos del blog' : 'Agregar datos del blog';
+        $this->titlePage = $this->blog ? 'Modificar bullet' : 'Agregar bullet';
+        $this->subtitlePage = $this->blog ? 'Modificar datos del bullet' : 'Agregar datos del bullet';
         $this->buttonSubmit = $this->blog ? 'Modificar' : 'Agregar';
 
         $this->title = $this->blog?->title ?? null;
         $this->slug = $this->blog?->slug ?? null;
         $this->excerpt = $this->blog?->excerpt ?? null;
         $this->type = $this->blog?->type ?? null;
+        $this->entry_type = $this->blog?->entry_type ?? null;
+        $this->year = $this->blog?->year ?? null;
         $this->content = $this->blog?->content ?? null;
         $this->content_clear = $this->blog?->content_clear ?? null;
 
@@ -64,7 +66,7 @@ new class extends Component
             'excerpt' => ['required', 'string'],
             'type' => ['required', 'string'],
             'entry_type' => ['required', 'string'],
-            'year' => ['nullable', 'integer'],
+            'year' => ['required', 'integer'],
             'content' => ['nullable', 'string'],
             'content_clear' => ['nullable', 'string'],
             'cover_image_url' => ['nullable', 'url', 'max:65535'],
@@ -91,7 +93,7 @@ new class extends Component
     //////////////////////////////////////////////////////////////////// STORE PARA CREAR O EDITAR
     // cosultas
     public function types(){
-        return \App\Models\Page\Blog::types();
+        return \App\Models\Page\Blog::bullet_types();
     }
 
     //////////////////////////////////////////////////////////////////// STORE PARA CREAR O EDITAR
@@ -162,7 +164,7 @@ new class extends Component
         }
 
         // redireccionar
-        $this->redirectRoute('blogs.index', navigate:true);
+        $this->redirectRoute('bullets.index', navigate:true);
     }
 };
 ?>
@@ -171,11 +173,11 @@ new class extends Component
     {{-- titulo, descripcion y breadcrumbs --}}
     <x-page.partials.title-page 
         :title="$this->titlePage"
-        :create-route="'blogs.index'"
+        :create-route="'bullets.index'"
         icon="arrow-uturn-left"
         :breadcrumbs="[
             ['label' => 'Dashboard', 'route' => 'dashboard'],
-            ['label' => 'Blogs', 'route' => 'blogs.index'],
+            ['label' => 'BuJo', 'route' => 'bullets.index'],
             ['label' => $this->titlePage]
         ]"
     />
@@ -202,7 +204,7 @@ new class extends Component
         />
 
         <div class="grid grid-cols-2 gap-1">
-            <flux:input type="text" label="Link de imagen" wire:model="cover_image_url" placeholder="Pegue el link de una imagen"/>
+            <flux:input type="int" label="Año" wire:model="year" placeholder="Año de BuJo"/>
             
             <flux:select wire:model="type" label="Tipo">
                 <option value="">Seleccionar tipo</option>

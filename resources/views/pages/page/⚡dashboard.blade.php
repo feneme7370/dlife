@@ -21,10 +21,13 @@ new class extends Component
     public $seriesTotal;
     public $booksYear;
     public $booksTotal;
+    public $mangasYear;
+    public $mangasTotal;
     public $diariesYear;
     public $diariesTotal;
     public $recipesTotal;
     public $blogsTotal;
+    public $bulletsTotal;
 
     public $quoteContent;
     public $quoteAuthor;
@@ -41,15 +44,20 @@ new class extends Component
         $this->seriesYear = $series->whereNotNull('end_view')->whereYear('end_view', now()->year)->count();
 
         $books = BookRead::where('user_id', Auth::id());
-        $this->booksTotal = $books->whereNotNull('end_read')->count();
-        $this->booksYear = $books->whereNotNull('end_read')->whereYear('end_read', now()->year)->count();
+        $this->booksTotal = $books->whereHas('book', fn($q) => $q->where('type', 1))->whereNotNull('end_read')->count();
+        $this->booksYear = $books->whereHas('book', fn($q) => $q->where('type', 1))->whereNotNull('end_read')->whereYear('end_read', now()->year)->count();
+        
+        $mangas = BookRead::where('user_id', Auth::id());
+        $this->mangasTotal = $mangas->whereHas('book', fn($q) => $q->where('type', 2))->whereNotNull('end_read')->count();
+        $this->mangasYear = $mangas->whereHas('book', fn($q) => $q->where('type', 2))->whereNotNull('end_read')->whereYear('end_read', now()->year)->count();
 
         $diaries = Diary::where('user_id', Auth::id());
         $this->diariesTotal = $diaries->count();
         $this->diariesYear = $diaries->whereYear('day', now()->year)->count();
 
         $this->recipesTotal = Recipe::where('user_id', Auth::id())->count();
-        $this->blogsTotal = Blog::where('user_id', Auth::id())->count();
+        $this->blogsTotal = Blog::where('user_id', Auth::id())->where('entry_type', 'blog')->count();
+        $this->bulletsTotal = Blog::where('user_id', Auth::id())->where('entry_type', 'bullet')->count();
 
         $this->randomQuote();
     }
@@ -113,6 +121,13 @@ new class extends Component
                 <flux:text class="mt-2">Total ({{ $booksTotal }}).</flux:text>
             </flux:card>
         </a>
+        <a href="{{ route('books_library.index') }}" aria-label="Latest on our blog">
+            <flux:card size="sm" class="hover:bg-zinc-50 dark:hover:bg-zinc-700">
+                <flux:heading class="flex items-center gap-2">Mangas <flux:icon name="arrow-up-right" class="ml-auto text-zinc-400" variant="micro" /></flux:heading>
+                <flux:text class="mt-2">En año ({{ $mangasYear }}).</flux:text>
+                <flux:text class="mt-2">Total ({{ $mangasTotal }}).</flux:text>
+            </flux:card>
+        </a>
         <a href="{{ route('diaries.index') }}" aria-label="Latest on our blog">
             <flux:card size="sm" class="hover:bg-zinc-50 dark:hover:bg-zinc-700">
                 <flux:heading class="flex items-center gap-2">Diario <flux:icon name="arrow-up-right" class="ml-auto text-zinc-400" variant="micro" /></flux:heading>
@@ -128,8 +143,9 @@ new class extends Component
         </a>
         <a href="{{ route('blogs.index') }}" aria-label="Latest on our blog">
             <flux:card size="sm" class="hover:bg-zinc-50 dark:hover:bg-zinc-700">
-                <flux:heading class="flex items-center gap-2">Blogs <flux:icon name="arrow-up-right" class="ml-auto text-zinc-400" variant="micro" /></flux:heading>
-                <flux:text class="mt-2">Total ({{ $blogsTotal }}).</flux:text>
+                <flux:heading class="flex items-center gap-2">Blogs y Bujos <flux:icon name="arrow-up-right" class="ml-auto text-zinc-400" variant="micro" /></flux:heading>
+                <flux:text class="mt-2">Blogs ({{ $blogsTotal }}).</flux:text>
+                <flux:text class="mt-2">Bullets ({{ $bulletsTotal }}).</flux:text>
             </flux:card>
         </a>
     </div>

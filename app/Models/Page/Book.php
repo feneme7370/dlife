@@ -88,7 +88,6 @@ class Book extends Model
         return [
             1 => 'Libro 📖', 
             2 => 'Manga 📚',
-            3 => 'Historieta 📄',
         ];
     }
 }

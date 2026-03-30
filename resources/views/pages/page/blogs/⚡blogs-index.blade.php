@@ -13,7 +13,7 @@ new class extends Component
 
     //////////////////////////////////////////////////////////////////// PROPIEDADES DE PAGINACION
     // propiedades para paginacion y orden, actualizar al buscar
-    public $search = '', $sortField = 'title', $sortDirection = 'asc', $perPage = 10000;
+    public $search = '', $sortField = 'updated_at', $sortDirection = 'desc', $perPage = 10000;
     public function updatingSearch(){$this->resetPage();}
     // funcion para ordenar la tabla
     public function sortBy($field){
@@ -34,6 +34,7 @@ new class extends Component
     // consulta de item
     public function queryBlogs(){
         return Blog::where('user_id', Auth::id())
+            ->where('entry_type', 'blog')
             ->where(function ($query) {
                 $query->where('title', 'like', "%{$this->search}%")
                       ->orWhere('slug', 'like', "%{$this->search}%");
@@ -99,7 +100,7 @@ new class extends Component
     <livewire:pages::page.partials.export-excel-complete 
         table_export="Blogs"
         table_import="Blogs"
-        name_file_export="blogs"
+        name_file_export="blogsandbullets"
         route_redirect_after_import="blogs.index"
     />
 

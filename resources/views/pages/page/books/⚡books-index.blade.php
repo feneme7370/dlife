@@ -84,9 +84,18 @@ new class extends Component
             ['label' => $this->titlePage]
             ]"
     />
-    <flux:badge color="pink"><a href="{{ route('books_library.index') }}">Libreria</a></flux:badge>
-    <flux:badge color="violet"><a href="{{ route('books_data.index') }}">Estadisticas</a></flux:badge>
-    <flux:badge color="purple"><a href="{{ route('books_incomplete.index') }}">Pendientes</a></flux:badge>
+
+    <div class="flex justify-start items-center gap-3">
+        <div class="space-y-0.5">
+            <flux:badge color="pink"><a href="{{ route('books_library.index') }}">Libreria</a></flux:badge>
+            <flux:badge color="pink"><a href="{{ route('books_data.index') }}">Estadisticas</a></flux:badge>
+        </div>
+        <div class="space-y-0.5">
+            <flux:badge color="violet"><a href="{{ route('books_library_manga.index') }}">Mangas</a></flux:badge>
+            <flux:badge color="violet"><a href="{{ route('books_data_manga.index') }}">Estadisticas</a></flux:badge>
+        </div>
+        <flux:badge color="purple"><a href="{{ route('books_incomplete.index') }}">Pendientes</a></flux:badge>
+    </div>
 
     {{-- toast de mensaje --}}
     <x-libraries.flux.toast-success />

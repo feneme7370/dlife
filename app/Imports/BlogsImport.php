@@ -18,6 +18,8 @@ class BlogsImport implements ToModel, WithHeadingRow
                 'slug' => \Illuminate\Support\Str::slug($row['title'] . '-' . \Illuminate\Support\Facades\Auth::id()),
                 'excerpt' => $row['excerpt'] ?? '',
                 'type' => $row['type'] ?? '',
+                'entry_type' => $row['entry_type'] ?? '',
+                'year' => $row['year'] ?? null,
 
                 'content' => $row['content'],
                 'content_clear' => $row['content_clear'],

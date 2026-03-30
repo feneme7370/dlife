@@ -149,18 +149,25 @@ new class extends Component
 
         $res = \Illuminate\Support\Facades\Http::get('https://openlibrary.org/search.json', [
             'q' => $this->searchBookImage,
-            'lang' => 'spa' // mejor que language, // 🔥 español
+            'language' => 'spa', // 🔥 español
+            'fields' => 'key,title,author_name,first_publish_year,cover_i,editions'
         ]);
 
         $this->resultsImages = collect($res->json()['docs'])
             ->take(10)
             ->toArray();
+        
+        // dd($res->json());
     }
     public function selectBookImage($key, $cover_i, $author_name, $first_publish_year, $title_name)
     {
         $res = \Illuminate\Support\Facades\Http::get("https://openlibrary.org{$key}.json", [
-            'lang' => 'spa'
+            'language' => 'spa',
+            'fields' => 'key,title,author_name,first_publish_year,cover_i,editions'
         ])->json();
+
+        dd($res);
+
         // descripción
         if(isset($res['description'])){
             $this->synopsis = is_array($res['description'])
@@ -177,6 +184,7 @@ new class extends Component
         $this->author_recommended[0] = $author_name;
         $this->release_date = $first_publish_year;
         $this->title = $title_name;
+        $this->original_title = $res['title'] ?? $title_name;
         $this->cover_image_url = isset($cover_i)
             ? "https://covers.openlibrary.org/b/id/".$cover_i."-L.jpg"
             : '';
@@ -868,7 +876,7 @@ new class extends Component
 
                     @foreach($resultsImages as $item)
                         <div 
-                            wire:click="selectBookImage('{{ $item['key'] }}', '{{ $item['cover_i'] ?? '' }}', '{{ $item['author_name'][0] ?? '' }}', '{{ $item['first_publish_year'] ?? '' }}', '{{ $item['title'] ?? '' }}')"
+                            wire:click="selectBookImage('{{ $item['key'] }}', '{{ $item['cover_i'] ?? '' }}', '{{ $item['author_name'][0] ?? '' }}', '{{ $item['first_publish_year'] ?? '' }}', '{{ $item['editions']['docs'][0]['title'] ?? $item['title']}}')"
                             class="flex gap-3 p-2 cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded"
                         >
                             <img 
@@ -878,7 +886,7 @@ new class extends Component
 
                             <div>
                                 <div class="font-semibold">
-                                    {{ $item['title'] }}
+                                    {{ $item['editions']['docs'][0]['title'] ?? $item['title'] }}
                                 </div>
 
                                 <div class="text-xs text-zinc-500">

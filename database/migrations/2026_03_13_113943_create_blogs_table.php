@@ -23,6 +23,9 @@ return new class extends Migration
 
             // tipo de contenido
             $table->string('type')->nullable(); // ejemplo: tip, charla, idea, pensamiento, resumen
+            $table->string('entry_type')->nullable(); // ejemplo: blog, bullet, podcast, video
+
+            $table->integer('year')->nullable(); // año de referencia para organizar por año
 
             // visibilidad
             $table->boolean('is_public')->default(false);

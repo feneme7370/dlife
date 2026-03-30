@@ -16,6 +16,9 @@ class Blog extends Model
         'content_clear',
 
         'type',
+        'entry_type',
+        'year',
+        
         'is_public',
 
         'cover_image',
@@ -27,6 +30,7 @@ class Blog extends Model
 
     protected $casts = [
         'is_public' => 'boolean',
+        'year' => 'integer',
     ];
  
     // pertenece a un usuario
@@ -50,6 +54,32 @@ class Blog extends Model
             'summary' => 'Resumen 📚',
             'random' => 'Random 🎲',
 
+        ];
+    }
+
+    public static function bullet_types(){
+        return [
+
+            'travel' => 'Viajes ✈️',
+            'about_me' => 'Sobre mí 🙋‍♂️',
+            'activities' => 'Actividades 🎯',
+            'wishlist' => 'Cosas que quiero 🛍️',
+            'planner' => 'Planner 🗓️',
+            'goals' => 'Metas 🎯',
+            'memories' => 'Recuerdos 📸',
+            'habits' => 'Hábitos 🔁',
+            'recipes' => 'Recetas 🍝',
+            'media' => 'Películas, series y libros 🎬',
+
+        ];
+    }
+
+    public static function entryTypes(){
+        return [
+            'blog' => 'Blog 📝',
+            'bullet' => 'Bullet 🗒️',
+            'podcast' => 'Podcast 🎧',
+            'video' => 'Video 🎥',
         ];
     }
 

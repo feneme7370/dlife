@@ -17,8 +17,8 @@ new class extends Component
     //////////////////////////////////////////////////////////////////// PROPIEDADES
     // propiedades de item y titulos
     public $books = [];
-    public $titlePage = 'Libreria';
-    public $subtitlePage = 'Listado de libros leidos';
+    public $titlePage = 'Mangas';
+    public $subtitlePage = 'Listado de mangas leidos';
     public $status_read, $collection_selected, $subject_selected, $genre_selected, $star_selected;
 
     //////////////////////////////////////////////////////////////////// PRE CARGAR DATOS
@@ -44,7 +44,7 @@ new class extends Component
     public function booksQuery(){
         return \App\Models\Page\Book::where('user_id', \Illuminate\Support\Facades\Auth::id())
         
-            ->whereNot('type', 2) // sacar los mangas
+            ->where('type', 2) // sacar los mangas
             ->whereHas('reads')
             ->withMax('reads', 'end_read')
             ->whereHas('reads', fn($q) => $q->where('end_read', '<>' ,''))

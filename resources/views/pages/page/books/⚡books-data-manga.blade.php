@@ -7,8 +7,8 @@ new class extends Component
     //////////////////////////////////////////////////////////////////// PROPIEDADES PRINCIPALES
     // propiedades de item y titulos
     public $books;
-    public $titlePage = 'Datos de libros';
-    public $subtitlePage = 'Estadisticas de libros leidos';
+    public $titlePage = 'Datos de mangas';
+    public $subtitlePage = 'Estadisticas de mangas leidos';
 
     // fecjas de inicio y fin
     public $year_start, $year_end;
@@ -41,7 +41,7 @@ new class extends Component
 
         // Traés todos los libros del usuario (sin filtros por fecha)
         $this->books = \App\Models\Page\Book::where('user_id', \Illuminate\Support\Facades\Auth::id())
-        ->whereNot('type', 2) // sacar los mangas
+        ->where('type', 2) // sacar los mangas
         ->orderBy('title', 'asc')
             ->with(['subjects', 'genres', 'collections', 'reads', 'tags'])
             ->get();

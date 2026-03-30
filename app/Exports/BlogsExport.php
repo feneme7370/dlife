@@ -19,6 +19,8 @@ class BlogsExport implements FromCollection, WithHeadings
                 'slug' => $blog->slug,
                 'excerpt' => $blog->excerpt,
                 'type' => $blog->type,
+                'entry_type' => $blog->entry_type,
+                'year' => $blog->year,
 
                 'content' => $blog->content,
                 'content_clear' => $blog->content_clear,
@@ -44,6 +46,8 @@ class BlogsExport implements FromCollection, WithHeadings
         'slug',
         'excerpt',
         'type',
+        'entry_type',
+        'year',
 
         'content',
         'content_clear',
