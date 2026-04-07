@@ -10,6 +10,9 @@ new class extends Component
 ?>
 
 <div>
+
+    {{-- <livewire:pages::page.composables.cbz-compressed /> --}}
+
     {{-- titulo, descripcion y breadcrumbs --}}
     <x-page.partials.title-page 
         :title="$this->titlePage"

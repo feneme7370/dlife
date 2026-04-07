@@ -18,6 +18,8 @@ class DatabaseSeeder extends Seeder
             \Database\Seeders\Page\UserSeeder::class,
             \Database\Seeders\Page\LanguageSeeder::class,
             \Database\Seeders\Page\ReadingFormatSeeder::class,
+            \Database\Seeders\Page\PlatformSeeder::class,
+
         ]);
     }
 }

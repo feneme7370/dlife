@@ -18,6 +18,7 @@ trait QueryStrings
         
         'category_selected' => [ 'as' => 'cat' ],
         'tag_selected' => [ 'as' => 'tag' ],
+        'platform_selected' => [ 'as' => 'plat' ],
         
         'star_selected' => [ 'as' => 'star' ],
         ];

@@ -4,18 +4,12 @@ namespace App\Models\Page;
 
 use Illuminate\Database\Eloquent\Model;
 
-class BookGenre extends Model
+class Platform extends Model
 {
     protected $fillable = [
         'name',
-        'slug',
-        'name_general',
-        'slug_general',
-
-        'description', 
-
-        'cover_image',
-        'cover_image_url',
+        'brand',
+        'release_year', 
 
         'uuid',
         'user_id',
@@ -27,8 +21,8 @@ class BookGenre extends Model
     }
 
     // tiene muchos libros para relacionarse
-    public function books(){
-        return $this->belongsToMany(\App\Models\Page\Book::class, 'book_book_genres')
+    public function games(){
+        return $this->belongsToMany(\App\Models\Page\Game::class, 'game_platform')
                     ->withTimestamps();
     }
 }

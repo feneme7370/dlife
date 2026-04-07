@@ -115,6 +115,16 @@ Route::middleware(['auth'])->group(function () {
     Route::livewire('bullets/create', 'pages::page.bullets.bullets-edit')->name('bullets.create');
     Route::livewire('bullets/{bulletUuid}/edit', 'pages::page.bullets.bullets-edit')->name('bullets.edit');
     Route::livewire('bullets/{bulletUuid}/show', 'pages::page.bullets.bullets-show')->name('bullets.show');
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Seccion games
+    Route::livewire('games', 'pages::page.medias.games.games-index')->name('games.index');
+    Route::livewire('games_library', 'pages::page.medias.games.games-library')->name('games_library.index');
+    Route::livewire('games_data', 'pages::page.medias.games.games-data')->name('games_data.index');
+    // Route::livewire('games_incomplete', 'pages::page.medias.games.games-incomplete')->name('games_incomplete.index');
+    Route::livewire('games/create', 'pages::page.medias.games.games-edit')->name('games.create');
+    Route::livewire('games/{gameUuid}/edit', 'pages::page.medias.games.games-edit')->name('games.edit');
+    Route::livewire('games/{gameUuid}/show', 'pages::page.medias.games.games-show')->name('games.show');
 });
 
 require __DIR__.'/settings.php';

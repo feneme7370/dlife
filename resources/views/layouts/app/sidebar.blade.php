@@ -40,6 +40,9 @@
                     <flux:sidebar.item icon="book-open" :href="route('books.index')" :current="request()->routeIs('books.index')" wire:navigate>
                         {{ __('Libros') }}
                     </flux:sidebar.item>
+                    <flux:sidebar.item icon="puzzle-piece" :href="route('games.index')" :current="request()->routeIs('games.index')" wire:navigate>
+                        {{ __('Juegos') }}
+                    </flux:sidebar.item>
                 </flux:sidebar.group>
 
             <flux:spacer />

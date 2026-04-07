@@ -10,35 +10,72 @@ class BooksImport implements ToModel, WithHeadingRow
 {
     public function model(array $row)
     {
-        // 1️⃣ Crear o actualizar por UUID
-        $book = \App\Models\Page\Book::updateOrCreate(
-            ['uuid' => $row['uuid']], // clave única
-            [
-                'title' => \Illuminate\Support\Str::title(trim($row['title'])),
-                'slug' => \Illuminate\Support\Str::slug($row['title'] . '-' . \Illuminate\Support\Facades\Auth::id()),
-                'original_title' => $row['original_title'],
-                'synopsis' => $row['synopsis'],
-                'release_date' => $row['release_date'],
-                'number_collection' => $row['number_collection'] ?? 1,
-                'pages' => $row['pages'] ?? 1,
-                'type' => $row['type'] ?? 1,
+        // // 1️⃣ Crear o actualizar por UUID
+        // $book = \App\Models\Page\Book::updateOrCreate(
+        //     ['uuid' => $row['uuid'],'slug' => $row['slug']], // clave única
+        //     [
+        //         'title' => \Illuminate\Support\Str::title(trim($row['title'])),
+        //         'slug' => \Illuminate\Support\Str::slug($row['title'] . '-' . \Illuminate\Support\Facades\Auth::id()),
+        //         'original_title' => $row['original_title'],
+        //         'synopsis' => $row['synopsis'],
+        //         'release_date' => $row['release_date'],
+        //         'number_collection' => $row['number_collection'] ?? 1,
+        //         'pages' => $row['pages'] ?? 1,
+        //         'type' => $row['type'] ?? 1,
 
-                'summary' => $row['summary'],
-                'summary_clear' => $row['summary_clear'],
-                'notes' => $row['notes'],
-                'notes_clear' => $row['notes_clear'],
+        //         'summary' => $row['summary'],
+        //         'summary_clear' => $row['summary_clear'],
+        //         'notes' => $row['notes'],
+        //         'notes_clear' => $row['notes_clear'],
 
-                'is_favorite' => $row['is_favorite'] ?? false,
-                'is_abandonated' => $row['is_abandonated'] ?? false,
-                'is_public' => $row['is_public'] ?? false,
-                'rating' => $row['rating'] ?? 0,
+        //         'is_favorite' => $row['is_favorite'] ?? false,
+        //         'is_abandonated' => $row['is_abandonated'] ?? false,
+        //         'is_public' => $row['is_public'] ?? false,
+        //         'rating' => $row['rating'] ?? 0,
 
-                'cover_image' => $row['cover_image'],
-                'cover_image_url' => $row['cover_image_url'],
-                'user_id' => $row['user_id'] ?? Auth::id(),
-                'uuid' => $row['uuid'] ?? \Illuminate\Support\Str::random(24),
-            ]
-        );
+        //         'cover_image' => $row['cover_image'],
+        //         'cover_image_url' => $row['cover_image_url'],
+        //         'user_id' => $row['user_id'] ?? Auth::id(),
+        //         'uuid' => $row['uuid'] ?? \Illuminate\Support\Str::random(24),
+        //     ]
+        // );
+
+// 1. Buscamos primero si el libro existe por UUID
+$book = \App\Models\Page\Book::where('uuid', $row['uuid'])->first();
+
+// 2. Preparamos los datos base
+$data = [
+    'title'             => \Illuminate\Support\Str::title(trim($row['title'])),
+    'original_title'    => $row['original_title'],
+    'synopsis'          => $row['synopsis'],
+    'release_date'      => $row['release_date'],
+    'number_collection' => $row['number_collection'] ?? 1,
+    'pages'             => $row['pages'] ?? 1,
+    'type'              => $row['type'] ?? 1,
+    'summary'           => $row['summary'],
+    'summary_clear'     => $row['summary_clear'],
+    'notes'             => $row['notes'],
+    'notes_clear'       => $row['notes_clear'],
+    'is_favorite'       => $row['is_favorite'] ?? false,
+    'is_abandonated'    => $row['is_abandonated'] ?? false,
+    'is_public'         => $row['is_public'] ?? false,
+    'rating'            => $row['rating'] ?? 0,
+    'cover_image'       => $row['cover_image'],
+    'cover_image_url'   => $row['cover_image_url'],
+    'user_id'           => $row['user_id'] ?? Auth::id(),
+];
+
+// 3. Solo generamos el slug si es un registro NUEVO 
+// o si el título ha cambiado (para evitar conflictos de integridad)
+if (!$book) {
+    $data['uuid'] = $row['uuid'] ?? (string) \Illuminate\Support\Str::uuid();
+    $data['slug'] = \Illuminate\Support\Str::slug($row['title'] . '-' . Auth::id() . '-' . now()->timestamp);
+    $book = \App\Models\Page\Book::create($data);
+} else {
+    // Si ya existe, actualizamos. 
+    // Nota: Si no quieres cambiar el slug al actualizar, simplemente no lo incluyas aquí.
+    $book->update($data);
+}
 
         // 2️⃣ Sync relaciones many-to-many
         $this->syncRelation($book, $row['languages'], \App\Models\Page\Language::class, 'languages');

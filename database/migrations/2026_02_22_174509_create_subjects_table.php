@@ -24,6 +24,7 @@ return new class extends Migration
             
             // descripciones del item
             $table->text('description')->nullable();
+            $table->string('type')->nullable();
 
             // url de la imagen
             $table->text('cover_image')->nullable();

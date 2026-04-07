@@ -3,6 +3,7 @@
 use App\Models\Page\Blog;
 use App\Models\Page\BookRead;
 use App\Models\Page\Diary;
+use App\Models\Page\GamePlayed;
 use App\Models\Page\MovieView;
 use App\Models\Page\Recipe;
 use App\Models\Page\SerieView;
@@ -19,6 +20,8 @@ new class extends Component
     public $moviesTotal;
     public $seriesYear;
     public $seriesTotal;
+    public $gamesYear;
+    public $gamesTotal;
     public $booksYear;
     public $booksTotal;
     public $mangasYear;
@@ -42,6 +45,10 @@ new class extends Component
         $series = SerieView::where('user_id', Auth::id());
         $this->seriesTotal = $series->whereNotNull('end_view')->count();
         $this->seriesYear = $series->whereNotNull('end_view')->whereYear('end_view', now()->year)->count();
+
+        $games = GamePlayed::where('user_id', Auth::id());
+        $this->gamesTotal = $games->whereNotNull('end_played')->count();
+        $this->gamesYear = $games->whereNotNull('end_played')->whereYear('end_played', now()->year)->count();
 
         $books = BookRead::where('user_id', Auth::id());
         $this->booksTotal = $books->whereHas('book', fn($q) => $q->where('type', 1))->whereNotNull('end_read')->count();
@@ -126,6 +133,13 @@ new class extends Component
                 <flux:heading class="flex items-center gap-2">Mangas <flux:icon name="arrow-up-right" class="ml-auto text-zinc-400" variant="micro" /></flux:heading>
                 <flux:text class="mt-2">En año ({{ $mangasYear }}).</flux:text>
                 <flux:text class="mt-2">Total ({{ $mangasTotal }}).</flux:text>
+            </flux:card>
+        </a>
+        <a href="{{ route('games_library.index') }}" aria-label="Latest on our blog">
+            <flux:card size="sm" class="hover:bg-zinc-50 dark:hover:bg-zinc-700">
+                <flux:heading class="flex items-center gap-2">Juegos <flux:icon name="arrow-up-right" class="ml-auto text-zinc-400" variant="micro" /></flux:heading>
+                <flux:text class="mt-2">En año ({{ $gamesYear }}).</flux:text>
+                <flux:text class="mt-2">Total ({{ $gamesTotal }}).</flux:text>
             </flux:card>
         </a>
         <a href="{{ route('diaries.index') }}" aria-label="Latest on our blog">
