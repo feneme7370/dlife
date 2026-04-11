@@ -52,6 +52,55 @@ new class extends Component
     public $game;
     public $playeds, $playedId;
 
+    //////////////////////////////////////////////////////////////////// BUSCAR EN API TMDB LOS DATOS
+    public $searchGame = '';
+    public $results = [];
+    public $devs_recommended = [];
+    public $categories_recommended = '';
+    public $platforms_recommended = '';
+    public $selectedGame = null;
+
+    public function searchGames(){
+        if(strlen($this->searchGame) < 3){
+            $this->results = [];
+            return;
+        }
+
+        $response = \Illuminate\Support\Facades\Http::get('https://api.rawg.io/api/games', [
+            'key' => env('RAWG_API_KEY'),
+            'search' => $this->searchGame,
+            'language' => 'es-MX',
+        ]);
+
+        $this->results = collect($response->json()['results'])
+            ->take(10)
+            ->toArray();
+
+        // dd($this->results);
+        // $this->results = $response->json()['results'] ?? [];
+    }
+    public function selectGame($id){
+        $response = \Illuminate\Support\Facades\Http::get("https://api.rawg.io/api/games/{$id}", [
+            'key' => env('RAWG_API_KEY'),
+        ]);
+
+        $selectedGame = $response->json();
+        // dd($selectedGame);
+        // autocompletar campos
+        $this->title = $selectedGame['name'];
+        $this->original_title = $selectedGame['name_original'];
+        $this->synopsis = $selectedGame['description'];
+        $this->release_date = substr($selectedGame['released'], 0, 4);
+        $this->cover_image_url = $selectedGame['background_image'];
+        // $this->devs_recommended = collect($credits->json()['cast'])->take(10)->pluck('name')->toArray();
+        $this->devs_recommended = collect($selectedGame['developers'])->take(10)->pluck('name')->toArray();
+        $this->categories_recommended = collect($selectedGame['genres'])->take(10)->pluck('name')->toArray();
+        $this->platforms_recommended = collect($selectedGame['platforms'])->take(10)->toArray();
+
+        // cerrar modal
+        $this->modal('select-game-api')->close();
+    }
+
     //////////////////////////////////////////////////////////////////// VALIDACIONES
     // reglas de validacion
     protected function rules(){
@@ -139,7 +188,7 @@ new class extends Component
     //////////////////////////////////////////////////////////////////// DATOS PARA ASOCIAR
     // traer datos de generos para asociar
     public function categories(){
-        return Category::where('category_type', 'game')->where('user_id', \Illuminate\Support\Facades\Auth::id())->orderBy('name', 'asc')->get();
+        return Category::where('category_type', 'games')->where('user_id', \Illuminate\Support\Facades\Auth::id())->orderBy('name', 'asc')->get();
     }
     // traer datos de colecciones para asociar
     public function collections(){
@@ -327,6 +376,11 @@ new class extends Component
         </div>
 
         <flux:input type="text" label="Link de portada" wire:model="cover_image_url" placeholder="Pegue el link de una imagen"/>
+        @if ($this->cover_image_url)
+            <div>
+                <img src="{{ $this->cover_image_url }}" alt="Portada del libro" class="w-32 h-auto object-cover rounded">
+            </div>            
+        @endif
 
         <div class="grid grid-cols-2 gap-1 my-5">
             <flux:field variant="inline" class="flex items-center">
@@ -396,9 +450,9 @@ new class extends Component
                 </div>
             </flux:checkbox.group>
         </div>
-        {{-- @if ($this->categories_recommended)
+        @if ($this->categories_recommended)
             <p class="text-xs italic">Recomendado: {{ implode(', ', $this->categories_recommended) }}</p>
-        @endif --}}
+        @endif
 
         <div class="grid grid-cols-12 gap-1">
             <div class="col-span-10 space-y-1">
@@ -440,6 +494,16 @@ new class extends Component
             />
         </div>
 
+        @if ($this->platforms_recommended)
+            {{-- <p class="text-xs italic">Recomendado: {{ implode(', ', $this->platforms_recommended) }}</p> --}}
+            <p class="text-xs italic">Recomendado:</p>
+            @foreach($this->platforms_recommended as $p)
+                <span class="text-xs italic">
+                    {{ $p['platform']['name'] }} - 
+                </span>
+            @endforeach
+        @endif
+
         <div class="flex items-center gap-1">
             <flux:modal.trigger name="add-subject">
                 <flux:button size="xs" variant="ghost" icon="plus"></flux:button>
@@ -458,9 +522,9 @@ new class extends Component
         </div>
 
         <div>
-            {{-- @foreach ($this->desarrolladors_recommended as $subject_recommended)
-                <span class="italic text-xs hover:underline cursor-pointer"  wire:click="selectSubject('{{ $subject_recommended }}')">{{ $subject_recommended }}</span>
-            @endforeach --}}
+            @foreach ($this->devs_recommended as $subject_recommended)
+                <span class="italic text-xs hover:underline cursor-pointer"  wire:click="selectSubjectGame('{{ $subject_recommended }}')">{{ $subject_recommended }}</span>
+            @endforeach
         </div>
 
         <flux:label>Etiquetas</flux:label>
@@ -590,7 +654,7 @@ new class extends Component
 
 
     {{-- modales seleccionar juegos en api --}}
-    {{-- <flux:modal name="select-game-api" class="md:w-96">
+    <flux:modal name="select-game-api" class="md:w-96">
         <div class="space-y-6">
             <div>
                 <flux:heading size="lg">Buscar Juego</flux:heading>
@@ -614,17 +678,17 @@ new class extends Component
                             class="flex gap-3 p-2 cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded"
                         >
                             <img 
-                                src="https://image.tmdb.org/t/p/w200{{ $item['poster_path'] }}" 
+                                src="{{ $item['background_image'] }}" 
                                 class="w-12 h-16 object-cover rounded"
                             />
 
                             <div>
                                 <div class="font-semibold">
-                                    {{ $item['title'] }}
+                                    {{ $item['name'] }}
                                 </div>
 
                                 <div class="text-xs text-zinc-500">
-                                    {{ $item['release_date'] ?? '' }}
+                                    {{ $item['released'] ?? '' }}
                                 </div>
                             </div>
                         </div>
@@ -643,5 +707,5 @@ new class extends Component
       
 
         </div>
-    </flux:modal> --}}
+    </flux:modal>
 </div>

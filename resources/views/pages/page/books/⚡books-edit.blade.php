@@ -525,8 +525,7 @@ new class extends Component
         @if ($this->cover_image_url)
             <div>
                 <img src="{{ $this->cover_image_url }}" alt="Portada del libro" class="w-32 h-auto object-cover rounded">
-            </div>
-            
+            </div>            
         @endif
 
         <div class="grid grid-cols-2 gap-1 my-5">

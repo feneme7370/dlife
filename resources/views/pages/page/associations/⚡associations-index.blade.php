@@ -28,7 +28,7 @@ new class extends Component
     
     {{-- varios --}}
     <flux:separator text="Sujetos, Colecciones, Etiquetas" />
-    <div class="grid grid-cols-3 gap-1 mb-3 mt-1">
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-1 mb-3 mt-1">
     
         <a href="{{ route('subjects.index') }}">
             <flux:card size="sm" class="hover:bg-zinc-50 dark:hover:bg-zinc-700">
@@ -44,6 +44,11 @@ new class extends Component
         <a href="{{ route('tags.index') }}">
             <flux:card size="sm" class="hover:bg-zinc-50 dark:hover:bg-zinc-700">
                 <flux:heading class="flex items-center gap-2">Etiquetas <flux:icon name="arrow-up-right" class="ml-auto text-zinc-400" variant="micro" /></flux:heading>
+            </flux:card>
+        </a>
+        <a href="{{ route('platforms.index') }}">
+            <flux:card size="sm" class="hover:bg-zinc-50 dark:hover:bg-zinc-700">
+                <flux:heading class="flex items-center gap-2">Plataformas <flux:icon name="arrow-up-right" class="ml-auto text-zinc-400" variant="micro" /></flux:heading>
             </flux:card>
         </a>
         
@@ -72,7 +77,7 @@ new class extends Component
     
     {{-- categorias --}}
     <flux:separator text="Categorías"/>
-    <div class="grid grid-cols-3 gap-1 mb-3 mt-1">
+    <div class="grid grid-cols-3 md:grid-cols-4 gap-1 mb-3 mt-1">
         <a href="{{ route('categories.index', ['type' => '']) }}">
             <flux:card size="sm" class="hover:bg-zinc-50 dark:hover:bg-zinc-700">
                 <flux:heading class="flex items-center gap-2">Todas<flux:icon name="arrow-up-right" class="ml-auto text-zinc-400" variant="micro" /></flux:heading>
@@ -88,6 +93,85 @@ new class extends Component
                 <flux:heading class="flex items-center gap-2">Recetas <flux:icon name="arrow-up-right" class="ml-auto text-zinc-400" variant="micro" /></flux:heading>
             </flux:card>
         </a>
+        <a href="{{ route('categories.index', ['type' => 'games']) }}">
+            <flux:card size="sm" class="hover:bg-zinc-50 dark:hover:bg-zinc-700">
+                <flux:heading class="flex items-center gap-2">Juegos <flux:icon name="arrow-up-right" class="ml-auto text-zinc-400" variant="micro" /></flux:heading>
+            </flux:card>
+        </a>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
+        {{-- exportacion e importacion de excel --}}
+        <livewire:pages::page.partials.export-excel-complete 
+            table_export="Books"
+            table_import="Books"
+            name_file_export="books"
+            route_redirect_after_import="books.index"
+            line_text="Libros"
+        />
+    
+        {{-- exportacion e importacion de excel --}}
+        <livewire:pages::page.partials.export-excel-complete 
+            table_export="Diary"
+            table_import="Diary"
+            name_file_export="diaries"
+            route_redirect_after_import="diaries.index"
+            line_text="Diarios"
+        />
+    
+        {{-- exportacion e importacion de excel --}}
+        <livewire:pages::page.partials.export-excel-complete 
+            table_export="Movies"
+            table_import="Movies"
+            name_file_export="movies"
+            route_redirect_after_import="movies.index"
+            line_text="Peliculas"
+        />
+    
+        {{-- exportacion e importacion de excel --}}
+        <livewire:pages::page.partials.export-excel-complete 
+            table_export="Series"
+            table_import="Series"
+            name_file_export="series"
+            route_redirect_after_import="series.index"
+            line_text="Series"
+        />
+    
+        {{-- exportacion e importacion de excel --}}
+        <livewire:pages::page.partials.export-excel-complete 
+            table_export="Games"
+            table_import="Games"
+            name_file_export="games"
+            route_redirect_after_import="games.index"
+            line_text="Juegos"
+        />
+    
+        {{-- exportacion e importacion de excel --}}
+        <livewire:pages::page.partials.export-excel-complete 
+            table_export="Blogs"
+            table_import="Blogs"
+            name_file_export="blogsandbullets"
+            route_redirect_after_import="blogs.index"
+            line_text="Blogs y Bullets"
+        />
+    
+        {{-- exportacion e importacion de excel --}}
+        <livewire:pages::page.partials.export-excel-complete 
+            table_export="Quotes"
+            table_import="Quotes"
+            name_file_export="quotes"
+            route_redirect_after_import="quotes.index"
+            line_text="Notas"
+        />
+    
+        {{-- exportacion e importacion de excel --}}
+        <livewire:pages::page.partials.export-excel-complete 
+            table_export="Recipes"
+            table_import="Recipes"
+            name_file_export="recipes"
+            route_redirect_after_import="recipes.index"
+            line_text="Recetas"
+        />
     </div>
 
 </div>

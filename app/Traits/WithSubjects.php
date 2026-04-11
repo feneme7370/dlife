@@ -55,6 +55,20 @@ trait WithSubjects
         }
     }
 
+    public function selectSubjectGame($name)
+    {
+        $dev = collect($this->subjects())->firstWhere('name', $name);
+
+        if ($dev && !in_array($dev['id'], $this->selectedGameSubjects)) {
+            $this->selectedGameSubjects[] = $dev['id'];
+        }
+
+        if (!$dev) {
+            $this->name_subject = $name;
+            $this->storeSubject('selectedGameSubjects');
+        }
+    }
+
     public function selectSubjectSerie($name)
     {
         $actor = collect($this->subjects())->firstWhere('name', $name);

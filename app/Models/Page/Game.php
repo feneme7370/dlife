@@ -12,6 +12,7 @@ class Game extends Model
         'original_title',
         'synopsis',
         'release_date',
+        
         'summary',
         'summary_clear',
         'notes',

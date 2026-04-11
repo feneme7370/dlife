@@ -398,7 +398,12 @@ new class extends Component
         </div>
 
         <flux:input type="text" label="Link de portada" wire:model="cover_image_url" placeholder="Pegue el link de una imagen"/>
-
+        @if ($this->cover_image_url)
+            <div>
+                <img src="{{ $this->cover_image_url }}" alt="Portada del libro" class="w-32 h-auto object-cover rounded">
+            </div>            
+        @endif
+        
         <div class="grid grid-cols-2 gap-1 my-5">
             <flux:field variant="inline" class="flex items-center">
                 <flux:checkbox wire:model="is_favorite" />

@@ -11,6 +11,7 @@ new class extends Component
     public $table_import;
     public $name_file_export;
     public $route_redirect_after_import;
+    public $line_text = "";
 
     
     //////////////////////////////////////////////////////////////////// EXPORTAR E IMPORTAR EXCEL
@@ -35,7 +36,9 @@ new class extends Component
 
 <div>
     {{-- exportacion e importacion de excel --}}
-    <flux:separator class="mb-2 mt-10" variant="subtle" />
+    <div class="mb-2 mt-10">
+        <flux:separator variant="subtle" :text="$line_text"/>
+    </div>
 
     <div class=" space-y-3">
         <div class="flex justify-between items-center gap-1">

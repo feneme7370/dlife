@@ -100,7 +100,7 @@ new class extends Component
         }
 
         // redireccionar
-        $this->redirectRoute('categories.index', navigate:true);
+        $this->redirectRoute('categories.index', ['type' => $this->category_type ?? ''], navigate:true);
     }
 };
 ?>
@@ -126,6 +126,7 @@ new class extends Component
         <flux:radio.group wire:model="category_type" label="Seleccion a donde pertenece el genero">
             <flux:radio value="diaries" label="Diarios" />
             <flux:radio value="recipes" label="Recetas" checked />
+            <flux:radio value="games" label="Juegos" />
         </flux:radio.group>
 
         <flux:input type="text" label="Link de imagen" wire:model="cover_image_url" placeholder="Pegue el link de una imagen"/>

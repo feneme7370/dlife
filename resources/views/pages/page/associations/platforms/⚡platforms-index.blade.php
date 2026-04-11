@@ -1,6 +1,6 @@
 <?php
 
-use App\Models\Page\Category;
+use App\Models\Page\Platform;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -19,31 +19,20 @@ new class extends Component
         if($this->type_selected == 'todo'){$this->type_selected = '';}
     }
 
-    //////////////////////////////////////////////////////////////////// FUNCIONES PARA FILTRAR
-    // mostrar variables en queryString
-    protected function queryString(){
-        return [
-        'type_selected' => [ 'as' => 'type' ],
-        ];
-    }
-
     //////////////////////////////////////////////////////////////////// PROPIEDADES
     // propiedades de item y titulos
     public $file;
-    public $titlePage = 'Categorias';
-    public $subtitlePage = 'Listado de categorias';
+    public $titlePage = 'Plataformas';
+    public $subtitlePage = 'Listado de plataformas';
     public $type_selected = 'todo';
 
     //////////////////////////////////////////////////////////////////// CONSULTA DE LISTADO Y ELIMINAR ITEM
     // consulta de item
     public function querySearch(){
-        return Category::where('user_id', Auth::id())
+        return Platform::where('user_id', Auth::id())
             ->where(function ($query) {
-                $query->where('name', 'like', "%{$this->search}%")
-                      ->orWhere('slug', 'like', "%{$this->search}%");
-            })
-            ->when($this->type_selected, function ($query) {
-                $query->where('category_type', $this->type_selected);
+                $query->where('name', 'like', "%{$this->search}%");
+                    //   ->orWhere('slug', 'like', "%{$this->search}%");
             })
             ->orderBy($this->sortField, $this->sortDirection)
             ->paginate($this->perPage);
@@ -51,7 +40,7 @@ new class extends Component
 
     // eliminar item
     public function deleteItem($uuid){
-        $item = Category::where('user_id', Auth::id())->where('uuid', $uuid)->first();
+        $item = Platform::where('user_id', Auth::id())->where('uuid', $uuid)->first();
         $item->delete();
     }
 
@@ -76,7 +65,7 @@ new class extends Component
     {{-- titulo, descripcion y breadcrumbs --}}
     <x-page.partials.title-page 
         :title="$this->titlePage"
-        :create-route="'categories.create'"
+        :create-route="'platforms.create'"
         :breadcrumbs="[
             ['label' => 'Dashboard', 'route' => 'dashboard'],
             ['label' => 'Asociaciones', 'route' => 'associations.index'],
@@ -87,16 +76,6 @@ new class extends Component
     {{-- toast de mensaje --}}
     <x-libraries.flux.toast-success />
 
-    {{-- selector de tipo --}}
-    <flux:radio.group class="mb-1" wire:model.live="type_selected" label="Seleccionar tipo">
-        <div class="flex items-center gap-2 justify-start">
-            <flux:radio value="" label="Todos" checked />
-            <flux:radio value="diaries" label="Diarios" />
-            <flux:radio value="recipes" label="Recetas" />
-            <flux:radio value="games" label="Juegos" />
-        </div>
-    </flux:radio.group>
-
     {{-- barra de busqueda --}}
     <x-page.partials.input-search />
 
@@ -106,17 +85,16 @@ new class extends Component
             <div class="flex items-center justify-between">
 
                 <div class="flex items-center gap-3">
-                    <img src="{{ $item->cover_image_url ? $item->cover_image_url : asset('images/placeholder.jpg') }}" class="w-8 h-8 bg-cover rounded-sm" alt="">
                     <p>
-                        <a class="hover:underline" href="{{ route('categories.show', ['categoryUuid' => $item->uuid]) }}">{{ $item->name }}</p>
+                        <a class="hover:underline" href="{{ route('platforms.show', ['platformUuid' => $item->uuid]) }}">{{ $item->name }}</p>
                             <span class="text-xs text-gray-500 dark:text-gray-400 italic">
-                                |{{ $item->category_type }}
+                                |{{ $item->name }}
                             </span>
                         </a>
                 </div>
 
                 <div class="flex items-center justify-center">
-                        <a href="{{ route('categories.edit', ['categoryUuid' => $item->uuid]) }}"><flux:button size="xs" variant="ghost" icon="pencil-square"></flux:button></a>
+                        <a href="{{ route('platforms.edit', ['platformUuid' => $item->uuid]) }}"><flux:button size="xs" variant="ghost" icon="pencil-square"></flux:button></a>
                         <a><flux:button size="xs" variant="ghost" icon="trash" wire:confirm="Quiere eliminar?" wire:click="deleteItem('{{ $item->uuid }}')"></flux:button></a>
                 </div>
 
@@ -133,9 +111,9 @@ new class extends Component
     <flux:separator class="mb-2 mt-10" variant="subtle" />
     
     <div class="flex justify-between items-center gap-1">
-        <flux:button icon="cloud-arrow-down" class="text-xs text-center" wire:click="export('categories')">Exp.</flux:button>
+        <flux:button icon="cloud-arrow-down" class="text-xs text-center" wire:click="export('platforms')">Exp.</flux:button>
         <div class="flex gap-3">
-            <flux:button icon="cloud-arrow-up" class="text-xs text-center" wire:click="import('categories')">Imp.</flux:button>
+            <flux:button icon="cloud-arrow-up" class="text-xs text-center" wire:click="import('platforms')">Imp.</flux:button>
             <flux:input type="file" wire:model="file" />
         </div>
     </div>

@@ -46,6 +46,12 @@ Route::middleware(['auth'])->group(function () {
     Route::livewire('categories/create', 'pages::page.associations.categories.categories-edit')->name('categories.create');
     Route::livewire('categories/{categoryUuid}/edit', 'pages::page.associations.categories.categories-edit')->name('categories.edit');
     Route::livewire('categories/{categoryUuid}/show', 'pages::page.associations.categories.categories-show')->name('categories.show');
+    
+    // Seccion plataformas
+    Route::livewire('platforms', 'pages::page.associations.platforms.platforms-index')->name('platforms.index');
+    Route::livewire('platforms/create', 'pages::page.associations.platforms.platforms-edit')->name('platforms.create');
+    Route::livewire('platforms/{platformUuid}/edit', 'pages::page.associations.platforms.platforms-edit')->name('platforms.edit');
+    Route::livewire('platforms/{platformUuid}/show', 'pages::page.associations.platforms.platforms-show')->name('platforms.show');
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////
     // Seccion libros
